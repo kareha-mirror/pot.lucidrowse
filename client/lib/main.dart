@@ -39,7 +39,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ルシドロウズ',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.green)),
+      theme: ThemeData(
+        colorScheme: .fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: .fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: ThemeMode.system,
       initialRoute: '/',
       routes: {
         '/': (context) => const FrontPage(),
@@ -67,33 +79,52 @@ class _FrontPageState extends State<FrontPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('古びた宿'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            SizedBox(height: 48),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/home'),
-              child: Text('まどろみの水晶球'),
+      body: Stack(
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                mainAxisAlignment: .center,
+                children: [
+                  const Image(image: AssetImage('assets/images/front.webp')),
+                  Spacer(),
+                ],
+              ),
             ),
-            SizedBox(height: 48),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/explore'),
-              child: Text('光おどる小箱'),
+          ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                mainAxisAlignment: .center,
+                children: [
+                  SizedBox(height: 48),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/home'),
+                    child: Text('まどろみの水晶球'),
+                  ),
+                  SizedBox(height: 48),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/explore'),
+                    child: Text('光おどる小箱'),
+                  ),
+                  SizedBox(height: 48),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/help'),
+                    child: Text('親切な鏡の精'),
+                  ),
+                  SizedBox(height: 96),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/debug'),
+                    child: Text('汚れた道具箱'),
+                  ),
+                  SizedBox(height: 48),
+                ],
+              ),
             ),
-            SizedBox(height: 48),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/help'),
-              child: Text('親切な鏡の精'),
-            ),
-            SizedBox(height: 96),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/debug'),
-              child: Text('汚れた道具箱'),
-            ),
-            SizedBox(height: 48),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -148,66 +179,69 @@ class _HomePageState extends State<HomePage> {
         title: Text('まどろみの水晶球'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            SizedBox(height: 48),
-            if (widget.state.player.inhabitKind.isForeigner) ...[
-              Text('水晶球が心に呼びかける。'),
-              Text('夢の世界へいざないましょう。'),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            mainAxisAlignment: .center,
+            children: [
+              SizedBox(height: 48),
+              if (widget.state.player.inhabitKind.isForeigner) ...[
+                Text('水晶球が心に呼びかける。'),
+                Text('夢の世界へいざないましょう。'),
+                SizedBox(height: 24),
+                Text('この世界で夢見るあなたは、どんな人ですか、どんな生きものですか。'),
+              ] else ...[
+                Text('水晶球が心に問いかける。'),
+                SizedBox(height: 24),
+                Text('今日は何をして過ごしましたか？'),
+              ],
               SizedBox(height: 24),
-              Text('この世界で夢見るあなたは、どんな人ですか、生きものですか。'),
-            ] else ...[
-              Text('水晶球が心に問いかける。'),
+              if (widget.state.player.inhabitKind.isForeigner)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 48),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(hintText: '森の薬草取りの少女。'),
+                    onSubmitted: (String value) => _submitText(value),
+                    onChanged: (String value) => setState(() {}),
+                    maxLines: null,
+                  ),
+                )
+              else
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 48),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(hintText: '冒険者の泉で魚釣りをしてみた。'),
+                    onSubmitted: (String value) => _submitText(value),
+                    onChanged: (String value) => setState(() {}),
+                    maxLines: null,
+                  ),
+                ),
               SizedBox(height: 24),
-              Text('今日は何をしましたか？'),
-            ],
-            SizedBox(height: 24),
-            if (widget.state.player.inhabitKind.isForeigner)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 48),
-                child: TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(hintText: '森の薬草取りの少女。'),
-                  onSubmitted: (String value) => _submitText(value),
-                  onChanged: (String value) => setState(() {}),
-                  maxLines: null,
+              if (_controller.text == '')
+                ElevatedButton(onPressed: null, child: Text('答える'))
+              else
+                ElevatedButton(
+                  onPressed: () => _submitText(_controller.text),
+                  child: Text('答える'),
                 ),
-              )
-            else
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 48),
-                child: TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(hintText: '冒険者の泉で魚釣りをしてみた。'),
-                  onSubmitted: (String value) => _submitText(value),
-                  onChanged: (String value) => setState(() {}),
-                  maxLines: null,
-                ),
-              ),
-            SizedBox(height: 24),
-            if (_controller.text == '')
-              ElevatedButton(onPressed: null, child: Text('答える'))
-            else
+              if (widget.state.player.flavorText != '') ...[
+                SizedBox(height: 48),
+                Text('${widget.state.player.flavorText}'),
+              ],
+              if (widget.state.player.actionText != '') ...[
+                SizedBox(height: 48),
+                Text('${widget.state.player.actionText}'),
+              ],
+              SizedBox(height: 96),
               ElevatedButton(
-                onPressed: () => _submitText(_controller.text),
-                child: Text('答える'),
+                onPressed: () => Navigator.pushNamed(context, '/'),
+                child: Text('目をそらす'),
               ),
-            if (widget.state.player.flavorText != '') ...[
               SizedBox(height: 48),
-              Text('${widget.state.player.flavorText}'),
             ],
-            if (widget.state.player.actionText != '') ...[
-              SizedBox(height: 48),
-              Text('${widget.state.player.actionText}'),
-            ],
-            SizedBox(height: 96),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/'),
-              child: Text('目をそらす'),
-            ),
-            SizedBox(height: 48),
-          ],
+          ),
         ),
       ),
     );
@@ -290,8 +324,8 @@ class _HelpPageState extends State<HelpPage> {
             Text('まどろみの水晶球をのぞき込むと、夢の世界につながるよ。'),
             Text('そこでは、みんなの夢がひとつになるんだ。'),
             SizedBox(height: 48),
-            Text('光がおどる小箱を開けると、この世界に住むに仲間たちに出会えるよ。'),
-            Text('話しかけることはできないけど、すれちがうことはあるかもしれない。'),
+            Text('光おどる小箱を開けると、この世界に住む仲間たちに出会えるよ。'),
+            Text('話しかけることはできないけど、すれちがうことはあるかもしれないね。'),
             SizedBox(height: 96),
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/'),
@@ -337,7 +371,7 @@ class _DebugPageState extends State<DebugPage> {
               ),
             SizedBox(height: 48),
             if (widget.state.inhabitants.isEmpty)
-              ElevatedButton(onPressed: null, child: Text('住人たちを解放する'))
+              ElevatedButton(onPressed: null, child: Text('住人たちを追い出す'))
             else
               ElevatedButton(
                 onPressed: () => setState(() {
