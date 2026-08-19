@@ -1,121 +1,296 @@
 import 'package:flutter/material.dart';
 
+enum InhabitStage { foreigner, inhabitant }
+
+class AppState {
+  InhabitStage stage = InhabitStage.foreigner;
+  String profile = '';
+  String text = '';
+}
+
 void main() {
-  runApp(const MyApp());
+  final state = AppState();
+  runApp(MyApp(state: state));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppState state;
 
-  // This widget is the root of your application.
+  const MyApp({super.key, required this.state});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'ルシドロウズ',
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.green)),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const FrontPage(),
+        '/home': (context) => HomePage(state: state),
+        '/explore': (context) => ExplorePage(state: state),
+        '/help': (context) => const HelpPage(),
+        '/debug': (context) => DebugPage(state: state),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class FrontPage extends StatefulWidget {
+  const FrontPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<FrontPage> createState() => _FrontPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _FrontPageState extends State<FrontPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('古びた宿'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          children: [
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/home'),
+              child: Text('まどろみの水晶球'),
+            ),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/explore'),
+              child: Text('光がおどる小箱'),
+            ),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/help'),
+              child: Text('親切な鏡の精'),
+            ),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/debug'),
+              child: Text('古びた道具箱'),
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+class HomePage extends StatefulWidget {
+  final AppState state;
+
+  const HomePage({super.key, required this.state});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submitText(String value) {
+    if (widget.state.stage == InhabitStage.foreigner) {
+      setState(() {
+        widget.state.profile = value;
+        widget.state.stage = InhabitStage.inhabitant;
+        _controller.text = '';
+      });
+    } else {
+      setState(() {
+        widget.state.text = value;
+        _controller.text = '';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('まどろみの水晶球'),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Spacer(),
+            if (widget.state.stage == InhabitStage.foreigner) ...[
+              Text('水晶球が心に呼びかける。'),
+              Text('夢の世界へいざないましょう。'),
+              Text('この世界で夢見るあなたは、どんな人ですか、生きものですか。'),
+            ] else ...[
+              Text('水晶球が心に問いかける。'),
+              Text('今日は何をしましたか？'),
+            ],
+            Spacer(),
+            if (widget.state.stage == InhabitStage.foreigner)
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(hintText: '森の薬草取りの少女。'),
+                onSubmitted: (String value) => _submitText(value),
+              )
+            else
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(hintText: '冒険者の泉で魚釣りをしてみた。'),
+                onSubmitted: (String value) => _submitText(value),
+              ),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => _submitText(_controller.text),
+              child: Text('答える'),
             ),
+            if (widget.state.profile != '') ...[
+              Spacer(),
+              Text('${widget.state.profile}'),
+            ],
+            if (widget.state.text != '') ...[
+              Spacer(),
+              Text('${widget.state.text}'),
+            ],
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/'),
+              child: Text('目をそらす'),
+            ),
+            Spacer(),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    );
+  }
+}
+
+class ExplorePage extends StatefulWidget {
+  final AppState state;
+
+  const ExplorePage({super.key, required this.state});
+
+  @override
+  State<ExplorePage> createState() => _ExplorePageState();
+}
+
+class _ExplorePageState extends State<ExplorePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('光がおどる小箱'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          children: [
+            Spacer(),
+            Text('夢の世界の住人たち'),
+            if (widget.state.stage == InhabitStage.inhabitant) ...[
+              Spacer(),
+              Text('${widget.state.profile}'),
+              Text('${widget.state.text}'),
+            ] else ...[
+              Spacer(),
+              Text('まだ誰も住んでない。'),
+            ],
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/'),
+              child: Text('ふたを閉じる'),
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HelpPage extends StatefulWidget {
+  const HelpPage({super.key});
+
+  @override
+  State<HelpPage> createState() => _HelpPageState();
+}
+
+class _HelpPageState extends State<HelpPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('親切な鏡の精'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          children: [
+            Spacer(),
+            Text('まどろみの水晶球をのぞき込むと、夢の世界につながるよ。'),
+            Text('そこでは、みんなの夢がひとつになるんだ。'),
+            Spacer(),
+            Text('光がおどる小箱を開けると、この世界に住むに仲間たちに出会えるよ。'),
+            Text('話しかけることはできないけど、すれちがうことはあるかもしれない。'),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/'),
+              child: Text('目をそらす'),
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DebugPage extends StatefulWidget {
+  final AppState state;
+
+  const DebugPage({super.key, required this.state});
+
+  @override
+  State<DebugPage> createState() => _DebugPageState();
+}
+
+class _DebugPageState extends State<DebugPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('古びた道具箱'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          children: [
+            Spacer(),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/'),
+              child: Text('ふたを閉じる'),
+            ),
+            Spacer(),
+          ],
+        ),
       ),
     );
   }
