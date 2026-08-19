@@ -22,12 +22,22 @@ class _FrontScreenState extends State<FrontScreen> {
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                mainAxisAlignment: .center,
-                children: [
-                  const Image(image: AssetImage('assets/images/front.webp')),
-                  Spacer(),
-                ],
+              child: const Image(image: AssetImage('assets/images/front.webp')),
+            ),
+          ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: .center,
+                  children: [
+                    SizedBox(height: 24),
+                    const Image(image: AssetImage('assets/images/logo.webp')),
+                    Spacer(),
+                  ],
+                ),
               ),
             ),
           ),
