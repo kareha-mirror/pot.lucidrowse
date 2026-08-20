@@ -5,5 +5,5 @@ import 'package:client/state/app_state.dart';
 
 void main() {
   final state = AppState();
-  runApp(MyApp(state: state));
+  runApp(App(state: state));
 }

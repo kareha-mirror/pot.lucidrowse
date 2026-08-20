@@ -18,8 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('古びた宿'),
+        title: const Text('古びた宿'),
       ),
+
       body: Stack(
         children: [
           Center(
@@ -28,51 +29,57 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Image(image: AssetImage('assets/images/home.webp')),
             ),
           ),
+
           Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                mainAxisAlignment: .center,
-                children: [
-                  SizedBox(height: 48),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/create'),
-                    child: Text('まどろみの水晶球'),
-                  ),
-                  SizedBox(height: 48),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/write'),
-                    child: Text('やわらかい羽ペン'),
-                  ),
-                  SizedBox(height: 48),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/read'),
-                    child: Text('おしゃれな日記帳'),
-                  ),
-                  SizedBox(height: 48),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/explore'),
-                    child: Text('光おどる小箱'),
-                  ),
-                  SizedBox(height: 48),
-                  ElevatedButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const HelpScreen(page: HelpPage.home),
-                      ),
+            child: Column(
+              mainAxisAlignment: .center,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/create'),
+                  child: const Text('まどろみの水晶球'),
+                ),
+
+                const SizedBox(height: 48),
+
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/write'),
+                  child: const Text('やわらかい羽ペン'),
+                ),
+
+                const SizedBox(height: 24),
+
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/read'),
+                  child: const Text('おしゃれな日記帳'),
+                ),
+
+                const SizedBox(height: 24),
+
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/explore'),
+                  child: const Text('光おどる小箱'),
+                ),
+
+                const SizedBox(height: 48),
+
+                ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const HelpScreen(page: HelpPage.home),
                     ),
-                    child: Text('親切な鏡の精'),
                   ),
-                  SizedBox(height: 96),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/'),
-                    child: Text('外を見る'),
-                  ),
-                  SizedBox(height: 48),
-                ],
-              ),
+                  child: const Text('親切な鏡の精'),
+                ),
+
+                const SizedBox(height: 96),
+
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/'),
+                  child: const Text('外を見る'),
+                ),
+              ],
             ),
           ),
         ],
