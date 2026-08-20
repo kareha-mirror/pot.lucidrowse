@@ -8,52 +8,35 @@ enum Inhabit {
 }
 
 class Flavor {
-  String raw;
-  String filtered;
+  String raw = '';
+  String filtered = '';
 
-  String name;
-  String race;
-  String job;
+  String name = '';
+  String race = '';
+  String job = '';
 
-  String imageUrl;
+  String imageUrl = '';
 
-  int time;
-
-  Flavor.blank()
-    : raw = '',
-      filtered = '',
-      name = '',
-      race = '',
-      job = '',
-      imageUrl = '',
-      time = 0;
+  int day = -1;
 }
 
-class Action {
-  String raw;
-  String filtered;
+class PlayerAction {
+  String raw = '';
+  String filtered = '';
 
-  int time;
+  int day = -1;
 
-  Action.blank() : raw = '', filtered = '', time = 0;
+  bool committed = false;
 }
 
 class Player {
-  Inhabit inhabit;
+  Inhabit inhabit = Inhabit.foreigner;
 
-  List<Flavor> flavors;
-  Flavor flavor;
+  List<Flavor> flavors = [];
+  Flavor flavor = Flavor();
 
-  List<Action> actions;
-  Action action;
+  List<PlayerAction> actions = [];
+  PlayerAction action = PlayerAction();
 
-  String summary;
-
-  Player.unnamed()
-    : inhabit = Inhabit.foreigner,
-      flavors = [],
-      flavor = Flavor.blank(),
-      actions = [],
-      action = Action.blank(),
-      summary = '';
+  String summary = '';
 }

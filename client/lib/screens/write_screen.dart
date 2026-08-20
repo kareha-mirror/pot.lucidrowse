@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
 
 class WriteScreen extends StatefulWidget {
@@ -28,12 +27,21 @@ class _WriteScreenState extends State<WriteScreen> {
     super.dispose();
   }
 
-  void _submitText(String value) {
+  void _submitRaw(String value) {
     setState(() {
-      widget.state.player.action.raw = value;
-      widget.state.player.action.filtered = value;
-      widget.state.player.actions.add(widget.state.player.action);
-      _controller.text = '';
+      final action = widget.state.player.action;
+
+      action.raw = value;
+      action.filtered = value;
+
+      action.day = widget.state.day;
+    });
+  }
+
+  void _commit() {
+    setState(() {
+      final player = widget.state.player;
+      player.action.committed = true;
     });
   }
 
@@ -44,49 +52,70 @@ class _WriteScreenState extends State<WriteScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('やわらかい羽ペン'),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Center(
           child: Column(
-            mainAxisAlignment: .center,
             children: [
-              SizedBox(height: 48),
               if (!widget.state.player.inhabit.isForeigner) ...[
-                Text('日記に書いてみよう。'),
-                SizedBox(height: 24),
-                Text('今日は何をして過ごしましたか？'),
+                const Text('日記に書いてみよう。'),
+                const SizedBox(height: 24),
+                const Text('今日は何をして過ごしましたか？'),
               ],
-              SizedBox(height: 24),
+
+              const SizedBox(height: 24),
+
               if (!widget.state.player.inhabit.isForeigner)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 48),
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: '冒険者の泉で魚釣りをしてみた。'),
-                    onSubmitted: (String value) => _submitText(value),
+                    decoration: const InputDecoration(
+                      hintText: '冒険者の泉で魚釣りをしてみた。',
+                    ),
+                    onSubmitted: (String value) => _submitRaw(value),
                     onChanged: (String value) => setState(() {}),
                     maxLines: null,
                     maxLength: 140,
                   ),
                 ),
-              SizedBox(height: 24),
-              if (_controller.text == '')
-                ElevatedButton(onPressed: null, child: Text('日記に書く'))
-              else
-                ElevatedButton(
-                  onPressed: () => _submitText(_controller.text),
-                  child: Text('日記に書く'),
-                ),
+
+              const SizedBox(height: 24),
+
+              ElevatedButton(
+                onPressed: _controller.text == ''
+                    ? null
+                    : () => _submitRaw(_controller.text),
+                child: const Text('日記に書く'),
+              ),
+
               if (widget.state.player.action.filtered != '') ...[
-                SizedBox(height: 48),
+                const SizedBox(height: 48),
+
+                const Text('あなたの言葉は夢に映されこうなりました。'),
+
+                const SizedBox(height: 24),
+
                 Text(widget.state.player.action.filtered),
+
+                const SizedBox(height: 48),
+
+                ElevatedButton(
+                  onPressed: () {
+                    _commit();
+                    Navigator.pushNamed(context, '/home');
+                  },
+                  child: const Text('これでよし'),
+                ),
               ],
-              SizedBox(height: 96),
+
+              const SizedBox(height: 96),
+
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('ペンを置く'),
+                child: const Text('ペンを置く'),
               ),
-              SizedBox(height: 48),
             ],
           ),
         ),

@@ -30,24 +30,29 @@ class _CreateScreenState extends State<CreateScreen> {
 
   void _submitRaw(String value) {
     setState(() {
-      widget.state.player.flavor.raw = value;
-      widget.state.player.flavor.filtered = value;
+      final flavor = widget.state.player.flavor;
 
-      widget.state.player.flavor.name = 'リタ';
-      widget.state.player.flavor.race = '人間';
-      widget.state.player.flavor.job = '見習い魔法使い';
+      flavor.raw = value;
+      flavor.filtered = value;
 
-      widget.state.player.flavor.imageUrl = 'assets/images/figure.webp';
+      flavor.name = 'リタ';
+      flavor.race = '人間';
+      flavor.job = '見習い魔法使い';
 
-      widget.state.player.flavor.time = widget.state.time;
+      flavor.imageUrl = 'assets/images/figure.webp';
+
+      flavor.day = widget.state.day;
     });
   }
 
   void _commit() {
     setState(() {
-      if (widget.state.player.inhabit.isForeigner) {
-        widget.state.player.inhabit = Inhabit.inhabitant;
-        widget.state.inhabitants.add(widget.state.player);
+      final player = widget.state.player;
+      player.flavors.add(player.flavor);
+
+      if (player.inhabit.isForeigner) {
+        player.inhabit = Inhabit.inhabitant;
+        widget.state.inhabitants.add(player);
       }
     });
   }
@@ -60,9 +65,9 @@ class _CreateScreenState extends State<CreateScreen> {
         title: const Text('まどろみの水晶球'),
       ),
 
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Center(
           child: Column(
             children: [
               if (widget.state.player.inhabit.isForeigner) ...[
@@ -79,30 +84,39 @@ class _CreateScreenState extends State<CreateScreen> {
               ],
 
               const SizedBox(height: 24),
+
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 48),
                 child: TextField(
                   controller: _controller,
-                  decoration: InputDecoration(hintText: '森の薬草取りの少女。'),
+                  decoration: const InputDecoration(hintText: '森の薬草取りの少女。'),
                   onSubmitted: (String value) => _submitRaw(value),
                   onChanged: (String value) => setState(() {}),
                   maxLines: null,
                   maxLength: 140,
                 ),
               ),
-              SizedBox(height: 24),
+
+              const SizedBox(height: 24),
+
               ElevatedButton(
                 onPressed: _controller.text.isEmpty
                     ? null
                     : () => _submitRaw(_controller.text),
-                child: Text('念じる'),
+                child: const Text('念じる'),
               ),
+
               if (widget.state.player.flavor.filtered != '') ...[
-                SizedBox(height: 48),
-                const Text('あなたの言葉は夢に映されこうなりました。'),
-                SizedBox(height: 24),
-                Text(widget.state.player.flavor.filtered),
                 const SizedBox(height: 48),
+
+                const Text('あなたの言葉は夢に映されこうなりました。'),
+
+                const SizedBox(height: 24),
+
+                Text(widget.state.player.flavor.filtered),
+
+                const SizedBox(height: 48),
+
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 600),
@@ -111,21 +125,24 @@ class _CreateScreenState extends State<CreateScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 48),
+
                 ElevatedButton(
                   onPressed: () {
                     _commit();
                     Navigator.pop(context);
                   },
-                  child: Text('これでよし'),
+                  child: const Text('これでよし'),
                 ),
               ],
+
               const SizedBox(height: 96),
+
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text('目をそらす'),
               ),
-              SizedBox(height: 16),
             ],
           ),
         ),

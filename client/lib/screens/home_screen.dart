@@ -26,13 +26,15 @@ class _HomeScreenState extends State<HomeScreen> {
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: const Image(image: AssetImage('assets/images/home.webp')),
+              child: widget.state.player.action.committed
+                  ? const Image(image: AssetImage('assets/images/night.webp'))
+                  : const Image(image: AssetImage('assets/images/home.webp')),
             ),
           ),
 
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
               child: Column(
                 mainAxisAlignment: .center,
                 children: [

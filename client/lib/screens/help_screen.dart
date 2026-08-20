@@ -67,9 +67,9 @@ class _HelpScreenState extends State<HelpScreen> {
         title: const Text('親切な鏡の精'),
       ),
 
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Center(
           child: Column(
             mainAxisAlignment: .center,
             children: [

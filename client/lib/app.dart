@@ -19,6 +19,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ルシドロウズ',
+
       theme: ThemeData(
         colorScheme: .fromSeed(
           seedColor: Colors.purple,
@@ -32,6 +33,7 @@ class App extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
+
       initialRoute: '/',
       routes: {
         '/': (context) => const FrontScreen(),

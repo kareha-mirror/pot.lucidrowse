@@ -29,11 +29,11 @@ class _FrontScreenState extends State<FrontScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
               child: const Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: const Column(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
                   children: [
-                    const SizedBox(height: 24),
-                    const Image(image: AssetImage('assets/images/logo.webp')),
+                    SizedBox(height: 24),
+                    Image(image: AssetImage('assets/images/logo.webp')),
                   ],
                 ),
               ),
@@ -55,14 +55,19 @@ class _FrontScreenState extends State<FrontScreen> {
                   onPressed: () => Navigator.pushNamed(context, '/help'),
                   child: const Text('親切な鏡の精'),
                 ),
-
-                const SizedBox(height: 96),
-
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/debug'),
-                  child: const Text('汚れた道具箱'),
-                ),
               ],
+            ),
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: MediaQuery.paddingOf(context).bottom + 24,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, '/debug'),
+                child: const Text('汚れた道具箱'),
+              ),
             ),
           ),
         ],
