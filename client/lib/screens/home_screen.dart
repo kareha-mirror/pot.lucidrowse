@@ -16,24 +16,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('古びた宿'),
-      ),
-
       body: Stack(
         children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: widget.state.player.action.committed
-                  ? const Image(image: AssetImage('assets/images/night.webp'))
-                  : const Image(image: AssetImage('assets/images/home.webp')),
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image(
+              image: AssetImage(
+                widget.state.player.action.committed
+                    ? 'assets/images/night.webp'
+                    : 'assets/images/home.webp',
+              ),
+              fit: BoxFit.cover,
             ),
           ),
 
           SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(
+              MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+            ),
             child: Center(
               child: Column(
                 mainAxisAlignment: .center,
@@ -50,14 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: const Text('やわらかい羽ペン'),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/read'),
                     child: const Text('おしゃれな日記帳'),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/explore'),
@@ -68,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   helpButton(context, HelpPage.home),
 
-                  const SizedBox(height: 96),
+                  const SizedBox(height: 64),
 
                   ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/'),

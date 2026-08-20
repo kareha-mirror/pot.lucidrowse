@@ -13,28 +13,26 @@ class _FrontScreenState extends State<FrontScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('ルシドロウズ'),
-      ),
-
       body: Stack(
         children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: const Image(image: AssetImage('assets/images/front.webp')),
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: const Image(
+              image: AssetImage('assets/images/front.webp'),
+              fit: BoxFit.cover,
             ),
           ),
 
           Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Padding(
+              padding: EdgeInsets.all(
+                MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
                 child: Column(
                   children: [
-                    SizedBox(height: 24),
                     Image(image: AssetImage('assets/images/logo.webp')),
                   ],
                 ),
@@ -51,7 +49,7 @@ class _FrontScreenState extends State<FrontScreen> {
                   child: const Text('古びた宿'),
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
 
                 helpButton(context, HelpPage.front),
               ],
