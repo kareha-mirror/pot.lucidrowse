@@ -38,7 +38,7 @@ class _DebugScreenState extends State<DebugScreen> {
           mainAxisAlignment: .center,
           children: [
             ElevatedButton(
-              onPressed: widget.state.player.inhabitKind.isForeigner
+              onPressed: widget.state.player.inhabit.isForeigner
                   ? null
                   : () => _clearMyself(),
               child: const Text('自分を手放す'),
