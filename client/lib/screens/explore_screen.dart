@@ -19,7 +19,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
       list.add(
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
-          child: Image(image: AssetImage(inhabitant.flavor.imageUrl)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image(image: AssetImage(inhabitant.flavor.imageUrl)),
+          ),
         ),
       );
       list.add(

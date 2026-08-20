@@ -52,6 +52,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
       if (player.inhabit.isForeigner) {
         player.inhabit = Inhabit.inhabitant;
+        player.settled = widget.state.day;
         widget.state.inhabitants.add(player);
       }
     });
@@ -109,19 +110,28 @@ class _CreateScreenState extends State<CreateScreen> {
               if (widget.state.player.flavor.filtered != '') ...[
                 const SizedBox(height: 48),
 
-                const Text('あなたの言葉は夢に映されこうなりました。'),
+                const Text('あなたの言葉は夢に映され、こうなりました。'),
 
                 const SizedBox(height: 24),
 
                 Text(widget.state.player.flavor.filtered),
+
+                const SizedBox(height: 24),
+
+                Text('名前 : ${widget.state.player.flavor.name}'),
+                Text('種族 : ${widget.state.player.flavor.race}'),
+                Text('職業 : ${widget.state.player.flavor.job}'),
 
                 const SizedBox(height: 48),
 
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 600),
-                    child: Image(
-                      image: AssetImage(widget.state.player.flavor.imageUrl),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image(
+                        image: AssetImage(widget.state.player.flavor.imageUrl),
+                      ),
                     ),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/state/app_state.dart';
+import 'package:client/utils/game_calendar.dart';
 
 class WriteScreen extends StatefulWidget {
   final AppState state;
@@ -59,6 +60,11 @@ class _WriteScreenState extends State<WriteScreen> {
           child: Column(
             children: [
               if (!widget.state.player.inhabit.isForeigner) ...[
+                Text(formatGameDate(widget.state.day)),
+                Text(
+                  'この世界に住んで ${widget.state.day - widget.state.player.settled + 1} 日目。',
+                ),
+                const SizedBox(height: 24),
                 const Text('日記に書いてみよう。'),
                 const SizedBox(height: 24),
                 const Text('今日は何をして過ごしましたか？'),
@@ -93,7 +99,7 @@ class _WriteScreenState extends State<WriteScreen> {
               if (widget.state.player.action.filtered != '') ...[
                 const SizedBox(height: 48),
 
-                const Text('あなたの言葉は夢に映されこうなりました。'),
+                const Text('あなたの言葉は夢に映され、こうなりました。'),
 
                 const SizedBox(height: 24),
 

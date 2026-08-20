@@ -66,16 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 48),
 
-                  ElevatedButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const HelpScreen(page: HelpPage.home),
-                      ),
-                    ),
-                    child: const Text('親切な鏡の精'),
-                  ),
+                  helpButton(context, HelpPage.home),
 
                   const SizedBox(height: 96),
 

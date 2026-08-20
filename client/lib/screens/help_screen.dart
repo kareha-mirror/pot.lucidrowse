@@ -88,3 +88,13 @@ class _HelpScreenState extends State<HelpScreen> {
     );
   }
 }
+
+Widget helpButton(BuildContext context, HelpPage page) {
+  return ElevatedButton(
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HelpScreen(page: page)),
+    ),
+    child: const Text('親切な鏡の精'),
+  );
+}

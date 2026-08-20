@@ -4,7 +4,6 @@ import 'package:client/screens/create_screen.dart';
 import 'package:client/screens/debug_screen.dart';
 import 'package:client/screens/explore_screen.dart';
 import 'package:client/screens/front_screen.dart';
-import 'package:client/screens/help_screen.dart';
 import 'package:client/screens/home_screen.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/screens/write_screen.dart';
@@ -44,7 +43,6 @@ class App extends StatelessWidget {
         '/read': (context) => ReadScreen(state: state),
         '/explore': (context) => ExploreScreen(state: state),
 
-        '/help': (context) => const HelpScreen(page: HelpPage.front),
         '/debug': (context) => DebugScreen(state: state),
       },
     );

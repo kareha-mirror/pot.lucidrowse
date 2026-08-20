@@ -31,6 +31,7 @@ class PlayerAction {
 
 class Player {
   Inhabit inhabit = Inhabit.foreigner;
+  int settled = -1;
 
   List<Flavor> flavors = [];
   Flavor flavor = Flavor();

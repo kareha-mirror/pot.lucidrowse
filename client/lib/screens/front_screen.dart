@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/screens/help_screen.dart';
+
 class FrontScreen extends StatefulWidget {
   const FrontScreen({super.key});
 
@@ -51,10 +53,7 @@ class _FrontScreenState extends State<FrontScreen> {
 
                 const SizedBox(height: 48),
 
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/help'),
-                  child: const Text('親切な鏡の精'),
-                ),
+                helpButton(context, HelpPage.front),
               ],
             ),
           ),

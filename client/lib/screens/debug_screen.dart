@@ -54,6 +54,7 @@ class _DebugScreenState extends State<DebugScreen> {
             children: [
               Text(formatGameDate(widget.state.day)),
               Text('夢路開通 ${widget.state.day + 1} 日目'),
+              const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () => _nextDay(),
                 child: const Text('明日まで寝る'),
@@ -79,16 +80,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
               const SizedBox(height: 48),
 
-              ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const HelpScreen(page: HelpPage.debug),
-                  ),
-                ),
-                child: const Text('親切な鏡の精'),
-              ),
+              helpButton(context, HelpPage.debug),
 
               const SizedBox(height: 96),
 
