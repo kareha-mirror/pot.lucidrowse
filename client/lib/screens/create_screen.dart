@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
+import 'package:client/widgets/translucent_panel.dart';
 
 class CreateScreen extends StatefulWidget {
   final AppState state;
@@ -61,101 +62,155 @@ class _CreateScreenState extends State<CreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('まどろみの水晶球'),
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Column(
-            children: [
-              if (widget.state.player.inhabit.isForeigner) ...[
-                const Text('水晶球が心に呼びかける。'),
-                const Text('夢の世界へいざないましょう。'),
-                const SizedBox(height: 24),
-                const Text('あなたはこの世界に自身の分身を作り出し、夢と関わっていくことになります。'),
-                const Text('この世界で夢見るあなたは、どんな人ですか、どんな生きものですか。'),
-              ] else ...[
-                const Text('水晶球が心に呼びかける。'),
-                const Text('何か変化はありましたか。'),
-                const SizedBox(height: 24),
-                const Text('あなたの分身に何か変化があるのなら、ここで新たに念じてください。'),
-              ],
-
-              const SizedBox(height: 24),
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 48),
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(hintText: '森の薬草取りの少女。'),
-                  onSubmitted: (String value) => _submitRaw(value),
-                  onChanged: (String value) => setState(() {}),
-                  maxLines: null,
-                  maxLength: 140,
-                ),
+      body: Stack(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image(
+              image: AssetImage(
+                widget.state.player.action.committed
+                    ? 'assets/images/night.webp'
+                    : 'assets/images/home.webp',
               ),
+              fit: BoxFit.cover,
+            ),
+          ),
 
-              const SizedBox(height: 24),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: Column(
+                children: [
+                  if (widget.state.player.inhabit.isForeigner) ...[
+                    TranslucentPanel(
+                      child: Column(
+                        children: [
+                          const Text('水晶球が心に呼びかける。'),
+                          const Text('夢の世界へいざないましょう。'),
+                        ],
+                      ),
+                    ),
 
-              ElevatedButton(
-                onPressed: _controller.text.isEmpty
-                    ? null
-                    : () => _submitRaw(_controller.text),
-                child: const Text('念じる'),
-              ),
+                    const SizedBox(height: 24),
 
-              if (widget.state.player.flavor.filtered != '') ...[
-                const SizedBox(height: 48),
+                    TranslucentPanel(
+                      child: Column(
+                        children: [
+                          const Text('あなたはこの世界に自身の分身を作り出し、夢と関わっていくことになります。'),
+                          const Text('この世界で夢見るあなたは、どんな人ですか、どんな生きものですか。'),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    TranslucentPanel(
+                      child: Column(
+                        children: [
+                          const Text('水晶球が心に呼びかける。'),
+                          const Text('何か変化はありましたか。'),
+                        ],
+                      ),
+                    ),
 
-                const Text('あなたの言葉は夢に映され、こうなりました。'),
+                    const SizedBox(height: 24),
 
-                const SizedBox(height: 24),
+                    TranslucentPanel(
+                      child: const Text('あなたの分身に何か変化があるのなら、ここで新たに念じてください。'),
+                    ),
+                  ],
 
-                Text(widget.state.player.flavor.filtered),
+                  const SizedBox(height: 24),
 
-                const SizedBox(height: 24),
-
-                Text('名前 : ${widget.state.player.flavor.name}'),
-                Text('種族 : ${widget.state.player.flavor.race}'),
-                Text('職業 : ${widget.state.player.flavor.job}'),
-
-                const SizedBox(height: 48),
-
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: Image(
-                        image: AssetImage(widget.state.player.flavor.imageUrl),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 48),
+                    child: TranslucentPanel(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          hintText: '森の薬草取りの少女。',
+                        ),
+                        onSubmitted: (String value) => _submitRaw(value),
+                        onChanged: (String value) => setState(() {}),
+                        maxLines: null,
+                        maxLength: 140,
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 48),
+                  const SizedBox(height: 24),
 
-                ElevatedButton(
-                  onPressed: () {
-                    _commit();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('これでよし'),
-                ),
-              ],
+                  TranslucentPanel(
+                    child: ElevatedButton(
+                      onPressed: _controller.text.isEmpty
+                          ? null
+                          : () => _submitRaw(_controller.text),
+                      child: const Text('念じる'),
+                    ),
+                  ),
 
-              const SizedBox(height: 96),
+                  if (widget.state.player.flavor.filtered != '') ...[
+                    const SizedBox(height: 48),
 
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('目をそらす'),
+                    TranslucentPanel(
+                      child: const Text('あなたの言葉は夢に映され、こうなりました。'),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    TranslucentPanel(
+                      child: Text(widget.state.player.flavor.filtered),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    TranslucentPanel(
+                      child: Column(
+                        children: [
+                          Text('名前 : ${widget.state.player.flavor.name}'),
+                          Text('種族 : ${widget.state.player.flavor.race}'),
+                          Text('職業 : ${widget.state.player.flavor.job}'),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: Image(
+                            image: AssetImage(
+                              widget.state.player.flavor.imageUrl,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        _commit();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('これでよし'),
+                    ),
+                  ],
+
+                  const SizedBox(height: 96),
+
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('目をそらす'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/game_calendar.dart';
+import 'package:client/widgets/translucent_panel.dart';
 
 class WriteScreen extends StatefulWidget {
   final AppState state;
@@ -49,82 +50,108 @@ class _WriteScreenState extends State<WriteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('やわらかい羽ペン'),
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Column(
-            children: [
-              if (!widget.state.player.inhabit.isForeigner) ...[
-                Text(formatGameDate(widget.state.day)),
-                Text(
-                  'この世界に住んで ${widget.state.day - widget.state.player.settled + 1} 日目。',
-                ),
-                const SizedBox(height: 24),
-                const Text('日記に書いてみよう。'),
-                const SizedBox(height: 24),
-                const Text('今日は何をして過ごしましたか？'),
-              ],
-
-              const SizedBox(height: 24),
-
-              if (!widget.state.player.inhabit.isForeigner)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 48),
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: '冒険者の泉で魚釣りをしてみた。',
-                    ),
-                    onSubmitted: (String value) => _submitRaw(value),
-                    onChanged: (String value) => setState(() {}),
-                    maxLines: null,
-                    maxLength: 140,
-                  ),
-                ),
-
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed: _controller.text == ''
-                    ? null
-                    : () => _submitRaw(_controller.text),
-                child: const Text('日記に書く'),
+      body: Stack(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image(
+              image: AssetImage(
+                widget.state.player.action.committed
+                    ? 'assets/images/night.webp'
+                    : 'assets/images/home.webp',
               ),
-
-              if (widget.state.player.action.filtered != '') ...[
-                const SizedBox(height: 48),
-
-                const Text('あなたの言葉は夢に映され、こうなりました。'),
-
-                const SizedBox(height: 24),
-
-                Text(widget.state.player.action.filtered),
-
-                const SizedBox(height: 48),
-
-                ElevatedButton(
-                  onPressed: () {
-                    _commit();
-                    Navigator.pushNamed(context, '/home');
-                  },
-                  child: const Text('これでよし'),
-                ),
-              ],
-
-              const SizedBox(height: 96),
-
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('ペンを置く'),
-              ),
-            ],
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: Column(
+                children: [
+                  if (!widget.state.player.inhabit.isForeigner) ...[
+                    TranslucentPanel(
+                      child: Column(
+                        children: [
+                          Text(formatGameDate(widget.state.day)),
+                          Text(
+                            'この世界に住んで ${widget.state.day - widget.state.player.settled + 1} 日目。',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    TranslucentPanel(child: const Text('日記に書いてみよう。')),
+                    const SizedBox(height: 24),
+                    TranslucentPanel(child: const Text('今日は何をして過ごしましたか？')),
+                  ],
+
+                  const SizedBox(height: 24),
+
+                  if (!widget.state.player.inhabit.isForeigner)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 48),
+                      child: TranslucentPanel(
+                        child: TextField(
+                          controller: _controller,
+                          decoration: const InputDecoration(
+                            hintText: '冒険者の泉で魚釣りをしてみた。',
+                          ),
+                          onSubmitted: (String value) => _submitRaw(value),
+                          onChanged: (String value) => setState(() {}),
+                          maxLines: null,
+                          maxLength: 140,
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  TranslucentPanel(
+                    child: ElevatedButton(
+                      onPressed: _controller.text == ''
+                          ? null
+                          : () => _submitRaw(_controller.text),
+                      child: const Text('日記に書く'),
+                    ),
+                  ),
+
+                  if (widget.state.player.action.filtered != '') ...[
+                    const SizedBox(height: 48),
+
+                    TranslucentPanel(
+                      child: const Text('あなたの言葉は夢に映され、こうなりました。'),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    TranslucentPanel(
+                      child: Text(widget.state.player.action.filtered),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        _commit();
+                        Navigator.pushNamed(context, '/home');
+                      },
+                      child: const Text('これでよし'),
+                    ),
+                  ],
+
+                  const SizedBox(height: 96),
+
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('ペンを置く'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

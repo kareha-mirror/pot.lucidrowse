@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/state/app_state.dart';
+import 'package:client/widgets/translucent_panel.dart';
 
 class ExploreScreen extends StatefulWidget {
   final AppState state;
@@ -25,12 +26,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ),
       );
+      list.add(const SizedBox(height: 8));
       list.add(
-        Text(
-          '${inhabitant.flavor.name} / ${inhabitant.flavor.race} / ${inhabitant.flavor.job}',
+        TranslucentPanel(
+          child: Text(
+            '${inhabitant.flavor.name} / ${inhabitant.flavor.race} / ${inhabitant.flavor.job}',
+          ),
         ),
       );
-      list.add(Text(inhabitant.action.filtered));
+      list.add(TranslucentPanel(child: Text(inhabitant.action.filtered)));
     }
     return list;
   }
@@ -38,30 +42,43 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('光おどる小箱'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Center(
-          child: Column(
-            children: [
-              const SizedBox(height: 48),
-              const Text('夢の世界の住人たち'),
-              const SizedBox(height: 24),
-              if (widget.state.inhabitants.isEmpty)
-                const Text('まだ誰も住んでない。')
-              else
-                ...inhabitantsList(),
-              const SizedBox(height: 96),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('ふたを閉じる'),
+      body: Stack(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image(
+              image: AssetImage(
+                widget.state.player.action.committed
+                    ? 'assets/images/night.webp'
+                    : 'assets/images/home.webp',
               ),
-            ],
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Center(
+              child: Column(
+                children: [
+                  const SizedBox(height: 48),
+                  TranslucentPanel(child: const Text('夢の世界の住人たち')),
+                  const SizedBox(height: 24),
+                  if (widget.state.inhabitants.isEmpty)
+                    TranslucentPanel(child: const Text('まだ誰も住んでない。'))
+                  else
+                    ...inhabitantsList(),
+                  const SizedBox(height: 96),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('ふたを閉じる'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

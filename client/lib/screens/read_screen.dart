@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/game_calendar.dart';
+import 'package:client/widgets/translucent_panel.dart';
 
 class ReadScreen extends StatefulWidget {
   final AppState state;
@@ -15,14 +16,22 @@ class ReadScreen extends StatefulWidget {
 class _ReadScreenState extends State<ReadScreen> {
   List<Widget> _actionList() {
     if (widget.state.player.actions.isEmpty) {
-      return [const SizedBox(height: 24), const Text('まだ何も書かれてない。')];
+      return [
+        const SizedBox(height: 24),
+        TranslucentPanel(child: const Text('まだ何も書かれてない。')),
+      ];
     }
 
     List<Widget> list = [];
     for (final action in widget.state.player.actions) {
       list.add(const SizedBox(height: 24));
-      list.add(Text(formatGameDate(action.day)));
-      list.add(Text(action.filtered));
+      list.add(
+        TranslucentPanel(
+          child: Column(
+            children: [Text(formatGameDate(action.day)), Text(action.filtered)],
+          ),
+        ),
+      );
     }
     return list;
   }
@@ -30,24 +39,37 @@ class _ReadScreenState extends State<ReadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('おしゃれな日記帳'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Center(
-          child: Column(
-            children: [
-              ..._actionList(),
-              SizedBox(height: 96),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('閉じる'),
+      body: Stack(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image(
+              image: AssetImage(
+                widget.state.player.action.committed
+                    ? 'assets/images/night.webp'
+                    : 'assets/images/home.webp',
               ),
-            ],
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Center(
+              child: Column(
+                children: [
+                  ..._actionList(),
+                  SizedBox(height: 96),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('閉じる'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
