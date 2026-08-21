@@ -209,6 +209,8 @@ class _CreateScreenState extends State<CreateScreen> {
                     onPressed: () => Navigator.pop(context),
                     child: Text('目をそらす'),
                   ),
+
+                  const SizedBox(height: 96),
                 ],
               ),
             ),

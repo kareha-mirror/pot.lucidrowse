@@ -153,6 +153,8 @@ class _WriteScreenState extends State<WriteScreen> {
                     onPressed: () => Navigator.pop(context),
                     child: const Text('ペンを置く'),
                   ),
+
+                  const SizedBox(height: 96),
                 ],
               ),
             ),

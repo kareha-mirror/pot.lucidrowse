@@ -75,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () => Navigator.pushNamed(context, '/'),
                     child: const Text('外を見る'),
                   ),
+
+                  const SizedBox(height: 96),
                 ],
               ),
             ),

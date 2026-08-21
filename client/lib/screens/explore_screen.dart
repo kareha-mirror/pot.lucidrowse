@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/models/region.dart';
 import 'package:client/state/app_state.dart';
+import 'package:client/widgets/region_card.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -13,6 +15,8 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+  int regionIndex = -1;
+
   List<Widget> inhabitantsList() {
     List<Widget> list = [];
     for (final inhabitant in widget.state.inhabitants) {
@@ -64,31 +68,75 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
 
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Center(
-              child: Column(
-                children: [
-                  const SizedBox(height: 48),
+          if (regionIndex == -1)
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Center(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 48),
 
-                  TranslucentPanel(child: const Text('夢の世界の住人たち')),
+                    TranslucentPanel(child: const Text('夢の世界の地域たち')),
 
-                  const SizedBox(height: 24),
+                    Padding(
+                      padding: EdgeInsets.all(
+                        MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: regions.length,
+                          itemBuilder: (context, index) {
+                            return RegionCard(
+                              region: regions[index],
+                              onTap: () => setState(() => regionIndex = index),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
 
-                  if (widget.state.inhabitants.isEmpty)
-                    TranslucentPanel(child: const Text('まだ誰も住んでない。'))
-                  else
-                    ...inhabitantsList(),
-                  const SizedBox(height: 96),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('ふたを閉じる'),
+                    ),
 
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('ふたを閉じる'),
-                  ),
-                ],
+                    const SizedBox(height: 96),
+                  ],
+                ),
+              ),
+            )
+          else
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Center(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 48),
+
+                    TranslucentPanel(child: const Text('夢の世界の住人たち')),
+
+                    const SizedBox(height: 24),
+
+                    if (widget.state.inhabitants.isEmpty)
+                      TranslucentPanel(child: const Text('まだ誰も住んでない。'))
+                    else
+                      ...inhabitantsList(),
+
+                    const SizedBox(height: 96),
+
+                    ElevatedButton(
+                      onPressed: () => setState(() => regionIndex = -1),
+                      child: const Text('中を見直す'),
+                    ),
+
+                    const SizedBox(height: 96),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

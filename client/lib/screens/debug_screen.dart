@@ -105,6 +105,8 @@ class _DebugScreenState extends State<DebugScreen> {
                     onPressed: () => Navigator.pushNamed(context, '/'),
                     child: const Text('ふたを閉じる'),
                   ),
+
+                  const SizedBox(height: 96),
                 ],
               ),
             ),

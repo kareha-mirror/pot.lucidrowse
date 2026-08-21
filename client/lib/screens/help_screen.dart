@@ -180,6 +180,8 @@ class _HelpScreenState extends State<HelpScreen> {
                     onPressed: () => Navigator.pop(context),
                     child: const Text('納得した'),
                   ),
+
+                  const SizedBox(height: 96),
                 ],
               ),
             ),

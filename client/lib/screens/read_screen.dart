@@ -60,11 +60,15 @@ class _ReadScreenState extends State<ReadScreen> {
               child: Column(
                 children: [
                   ..._actionList(),
+
                   SizedBox(height: 96),
+
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text('閉じる'),
                   ),
+
+                  SizedBox(height: 96),
                 ],
               ),
             ),
