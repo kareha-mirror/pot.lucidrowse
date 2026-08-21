@@ -55,18 +55,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image(
-              image: AssetImage(
-                widget.state.player.committed
-                    ? 'assets/images/night.webp'
-                    : 'assets/images/home.webp',
+          if (regionIndex == -1)
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image(
+                image: AssetImage(
+                  widget.state.player.committed
+                      ? 'assets/images/night.webp'
+                      : 'assets/images/home.webp',
+                ),
+                fit: BoxFit.cover,
               ),
-              fit: BoxFit.cover,
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image(
+                image: AssetImage(regions[regionIndex].image),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
 
           if (regionIndex == -1)
             SingleChildScrollView(

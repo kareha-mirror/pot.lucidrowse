@@ -19,7 +19,7 @@ const List<Region> regions = [
       Area(name: '王都'),
       Area(name: '近郊'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/capital.webp',
   ),
   Region(
     name: '西方地方',
@@ -27,7 +27,7 @@ const List<Region> regions = [
       Area(name: '街道'),
       Area(name: '丘陵'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/west.webp',
   ),
   Region(
     name: '北方地方',
@@ -35,7 +35,7 @@ const List<Region> regions = [
       Area(name: '山岳'),
       Area(name: '高原'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/north.webp',
   ),
   Region(
     name: '東方地方',
@@ -43,7 +43,7 @@ const List<Region> regions = [
       Area(name: '森林'),
       Area(name: '湖沼'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/east.webp',
   ),
   Region(
     name: '南方地方',
@@ -51,7 +51,7 @@ const List<Region> regions = [
       Area(name: '平野'),
       Area(name: '農村'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/south.webp',
   ),
   Region(
     name: '海岸地方',
@@ -59,7 +59,7 @@ const List<Region> regions = [
       Area(name: '港湾'),
       Area(name: '海岸'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/coast.webp',
   ),
   Region(
     name: '島嶼地方',
@@ -67,6 +67,6 @@ const List<Region> regions = [
       Area(name: '大島'),
       Area(name: '周辺諸島'),
     ],
-    image: 'assets/images/front.webp',
+    image: 'assets/images/regions/islands.webp',
   ),
 ];

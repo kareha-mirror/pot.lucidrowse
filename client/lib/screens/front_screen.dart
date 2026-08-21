@@ -10,8 +10,35 @@ class FrontScreen extends StatefulWidget {
 }
 
 class _FrontScreenState extends State<FrontScreen> {
+  bool _ready = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _loadBackground();
+
+    precacheImage(const AssetImage('assets/images/home.webp'), context);
+    precacheImage(const AssetImage('assets/images/night.webp'), context);
+    precacheImage(const AssetImage('assets/images/help.webp'), context);
+    precacheImage(const AssetImage('assets/images/debug.webp'), context);
+  }
+
+  Future<void> _loadBackground() async {
+    await precacheImage(const AssetImage('assets/images/front.webp'), context);
+    await precacheImage(const AssetImage('assets/images/logo.webp'), context);
+
+    if (!mounted) return;
+
+    setState(() => _ready = true);
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!_ready) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       body: Stack(
         children: [
