@@ -70,7 +70,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
           if (regionIndex == -1)
             SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: Center(
                 child: Column(
                   children: [
@@ -78,25 +78,26 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
                     TranslucentPanel(child: const Text('夢の世界の地域たち')),
 
-                    Padding(
-                      padding: EdgeInsets.all(
-                        MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
-                      ),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 600),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: regions.length,
-                          itemBuilder: (context, index) {
-                            return RegionCard(
-                              region: regions[index],
-                              onTap: () => setState(() => regionIndex = index),
-                            );
-                          },
+                    const SizedBox(height: 12),
+
+                    for (int index = 0; index < regions.length; index++)
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MediaQuery.sizeOf(context).width < 600
+                              ? 6
+                              : 48,
+                          vertical: MediaQuery.sizeOf(context).width < 600
+                              ? 3
+                              : 24,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          child: RegionCard(
+                            region: regions[index],
+                            onTap: () => setState(() => regionIndex = index),
+                          ),
                         ),
                       ),
-                    ),
 
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
