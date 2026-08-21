@@ -60,7 +60,7 @@ List<Widget> _helpFront = [
   TranslucentPanel(
     child: Column(
       children: [
-        const Text('汚れた道具箱には夢と現実をつないだ魔法使いが使っていた秘密の道具たちが入っている。'),
+        const Text('汚れた道具箱には夢の魔法使いが使っていた秘密の道具たちが入っている。'),
         const Text('これを使うと色々なずるができるけれど、夢の世界を壊してしまうこともあるから注意してほしい。'),
         const Text('これはたぶんそのうち封印されるだろうね。'),
       ],
@@ -74,6 +74,7 @@ List<Widget> _helpHome = [
       children: [
         const Text('まどろみの水晶球をのぞき込むと、夢の世界につながるんだ。'),
         const Text('そこでは、みんなの夢がひとつになる。'),
+        const Text('どんな存在として夢と関わりたいか念じれば、それがあなたの分身の姿になる。'),
       ],
     ),
   ),

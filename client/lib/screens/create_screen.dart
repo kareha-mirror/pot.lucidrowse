@@ -20,7 +20,6 @@ class _CreateScreenState extends State<CreateScreen> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _controller.text = widget.state.player.flavor.raw;
   }
 
   @override
@@ -49,9 +48,9 @@ class _CreateScreenState extends State<CreateScreen> {
   void _commit() {
     setState(() {
       final player = widget.state.player;
-      player.flavors.add(player.flavor);
+      player.flavors.add(player.flavor.clone());
 
-      if (player.inhabit.isForeigner) {
+      if (player.isForeigner) {
         player.inhabit = Inhabit.inhabitant;
         player.settled = widget.state.day;
         widget.state.inhabitants.add(player);
@@ -69,7 +68,7 @@ class _CreateScreenState extends State<CreateScreen> {
             height: double.infinity,
             child: Image(
               image: AssetImage(
-                widget.state.player.action.committed
+                widget.state.player.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
@@ -82,7 +81,7 @@ class _CreateScreenState extends State<CreateScreen> {
             child: Center(
               child: Column(
                 children: [
-                  if (widget.state.player.inhabit.isForeigner) ...[
+                  if (widget.state.player.isForeigner) ...[
                     TranslucentPanel(
                       child: Column(
                         children: [
@@ -122,12 +121,16 @@ class _CreateScreenState extends State<CreateScreen> {
                   const SizedBox(height: 24),
 
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 48),
+                    padding: EdgeInsets.all(
+                      MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+                    ),
                     child: TranslucentPanel(
                       child: TextField(
                         controller: _controller,
-                        decoration: const InputDecoration(
-                          hintText: '森の薬草取りの少女。',
+                        decoration: InputDecoration(
+                          hintText: widget.state.player.isForeigner
+                              ? '(どんな存在になりたいか、ここに念じよう。)'
+                              : '(どんな変化があったか、ここに念じよう。)',
                         ),
                         onSubmitted: (String value) => _submitRaw(value),
                         onChanged: (String value) => setState(() {}),
@@ -148,7 +151,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     ),
                   ),
 
-                  if (widget.state.player.flavor.filtered != '') ...[
+                  if (widget.state.player.flavor.hasFiltered) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(

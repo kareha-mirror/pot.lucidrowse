@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
             height: double.infinity,
             child: Image(
               image: AssetImage(
-                widget.state.player.action.committed
+                widget.state.player.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),

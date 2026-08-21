@@ -16,25 +16,32 @@ class _ExploreScreenState extends State<ExploreScreen> {
   List<Widget> inhabitantsList() {
     List<Widget> list = [];
     for (final inhabitant in widget.state.inhabitants) {
+      final flavor = inhabitant.lastFlavor;
+      final action = inhabitant.lastAction;
+
       list.add(const SizedBox(height: 24));
+
       list.add(
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image(image: AssetImage(inhabitant.flavor.imageUrl)),
+            child: Image(image: AssetImage(flavor.imageUrl)),
           ),
         ),
       );
+
       list.add(const SizedBox(height: 8));
+
       list.add(
         TranslucentPanel(
-          child: Text(
-            '${inhabitant.flavor.name} / ${inhabitant.flavor.race} / ${inhabitant.flavor.job}',
-          ),
+          child: Text('${flavor.name} / ${flavor.race} / ${flavor.job}'),
         ),
       );
-      list.add(TranslucentPanel(child: Text(inhabitant.action.filtered)));
+
+      if (action != null) {
+        list.add(TranslucentPanel(child: Text(action.filtered)));
+      }
     }
     return list;
   }
@@ -49,7 +56,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             height: double.infinity,
             child: Image(
               image: AssetImage(
-                widget.state.player.action.committed
+                widget.state.player.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
@@ -63,13 +70,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 48),
+
                   TranslucentPanel(child: const Text('夢の世界の住人たち')),
+
                   const SizedBox(height: 24),
+
                   if (widget.state.inhabitants.isEmpty)
                     TranslucentPanel(child: const Text('まだ誰も住んでない。'))
                   else
                     ...inhabitantsList(),
                   const SizedBox(height: 96),
+
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text('ふたを閉じる'),

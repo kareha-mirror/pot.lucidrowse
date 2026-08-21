@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/state/app_state.dart';
-import 'package:client/utils/game_calendar.dart';
+import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class ReadScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _ReadScreenState extends State<ReadScreen> {
       list.add(
         TranslucentPanel(
           child: Column(
-            children: [Text(formatGameDate(action.day)), Text(action.filtered)],
+            children: [Text(formatDate(action.day)), Text(action.filtered)],
           ),
         ),
       );
@@ -46,7 +46,7 @@ class _ReadScreenState extends State<ReadScreen> {
             height: double.infinity,
             child: Image(
               image: AssetImage(
-                widget.state.player.action.committed
+                widget.state.player.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),

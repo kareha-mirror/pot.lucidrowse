@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:client/models/player.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state/app_state.dart';
-import 'package:client/utils/game_calendar.dart';
+import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class DebugScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _DebugScreenState extends State<DebugScreen> {
   void _nextDay() {
     setState(() {
       for (final inhabitant in widget.state.inhabitants) {
-        if (inhabitant.action.committed) {
+        if (inhabitant.committed) {
           inhabitant.actions.add(inhabitant.action);
         }
         inhabitant.action = PlayerAction();
@@ -62,7 +62,7 @@ class _DebugScreenState extends State<DebugScreen> {
                   TranslucentPanel(
                     child: Column(
                       children: [
-                        Text(formatGameDate(widget.state.day)),
+                        Text(formatDate(widget.state.day)),
                         Text('夢路開通 ${widget.state.day + 1} 日目'),
                       ],
                     ),
@@ -77,7 +77,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   TranslucentPanel(
                     child: ElevatedButton(
-                      onPressed: widget.state.player.inhabit.isForeigner
+                      onPressed: widget.state.player.isForeigner
                           ? null
                           : () => _clearMyself(),
                       child: const Text('自分を手放す'),

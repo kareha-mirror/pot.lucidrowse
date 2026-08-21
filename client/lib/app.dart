@@ -33,7 +33,6 @@ class App extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
 
-      initialRoute: '/',
       routes: {
         '/': (context) => const FrontScreen(),
         '/home': (context) => HomeScreen(state: state),
@@ -45,6 +44,7 @@ class App extends StatelessWidget {
 
         '/debug': (context) => DebugScreen(state: state),
       },
+      initialRoute: '/',
     );
   }
 }
