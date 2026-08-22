@@ -26,7 +26,9 @@ func ImageWithOpenAI(cfg *config.Config, content string) ([]byte, error) {
 	resp, err := client.Images.Generate(
 		context.Background(),
 		openai.ImageGenerateParams{
-			Model:        openai.ImageModelGPTImage1,
+			Model:        openai.ImageModelGPTImage1Mini,
+			Size: openai.ImageGenerateParamsSize1024x1024,
+			Quality: openai.ImageGenerateParamsQualityLow,
 			OutputFormat: openai.ImageGenerateParamsOutputFormatWebP,
 			Prompt:       cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message,
 		},
