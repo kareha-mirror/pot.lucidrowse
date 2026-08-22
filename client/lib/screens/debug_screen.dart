@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/api/health.dart';
+import 'package:client/api/interpret.dart';
 import 'package:client/models/player.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state/app_state.dart';
@@ -93,6 +95,24 @@ class _DebugScreenState extends State<DebugScreen> {
                           : () => _clearInhabitants(),
                       child: const Text('住人たちを追い出す'),
                     ),
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      await checkHealth();
+                    },
+                    child: const Text('Check Health'),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      await interpretCharacter('王都で王家御用達の一流パン屋として暮らしているが、実は歴戦の勇者でドラゴンを5匹倒している。');
+                    },
+                    child: const Text('Interpret Character'),
                   ),
 
                   const SizedBox(height: 48),

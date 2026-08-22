@@ -1,0 +1,24 @@
+app:
+  mode: "devel"
+  addr: ":8080"
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "lucid"
+  password: "SuperStrongPassw0rd"
+  name: "lucidrowse"
+  sslmode: "disable"
+
+vacuum:
+    check-every: 250
+    threshold: 68719476736
+    image-threshold: 68719476736
+
+filter:
+  agent: "openai"
+  key: "(Your OpenAI API Key Here)"
+  temperature: 0.8
+  top_p: 0.9
+
+prompts-path: "./prompts.yaml"

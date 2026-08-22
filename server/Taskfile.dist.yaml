@@ -1,0 +1,25 @@
+version: "3"
+env:
+  CGO_ENABLED: 0
+tasks:
+  default:
+    cmds:
+      - go build ./cmd/server
+  clean:
+    cmds:
+      - go run ./cmd/rm server
+  test:
+    cmds:
+      - go test ./...
+  run:
+    cmds:
+      - go run ./cmd/server server.yaml
+  fmt:
+    cmds:
+      - go fmt ./...
+  vet:
+    cmds:
+      - go vet ./...
+  check:
+    cmds:
+      - staticcheck ./...
