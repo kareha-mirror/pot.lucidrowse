@@ -1,26 +1,26 @@
 import 'dart:convert';
-
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-Future<Map<String, dynamic>> interpretCharacter(String text) async {
+Future<Uint8List> fetchImage(String id) async {
   try {
-    final uri = Uri.parse('http://localhost:8080/api/character/interpret');
+    final uri = Uri.parse('http://localhost:8080/api/character/image');
 
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'text': text}),
+      body: jsonEncode({'id': id}),
     );
 
     if (response.statusCode != 200) {
       print('HTTP error: ${response.statusCode}');
-      return {};
+      return [] as Uint8List;
     }
 
-    final json = jsonDecode(response.body);
-    return json;
+    return response.bodyBytes as Uint8List;
   } catch (e) {
     print('Connection error: $e');
-    return {};
   }
+  return [] as Uint8List;
 }

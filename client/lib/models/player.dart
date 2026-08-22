@@ -25,6 +25,15 @@ class Flavor {
     flavor.day = day;
     return flavor;
   }
+
+  String formatText() {
+    final buf = StringBuffer();
+    buf.write('名前: $name\n');
+    buf.write('種族: $race\n');
+    buf.write('職業: $job\n');
+    buf.write('特徴の説明: $filtered\n');
+    return buf.toString();
+  }
 }
 
 class PlayerAction {

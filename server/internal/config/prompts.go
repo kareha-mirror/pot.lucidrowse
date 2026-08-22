@@ -8,8 +8,9 @@ import (
 )
 
 type Prompts struct {
-	Filter   string `yaml:"filter"`
-	Common   string `yaml:"common"`
+	Filter string `yaml:"filter"`
+	Image  string `yaml:"image"`
+	Common string `yaml:"common"`
 }
 
 func loadPrompts(path string) *Prompts {

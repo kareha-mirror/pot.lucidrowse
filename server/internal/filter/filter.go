@@ -20,3 +20,15 @@ func Apply(cfg *config.Config, content string) (string, error) {
 		return "", fmt.Errorf("Invalid filter agent. If you want to disable filter, set it to \"nil\".")
 	}
 }
+
+func ApplyImage(cfg *config.Config, content string) ([]byte, error) {
+	normContent := norm.NFC.String(content)
+
+	if cfg.Filter.Agent == "openai" {
+		return ImageWithOpenAI(cfg, normContent)
+	} else if cfg.Filter.Agent == "nil" {
+		return []byte{}, nil
+	} else {
+		return []byte{}, fmt.Errorf("Invalid filter agent. If you want to disable filter, set it to \"nil\".")
+	}
+}
