@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-Future<void> interpretCharacter(String text) async {
+Future<String> interpretCharacter(String text) async {
   try {
     final uri = Uri.parse('http://localhost:8080/api/character/interpret');
 
@@ -14,12 +14,13 @@ Future<void> interpretCharacter(String text) async {
 
     if (response.statusCode != 200) {
       print('HTTP error: ${response.statusCode}');
-      return;
+      return '';
     }
 
     final json = jsonDecode(response.body);
-    print(json);
+    return json['text'];
   } catch (e) {
     print('Connection error: $e');
+    return '';
   }
 }

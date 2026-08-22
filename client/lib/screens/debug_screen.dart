@@ -18,6 +18,23 @@ class DebugScreen extends StatefulWidget {
 }
 
 class _DebugScreenState extends State<DebugScreen> {
+  late TextEditingController _controller;
+  late TextEditingController _filtered;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _filtered = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _filtered.dispose();
+    super.dispose();
+  }
+
   void _nextDay() {
     setState(() {
       for (final inhabitant in widget.state.inhabitants) {
@@ -108,9 +125,35 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   const SizedBox(height: 12),
 
+                  TranslucentPanel(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: '(どんな存在になりたいか、ここに念じよう。)',
+                      ),
+                      maxLines: null,
+                      maxLength: 140,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  TranslucentPanel(
+                    child: TextField(
+                      controller: _filtered,
+                      decoration: InputDecoration(hintText: '(夢に映され、こうなりました。)'),
+                      maxLines: null,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
                   ElevatedButton(
                     onPressed: () async {
-                      await interpretCharacter('王都で王家御用達の一流パン屋として暮らしているが、実は歴戦の勇者でドラゴンを5匹倒している。');
+                      final filtered = await interpretCharacter(
+                        _controller.text,
+                      );
+                      setState(() => _filtered.text = filtered);
                     },
                     child: const Text('Interpret Character'),
                   ),
