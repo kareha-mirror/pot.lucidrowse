@@ -13,12 +13,14 @@ type ImageRequest struct {
 	Id string `json:"id"`
 }
 
-func generateImage(cfg *config.Config, text string) ([]byte, error) {
-	return ai.Image(cfg, text)
+func generateImage(cfg *config.Config, flavor string) ([]byte, error) {
+	return ai.Image(cfg, flavor)
 }
 
-func updateImage(cfg *config.Config, current []byte, text string) ([]byte, error) {
-	return ai.UpdateImage(cfg, current, text)
+func updateImage(
+	cfg *config.Config, image []byte, updatedFlavor string,
+) ([]byte, error) {
+	return ai.UpdateImage(cfg, image, updatedFlavor)
 }
 
 var images = map[string][]byte{}
@@ -31,30 +33,30 @@ func handleImage(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	text, ok := texts[req.Id]
+	flavor, ok := flavors[req.Id]
 	if !ok {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	current, ok := images[req.Id]
-	var image []byte
+	image, ok := images[req.Id]
+	var newImage []byte
 	var err error
 	if ok {
-		image, err = updateImage(cfg, current, text)
+		newImage, err = updateImage(cfg, image, flavor)
 	} else {
-		image, err = generateImage(cfg, text)
+		newImage, err = generateImage(cfg, flavor)
 	}
-
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	images[req.Id] = image
+
+	images[req.Id] = newImage
 
 	w.Header().Set("Content-Type", "image/webp")
-	w.Write(image)
+	w.Write(newImage)
 }
 
 func wrapImageHandler(cfg *config.Config) http.HandlerFunc {

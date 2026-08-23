@@ -9,6 +9,7 @@ import (
 
 func Run(cfg *config.Config) {
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("GET /api/hello", handleHello)
 	mux.HandleFunc("POST /api/player/create", wrapCreateHandler(cfg))
 	mux.HandleFunc("POST /api/player/image", wrapImageHandler(cfg))

@@ -28,12 +28,12 @@ type Config struct {
 		ImageThreshold int64 `yaml:"image-threshold"`
 	} `yaml:"vacuum"`
 
-	Filter struct {
+	AI struct {
 		Agent       string  `yaml:"agent"`
 		Key         string  `yaml:"key"`
 		Temperature float64 `yaml:"temperature"`
 		TopP        float64 `yaml:"top_p"`
-	} `yaml:"filter"`
+	} `yaml:"ai"`
 
 	PromptsPath string `yaml:"prompts-path"`
 

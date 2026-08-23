@@ -12,17 +12,20 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 )
 
-func updateImageWithOpenAI(cfg *config.Config, current []byte, content string) ([]byte, error) {
-	apiKey := cfg.Filter.Key
+func updateImageWithOpenAI(
+	cfg *config.Config, image []byte, updatedFlavor string,
+) ([]byte, error) {
+	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return []byte{}, fmt.Errorf("Filter key (OpenAI API key) not set")
+		return []byte{}, fmt.Errorf("key not set")
 	}
 
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "Input: " + content
+	message := "Input: " + updatedFlavor
+	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message
 
 	resp, err := client.Images.Edit(
 		context.Background(),
@@ -31,11 +34,11 @@ func updateImageWithOpenAI(cfg *config.Config, current []byte, content string) (
 			Size:         openai.ImageEditParamsSize1024x1024,
 			Quality:      openai.ImageEditParamsQualityLow,
 			OutputFormat: openai.ImageEditParamsOutputFormatWebP,
-			Prompt:       cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message,
+			Prompt:       prompt,
 			Image: openai.ImageEditParamsImageUnion{
 				OfFile: openai.File(
-					bytes.NewReader(current),
-					"current.webp",
+					bytes.NewReader(image),
+					"image.webp",
 					"image/webp",
 				),
 			},
@@ -48,7 +51,7 @@ func updateImageWithOpenAI(cfg *config.Config, current []byte, content string) (
 	if len(resp.Data) == 0 {
 		return []byte{}, fmt.Errorf("no choices in response")
 	}
-	image, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
+	updatedImage, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
 
-	return image, nil
+	return updatedImage, nil
 }

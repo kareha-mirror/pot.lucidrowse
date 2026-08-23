@@ -13,12 +13,16 @@ type ActionImageRequest struct {
 	Id string `json:"id"`
 }
 
-func actionImage(cfg *config.Config, current []byte, text string) ([]byte, error) {
-	return ai.ActionImage(cfg, current, text)
+func actionImage(
+	cfg *config.Config, image []byte, text string,
+) ([]byte, error) {
+	return ai.ActionImage(cfg, image, text)
 }
 
-func handleActionImage(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
-	var req ImageRequest
+func handleActionImage(
+	cfg *config.Config, w http.ResponseWriter, r *http.Request,
+) {
+	var req ActionImageRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -31,13 +35,13 @@ func handleActionImage(cfg *config.Config, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	current, ok := images[req.Id]
+	image, ok := images[req.Id]
 	if !ok {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	image, err := actionImage(cfg, current, text)
+	newImage, err := actionImage(cfg, image, text)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -45,7 +49,7 @@ func handleActionImage(cfg *config.Config, w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "image/webp")
-	w.Write(image)
+	w.Write(newImage)
 }
 
 func wrapActionImageHandler(cfg *config.Config) http.HandlerFunc {

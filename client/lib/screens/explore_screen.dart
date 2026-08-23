@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/models/region.dart';
+import 'package:client/screens/read_screen.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/widgets/region_card.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -39,8 +40,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
       list.add(const SizedBox(height: 8));
 
       list.add(
-        TranslucentPanel(
-          child: Text('${flavor.name} / ${flavor.race} / ${flavor.job}'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            TranslucentPanel(
+              child: Text('${flavor.name} / ${flavor.race} / ${flavor.job}'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 6),
+              child: diaryButton(context, widget.state, inhabitant),
+            ),
+          ],
         ),
       );
 

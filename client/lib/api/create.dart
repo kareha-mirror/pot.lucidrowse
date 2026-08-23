@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-Future<Map<String, dynamic>> apiCreate(String text) async {
+Future<Map<String, dynamic>> apiCreate(String input) async {
   try {
     final uri = Uri.parse('http://localhost:8080/api/player/create');
 
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'text': text}),
+      body: jsonEncode({'input': input}),
     );
 
     if (response.statusCode != 200) {

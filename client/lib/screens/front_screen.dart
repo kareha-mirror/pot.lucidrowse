@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
+import 'package:client/screens/read_screen.dart';
 
 class FrontScreen extends StatefulWidget {
   const FrontScreen({super.key});

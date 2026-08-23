@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 
@@ -13,7 +12,7 @@ import (
 )
 
 type CreateRequest struct {
-	Text string `json:"text"`
+	Input string `json:"input"`
 }
 
 type Flavor struct {
@@ -29,8 +28,8 @@ type CreateResponse struct {
 	Flavor Flavor `json:"flavor"`
 }
 
-func create(cfg *config.Config, text string) (string, error) {
-	return ai.Create(cfg, text)
+func create(cfg *config.Config, input string) (string, error) {
+	return ai.Create(cfg, input)
 }
 
 func random256() (string, error) {
@@ -43,7 +42,7 @@ func random256() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-var texts = map[string]string{}
+var flavors = map[string]string{}
 
 func handleCreate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 	var req CreateRequest
@@ -53,19 +52,17 @@ func handleCreate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := create(cfg, req.Text)
+	rawFlavorStr, err := create(cfg, req.Input)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	var flavor Flavor
+	flavorStr := strings.ReplaceAll(rawFlavorStr, "```json", "")
+	flavorStr = strings.ReplaceAll(flavorStr, "```", "")
 
-	sanitized := strings.ReplaceAll(result, "```json", "")
-	sanitized = strings.ReplaceAll(sanitized, "```", "")
-	if err := json.Unmarshal([]byte(sanitized), &flavor); err != nil {
-		log.Println(result)
-		log.Println(err)
+	var flavor Flavor
+	if err := json.Unmarshal([]byte(flavorStr), &flavor); err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -81,7 +78,7 @@ func handleCreate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 		Flavor: flavor,
 	}
 
-	texts[id] = sanitized
+	flavors[id] = flavorStr
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

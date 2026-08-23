@@ -17,8 +17,8 @@ class CreateScreen extends StatefulWidget {
 }
 
 class _CreateScreenState extends State<CreateScreen> {
-  late TextEditingController _controller;
-  late TextEditingController _filtered;
+  late TextEditingController _inputController;
+  late TextEditingController _outputController;
   bool _textLoading = false;
   bool _imageLoading = false;
   String _id = '';
@@ -26,14 +26,17 @@ class _CreateScreenState extends State<CreateScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
-    _filtered = TextEditingController();
+    _inputController = TextEditingController();
+    _outputController = TextEditingController();
+    if (widget.state.player.flavor.hasFiltered) {
+      _outputController.text = widget.state.player.flavor.formatText();
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _filtered.dispose();
+    _inputController.dispose();
+    _outputController.dispose();
     super.dispose();
   }
 
@@ -60,14 +63,17 @@ class _CreateScreenState extends State<CreateScreen> {
     try {
       final Map<String, dynamic> filtered;
       if (widget.state.player.id != '') {
-        filtered = await apiUpdate(widget.state.player.id, _controller.text);
+        filtered = await apiUpdate(
+          widget.state.player.id,
+          _inputController.text,
+        );
       } else {
-        filtered = await apiCreate(_controller.text);
+        filtered = await apiCreate(_inputController.text);
       }
       if (filtered['flavor']['error'] == '') {
         final f = Flavor();
 
-        f.raw = _controller.text;
+        f.raw = _inputController.text;
         f.day = widget.state.day;
 
         f.name = filtered['flavor']['name'];
@@ -77,13 +83,13 @@ class _CreateScreenState extends State<CreateScreen> {
 
         setState(() {
           widget.state.player.flavor = f;
-          _filtered.text = widget.state.player.flavor.formatText();
+          _outputController.text = widget.state.player.flavor.formatText();
         });
 
         _fetchImage(filtered['id']);
       } else {
         setState(() {
-          _filtered.text = 'エラー:\n${filtered['flavor']['error']}';
+          _outputController.text = 'エラー:\n${filtered['flavor']['error']}';
         });
       }
     } catch (e) {
@@ -175,7 +181,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     ),
                     child: TranslucentPanel(
                       child: TextField(
-                        controller: _controller,
+                        controller: _inputController,
                         decoration: InputDecoration(
                           hintText: widget.state.player.isForeigner
                               ? '(どんな存在になりたいか、ここに念じよう。)'
@@ -194,7 +200,7 @@ class _CreateScreenState extends State<CreateScreen> {
                   TranslucentPanel(
                     child: ElevatedButton(
                       onPressed:
-                          (_controller.text.isEmpty ||
+                          (_inputController.text.isEmpty ||
                               _textLoading ||
                               _imageLoading)
                           ? null
@@ -216,7 +222,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
                     TranslucentPanel(
                       child: TextField(
-                        controller: _filtered,
+                        controller: _outputController,
                         maxLines: null,
                         readOnly: true,
                       ),
@@ -225,7 +231,12 @@ class _CreateScreenState extends State<CreateScreen> {
                     const SizedBox(height: 24),
 
                     if (_imageLoading)
-                      const CircularProgressIndicator()
+                      const Column(
+                        children: [
+                          TranslucentPanel(child: const Text('姿を映し出しています…')),
+                          const CircularProgressIndicator(),
+                        ],
+                      )
                     else if (widget.state.player.flavor.image != null)
                       Center(
                         child: ConstrainedBox(

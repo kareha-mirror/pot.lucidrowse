@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -7,7 +8,9 @@ import 'package:client/widgets/translucent_panel.dart';
 class ReadScreen extends StatefulWidget {
   final AppState state;
 
-  const ReadScreen({super.key, required this.state});
+  final Player player;
+
+  const ReadScreen({super.key, required this.state, required this.player});
 
   @override
   State<ReadScreen> createState() => _ReadScreenState();
@@ -15,7 +18,7 @@ class ReadScreen extends StatefulWidget {
 
 class _ReadScreenState extends State<ReadScreen> {
   List<Widget> _actionList() {
-    if (widget.state.player.actions.isEmpty) {
+    if (widget.player.actions.isEmpty) {
       return [
         const SizedBox(height: 24),
         TranslucentPanel(child: const Text('まだ何も書かれてない。')),
@@ -23,15 +26,20 @@ class _ReadScreenState extends State<ReadScreen> {
     }
 
     List<Widget> list = [];
-    for (final action in widget.state.player.actions) {
+    for (final action in widget.player.actions) {
       list.add(const SizedBox(height: 24));
       list.add(
         TranslucentPanel(
           child: Column(
-            children: [Text(formatDate(action.day)), Text(action.filtered)],
+            children: [
+              Text(formatDate(action.day)),
+              SizedBox(height: 8),
+              Text(action.filtered),
+            ],
           ),
         ),
       );
+      list.add(SizedBox(height: 8));
       if (action.image != null) {
         list.add(
           ConstrainedBox(
@@ -88,4 +96,28 @@ class _ReadScreenState extends State<ReadScreen> {
       ),
     );
   }
+}
+
+Widget myDiaryButton(BuildContext context, AppState state) {
+  return ElevatedButton(
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReadScreen(state: state, player: state.player),
+      ),
+    ),
+    child: const Text('おしゃれな日記帳'),
+  );
+}
+
+Widget diaryButton(BuildContext context, AppState state, Player player) {
+  return ElevatedButton(
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReadScreen(state: state, player: player),
+      ),
+    ),
+    child: const Text('日記'),
+  );
 }

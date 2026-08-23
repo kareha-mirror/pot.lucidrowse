@@ -9,8 +9,8 @@ import (
 )
 
 type ActionRequest struct {
-	Id   string `json:"id"`
-	Text string `json:"text"`
+	Id    string `json:"id"`
+	Input string `json:"input"`
 }
 
 type ActionResponse struct {
@@ -18,27 +18,27 @@ type ActionResponse struct {
 	Text string `json:"text"`
 }
 
-func action(cfg *config.Config, current string, text string) (string, error) {
-	return ai.Action(cfg, current, text)
+func action(cfg *config.Config, flavor string, input string) (string, error) {
+	return ai.Action(cfg, flavor, input)
 }
 
 var actions = map[string]string{}
 
 func handleAction(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
-	var req UpdateRequest
+	var req ActionRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	current, ok := texts[req.Id]
+	flavor, ok := flavors[req.Id]
 	if !ok {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	result, err := action(cfg, current, req.Text)
+	text, err := action(cfg, flavor, req.Input)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
@@ -46,10 +46,10 @@ func handleAction(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 
 	res := ActionResponse{
 		Id:   req.Id,
-		Text: result,
+		Text: text,
 	}
 
-	actions[req.Id] = result
+	actions[req.Id] = text
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

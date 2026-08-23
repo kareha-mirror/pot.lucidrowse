@@ -11,17 +11,18 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 )
 
-func imageWithOpenAI(cfg *config.Config, content string) ([]byte, error) {
-	apiKey := cfg.Filter.Key
+func imageWithOpenAI(cfg *config.Config, flavor string) ([]byte, error) {
+	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return []byte{}, fmt.Errorf("Filter key (OpenAI API key) not set")
+		return []byte{}, fmt.Errorf("key not set")
 	}
 
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "Input: " + content
+	message := "JSON: " + flavor
+	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message
 
 	resp, err := client.Images.Generate(
 		context.Background(),
@@ -30,7 +31,7 @@ func imageWithOpenAI(cfg *config.Config, content string) ([]byte, error) {
 			Size:         openai.ImageGenerateParamsSize1024x1024,
 			Quality:      openai.ImageGenerateParamsQualityLow,
 			OutputFormat: openai.ImageGenerateParamsOutputFormatWebP,
-			Prompt:       cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message,
+			Prompt:       prompt,
 		},
 	)
 	if err != nil {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
+import 'package:client/screens/read_screen.dart';
 import 'package:client/state/app_state.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -53,10 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 32),
 
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/read'),
-                    child: const Text('おしゃれな日記帳'),
-                  ),
+                  myDiaryButton(context, widget.state),
 
                   const SizedBox(height: 32),
 

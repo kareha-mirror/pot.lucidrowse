@@ -18,23 +18,23 @@ class WriteScreen extends StatefulWidget {
 }
 
 class _WriteScreenState extends State<WriteScreen> {
-  late TextEditingController _controller;
-  late TextEditingController _filtered;
+  late TextEditingController _inputController;
+  late TextEditingController _outputController;
   bool _textLoading = false;
   bool _imageLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
-    _controller.text = widget.state.player.action.raw;
-    _filtered = TextEditingController();
+    _inputController = TextEditingController();
+    _inputController.text = widget.state.player.action.raw;
+    _outputController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _filtered.dispose();
+    _inputController.dispose();
+    _outputController.dispose();
     super.dispose();
   }
 
@@ -60,18 +60,18 @@ class _WriteScreenState extends State<WriteScreen> {
     try {
       final filtered = await apiAction(
         widget.state.player.id,
-        _controller.text,
+        _inputController.text,
       );
       final a = PlayerAction();
 
-      a.raw = _controller.text;
+      a.raw = _inputController.text;
       a.day = widget.state.day;
 
       a.filtered = filtered['text'];
 
       setState(() {
         widget.state.player.action = a;
-        _filtered.text = widget.state.player.action.filtered;
+        _outputController.text = widget.state.player.action.filtered;
       });
 
       _fetchImage(filtered['id']);
@@ -142,7 +142,7 @@ class _WriteScreenState extends State<WriteScreen> {
                       ),
                       child: TranslucentPanel(
                         child: TextField(
-                          controller: _controller,
+                          controller: _inputController,
                           decoration: const InputDecoration(
                             hintText: '(今日、何をしたか書いてみよう。)',
                           ),
@@ -159,7 +159,7 @@ class _WriteScreenState extends State<WriteScreen> {
                   TranslucentPanel(
                     child: ElevatedButton(
                       onPressed:
-                          (_controller.text.isEmpty ||
+                          (_inputController.text.isEmpty ||
                               _textLoading ||
                               _imageLoading)
                           ? null
@@ -170,7 +170,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
                   if (_textLoading)
                     const CircularProgressIndicator()
-                  else if (widget.state.player.flavor.hasFiltered) ...[
+                  else if (widget.state.player.action.hasFiltered) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(
@@ -181,7 +181,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
                     TranslucentPanel(
                       child: TextField(
-                        controller: _filtered,
+                        controller: _outputController,
                         maxLines: null,
                         readOnly: true,
                       ),
@@ -190,7 +190,12 @@ class _WriteScreenState extends State<WriteScreen> {
                     const SizedBox(height: 24),
 
                     if (_imageLoading)
-                      const CircularProgressIndicator()
+                      const Column(
+                        children: [
+                          TranslucentPanel(child: const Text('情景を映し出しています…')),
+                          const CircularProgressIndicator(),
+                        ],
+                      )
                     else if (widget.state.player.action.image != null)
                       Center(
                         child: ConstrainedBox(

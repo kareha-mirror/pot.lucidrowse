@@ -15,7 +15,7 @@ vacuum:
     threshold: 68719476736
     image-threshold: 68719476736
 
-filter:
+ai:
   agent: "openai"
   key: "(Your OpenAI API Key Here)"
   temperature: 0.8

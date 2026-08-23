@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 
@@ -11,8 +10,8 @@ import (
 )
 
 type UpdateRequest struct {
-	Id   string `json:"id"`
-	Text string `json:"text"`
+	Id    string `json:"id"`
+	Input string `json:"input"`
 }
 
 type UpdateResponse struct {
@@ -20,8 +19,8 @@ type UpdateResponse struct {
 	Flavor Flavor `json:"flavor"`
 }
 
-func update(cfg *config.Config, current string, text string) (string, error) {
-	return ai.Update(cfg, current, text)
+func update(cfg *config.Config, flavor string, input string) (string, error) {
+	return ai.Update(cfg, flavor, input)
 }
 
 func handleUpdate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
@@ -32,35 +31,33 @@ func handleUpdate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current, ok := texts[req.Id]
+	flavor, ok := flavors[req.Id]
 	if !ok {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	result, err := update(cfg, current, req.Text)
+	rawUpdatedFlavorStr, err := update(cfg, flavor, req.Input)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	var flavor Flavor
+	var updatedFlavor Flavor
 
-	sanitized := strings.ReplaceAll(result, "```json", "")
-	sanitized = strings.ReplaceAll(sanitized, "```", "")
-	if err := json.Unmarshal([]byte(sanitized), &flavor); err != nil {
-		log.Println(result)
-		log.Println(err)
+	updatedFlavorStr := strings.ReplaceAll(rawUpdatedFlavorStr, "```json", "")
+	updatedFlavorStr = strings.ReplaceAll(updatedFlavorStr, "```", "")
+	if err := json.Unmarshal([]byte(updatedFlavorStr), &updatedFlavor); err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	res := CreateResponse{
 		Id:     req.Id,
-		Flavor: flavor,
+		Flavor: updatedFlavor,
 	}
 
-	texts[req.Id] = sanitized
+	flavors[req.Id] = updatedFlavorStr
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
