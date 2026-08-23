@@ -1,6 +1,7 @@
-package filter
+package ai
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 )
 
-func ImageWithOpenAI(cfg *config.Config, content string) ([]byte, error) {
+func updateImageWithOpenAI(cfg *config.Config, current []byte, content string) ([]byte, error) {
 	apiKey := cfg.Filter.Key
 	if apiKey == "" {
 		return []byte{}, fmt.Errorf("Filter key (OpenAI API key) not set")
@@ -23,14 +24,21 @@ func ImageWithOpenAI(cfg *config.Config, content string) ([]byte, error) {
 
 	message := "Input: " + content
 
-	resp, err := client.Images.Generate(
+	resp, err := client.Images.Edit(
 		context.Background(),
-		openai.ImageGenerateParams{
+		openai.ImageEditParams{
 			Model:        openai.ImageModelGPTImage1Mini,
-			Size: openai.ImageGenerateParamsSize1024x1024,
-			Quality: openai.ImageGenerateParamsQualityLow,
-			OutputFormat: openai.ImageGenerateParamsOutputFormatWebP,
-			Prompt:       cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message,
+			Size:         openai.ImageEditParamsSize1024x1024,
+			Quality:      openai.ImageEditParamsQualityLow,
+			OutputFormat: openai.ImageEditParamsOutputFormatWebP,
+			Prompt:       cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message,
+			Image: openai.ImageEditParamsImageUnion{
+				OfFile: openai.File(
+					bytes.NewReader(current),
+					"current.webp",
+					"image/webp",
+				),
+			},
 		},
 	)
 	if err != nil {

@@ -32,6 +32,17 @@ class _ReadScreenState extends State<ReadScreen> {
           ),
         ),
       );
+      if (action.image != null) {
+        list.add(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(action.image!),
+            ),
+          ),
+        );
+      }
     }
     return list;
   }

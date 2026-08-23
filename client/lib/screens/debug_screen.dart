@@ -1,9 +1,6 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
-import 'package:client/api/health.dart';
-import 'package:client/api/image.dart';
-import 'package:client/api/interpret.dart';
+import 'package:client/api/hello.dart';
 import 'package:client/models/player.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state/app_state.dart';
@@ -20,32 +17,14 @@ class DebugScreen extends StatefulWidget {
 }
 
 class _DebugScreenState extends State<DebugScreen> {
-  late TextEditingController _controller;
-  late TextEditingController _filtered;
-  bool _textLoading = false;
-  bool _imageLoading = false;
-  Flavor _flavor = Flavor();
-  Uint8List? imageData;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    _filtered = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _filtered.dispose();
-    super.dispose();
-  }
+  String? _hello;
 
   void _nextDay() {
     setState(() {
       for (final inhabitant in widget.state.inhabitants) {
         if (inhabitant.committed) {
           inhabitant.actions.add(inhabitant.action);
+          inhabitant.committed = false;
         }
         inhabitant.action = PlayerAction();
       }
@@ -63,45 +42,6 @@ class _DebugScreenState extends State<DebugScreen> {
       widget.state.player = Player();
       widget.state.inhabitants = [];
     });
-  }
-
-  Future<void> _fetchImage(String id) async {
-    setState(() => _imageLoading = true);
-    try {
-      final img = await fetchImage(id);
-
-      setState(() {
-        imageData = img;
-      });
-    } catch (e) {
-      // TODO
-    } finally {
-      setState(() {
-        _imageLoading = false;
-      });
-    }
-  }
-
-  Future<void> _interpretCharacter() async {
-    setState(() => _textLoading = true);
-    try {
-      final filtered = await interpretCharacter(_controller.text);
-      final f = Flavor();
-      f.name = filtered['flavor']['name'];
-      f.race = filtered['flavor']['race'];
-      f.job = filtered['flavor']['job'];
-      f.filtered = filtered['flavor']['text'];
-      setState(() {
-        _flavor = f;
-        _filtered.text = _flavor.formatText();
-      });
-
-      _fetchImage(filtered['id']);
-    } catch (e) {
-      // TODO
-    } finally {
-      setState(() => _textLoading = false);
-    }
   }
 
   @override
@@ -163,64 +103,19 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   ElevatedButton(
                     onPressed: () async {
-                      await checkHealth();
+                      try {
+                        final result = await apiHello();
+                        setState(() => _hello = result['text']);
+                      } catch (e) {
+                        setState(() => _hello = e.toString());
+                      }
                     },
-                    child: const Text('Check Health'),
+                    child: const Text('夢の世界に呼びかける'),
                   ),
 
                   const SizedBox(height: 12),
 
-                  TranslucentPanel(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: '(どんな存在になりたいか、ここに念じよう。)',
-                      ),
-                      maxLines: null,
-                      maxLength: 140,
-                      readOnly: _textLoading || _imageLoading,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  TranslucentPanel(
-                    child: ElevatedButton(
-                      onPressed: (_textLoading || _imageLoading)
-                          ? null
-                          : _interpretCharacter,
-                      child: const Text('Interpret Character'),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  if (_textLoading)
-                    const CircularProgressIndicator()
-                  else
-                    TranslucentPanel(
-                      child: TextField(
-                        controller: _filtered,
-                        decoration: InputDecoration(
-                          hintText: '(夢に映され、こうなりました。)',
-                        ),
-                        maxLines: null,
-                        readOnly: true,
-                      ),
-                    ),
-
-                  const SizedBox(height: 12),
-
-                  if (_imageLoading)
-                    const CircularProgressIndicator()
-                  else if (imageData != null)
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 300),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.memory(imageData!),
-                      ),
-                    ),
+                  if (_hello != null) TranslucentPanel(child: Text(_hello!)),
 
                   const SizedBox(height: 48),
 

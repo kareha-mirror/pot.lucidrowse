@@ -1,4 +1,4 @@
-package filter
+package ai
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 )
 
-func withOpenAI(cfg *config.Config, content string) (string, error) {
+func updateWithOpenAI(cfg *config.Config, current string, content string) (string, error) {
 	apiKey := cfg.Filter.Key
 	if apiKey == "" {
 		return "", fmt.Errorf("Filter key (OpenAI API key) not set")
@@ -20,14 +20,14 @@ func withOpenAI(cfg *config.Config, content string) (string, error) {
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "Input: " + content
+	message := "JSON: " + current + "\nInput: " + content
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
 		openai.ChatCompletionNewParams{
 			Model: openai.ChatModelGPT4o,
 			Messages: []openai.ChatCompletionMessageParamUnion{
-				openai.SystemMessage(cfg.Prompts.Common + "\n" + cfg.Prompts.Filter),
+				openai.SystemMessage(cfg.Prompts.Common + "\n" + cfg.Prompts.Update),
 				openai.UserMessage(message),
 			},
 			Temperature: openai.Float(cfg.Filter.Temperature),

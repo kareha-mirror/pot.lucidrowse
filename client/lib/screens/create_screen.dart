@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/api/create.dart';
+import 'package:client/api/image.dart';
+import 'package:client/api/update.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -15,34 +18,79 @@ class CreateScreen extends StatefulWidget {
 
 class _CreateScreenState extends State<CreateScreen> {
   late TextEditingController _controller;
+  late TextEditingController _filtered;
+  bool _textLoading = false;
+  bool _imageLoading = false;
+  String _id = '';
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _filtered = TextEditingController();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _filtered.dispose();
     super.dispose();
   }
 
-  void _submitRaw(String value) {
-    setState(() {
-      final flavor = widget.state.player.flavor;
+  Future<void> _fetchImage(String id) async {
+    setState(() => _imageLoading = true);
+    try {
+      final image = await apiImage(id);
 
-      flavor.raw = value;
-      flavor.filtered = value;
+      setState(() {
+        widget.state.player.flavor.image = image;
+        _id = id;
+      });
+    } catch (e) {
+      // TODO
+    } finally {
+      setState(() {
+        _imageLoading = false;
+      });
+    }
+  }
 
-      flavor.name = 'リタ';
-      flavor.race = '人間';
-      flavor.job = '見習い魔法使い';
+  Future<void> _fetchFlavor() async {
+    setState(() => _textLoading = true);
+    try {
+      final Map<String, dynamic> filtered;
+      if (widget.state.player.id != '') {
+        filtered = await apiUpdate(widget.state.player.id, _controller.text);
+      } else {
+        filtered = await apiCreate(_controller.text);
+      }
+      if (filtered['flavor']['error'] == '') {
+        final f = Flavor();
 
-      flavor.imageUrl = 'assets/images/figure.webp';
+        f.raw = _controller.text;
+        f.day = widget.state.day;
 
-      flavor.day = widget.state.day;
-    });
+        f.name = filtered['flavor']['name'];
+        f.race = filtered['flavor']['race'];
+        f.job = filtered['flavor']['job'];
+        f.filtered = filtered['flavor']['text'];
+
+        setState(() {
+          widget.state.player.flavor = f;
+          _filtered.text = widget.state.player.flavor.formatText();
+        });
+
+        _fetchImage(filtered['id']);
+      } else {
+        setState(() {
+          _filtered.text = 'エラー:\n${filtered['flavor']['error']}';
+        });
+      }
+    } catch (e) {
+      // TODO
+    } finally {
+      setState(() => _textLoading = false);
+    }
   }
 
   void _commit() {
@@ -53,6 +101,7 @@ class _CreateScreenState extends State<CreateScreen> {
       if (player.isForeigner) {
         player.inhabit = Inhabit.inhabitant;
         player.settled = widget.state.day;
+        player.id = _id;
         widget.state.inhabitants.add(player);
       }
     });
@@ -132,10 +181,10 @@ class _CreateScreenState extends State<CreateScreen> {
                               ? '(どんな存在になりたいか、ここに念じよう。)'
                               : '(どんな変化があったか、ここに念じよう。)',
                         ),
-                        onSubmitted: (String value) => _submitRaw(value),
                         onChanged: (String value) => setState(() {}),
                         maxLines: null,
                         maxLength: 140,
+                        readOnly: _textLoading || _imageLoading,
                       ),
                     ),
                   ),
@@ -144,14 +193,19 @@ class _CreateScreenState extends State<CreateScreen> {
 
                   TranslucentPanel(
                     child: ElevatedButton(
-                      onPressed: _controller.text.isEmpty
+                      onPressed:
+                          (_controller.text.isEmpty ||
+                              _textLoading ||
+                              _imageLoading)
                           ? null
-                          : () => _submitRaw(_controller.text),
+                          : _fetchFlavor,
                       child: const Text('念じる'),
                     ),
                   ),
 
-                  if (widget.state.player.flavor.hasFiltered) ...[
+                  if (_textLoading)
+                    const CircularProgressIndicator()
+                  else if (widget.state.player.flavor.hasFiltered) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(
@@ -161,36 +215,29 @@ class _CreateScreenState extends State<CreateScreen> {
                     const SizedBox(height: 24),
 
                     TranslucentPanel(
-                      child: Text(widget.state.player.flavor.filtered),
+                      child: TextField(
+                        controller: _filtered,
+                        maxLines: null,
+                        readOnly: true,
+                      ),
                     ),
 
                     const SizedBox(height: 24),
 
-                    TranslucentPanel(
-                      child: Column(
-                        children: [
-                          Text('名前 : ${widget.state.player.flavor.name}'),
-                          Text('種族 : ${widget.state.player.flavor.race}'),
-                          Text('職業 : ${widget.state.player.flavor.job}'),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 48),
-
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 600),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: Image(
-                            image: AssetImage(
-                              widget.state.player.flavor.imageUrl,
+                    if (_imageLoading)
+                      const CircularProgressIndicator()
+                    else if (widget.state.player.flavor.image != null)
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 300),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.memory(
+                              widget.state.player.flavor.image!,
                             ),
                           ),
                         ),
                       ),
-                    ),
 
                     const SizedBox(height: 48),
 

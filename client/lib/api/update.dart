@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-Future<Map<String, dynamic>> interpretCharacter(String text) async {
+Future<Map<String, dynamic>> apiUpdate(String id, String text) async {
   try {
-    final uri = Uri.parse('http://localhost:8080/api/character/interpret');
+    final uri = Uri.parse('http://localhost:8080/api/player/update');
 
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'text': text}),
+      body: jsonEncode({'id': id, 'text': text}),
     );
 
     if (response.statusCode != 200) {

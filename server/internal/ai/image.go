@@ -1,0 +1,46 @@
+package ai
+
+import (
+	"context"
+	"encoding/base64"
+	"fmt"
+
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
+
+	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+)
+
+func imageWithOpenAI(cfg *config.Config, content string) ([]byte, error) {
+	apiKey := cfg.Filter.Key
+	if apiKey == "" {
+		return []byte{}, fmt.Errorf("Filter key (OpenAI API key) not set")
+	}
+
+	client := openai.NewClient(
+		option.WithAPIKey(apiKey),
+	)
+
+	message := "Input: " + content
+
+	resp, err := client.Images.Generate(
+		context.Background(),
+		openai.ImageGenerateParams{
+			Model:        openai.ImageModelGPTImage1Mini,
+			Size:         openai.ImageGenerateParamsSize1024x1024,
+			Quality:      openai.ImageGenerateParamsQualityLow,
+			OutputFormat: openai.ImageGenerateParamsOutputFormatWebP,
+			Prompt:       cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message,
+		},
+	)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	if len(resp.Data) == 0 {
+		return []byte{}, fmt.Errorf("no choices in response")
+	}
+	image, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
+
+	return image, nil
+}

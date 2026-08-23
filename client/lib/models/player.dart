@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 enum Inhabit { foreigner, inhabitant, hermit, forgotten }
 
 class Flavor {
@@ -8,7 +10,7 @@ class Flavor {
   String race = '';
   String job = '';
 
-  String imageUrl = '';
+  Uint8List? image;
 
   int day = 0;
 
@@ -21,7 +23,7 @@ class Flavor {
     flavor.name = name;
     flavor.race = race;
     flavor.job = job;
-    flavor.imageUrl = imageUrl;
+    flavor.image = image;
     flavor.day = day;
     return flavor;
   }
@@ -40,6 +42,8 @@ class PlayerAction {
   String raw = '';
   String filtered = '';
 
+  Uint8List? image;
+
   int day = 0;
 
   bool get hasFiltered => filtered != '';
@@ -48,6 +52,7 @@ class PlayerAction {
 class Player {
   Inhabit inhabit = Inhabit.foreigner;
   int settled = 0;
+  String id = '';
 
   List<Flavor> flavors = [];
   Flavor flavor = Flavor();

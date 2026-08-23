@@ -1,26 +1,26 @@
 import 'dart:convert';
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
+
 import 'package:http/http.dart' as http;
 
-Future<Uint8List> apiImage(String id) async {
+Future<Map<String, dynamic>> apiCreate(String text) async {
   try {
-    final uri = Uri.parse('http://localhost:8080/api/player/image');
+    final uri = Uri.parse('http://localhost:8080/api/player/create');
 
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id': id}),
+      body: jsonEncode({'text': text}),
     );
 
     if (response.statusCode != 200) {
       print('HTTP error: ${response.statusCode}');
-      return [] as Uint8List;
+      return {};
     }
 
-    return response.bodyBytes as Uint8List;
+    final json = jsonDecode(response.body);
+    return json;
   } catch (e) {
     print('Connection error: $e');
+    return {};
   }
-  return [] as Uint8List;
 }

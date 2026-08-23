@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/api/action.dart';
+import 'package:client/api/action_image.dart';
+import 'package:client/api/image.dart';
+import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -15,29 +19,67 @@ class WriteScreen extends StatefulWidget {
 
 class _WriteScreenState extends State<WriteScreen> {
   late TextEditingController _controller;
+  late TextEditingController _filtered;
+  bool _textLoading = false;
+  bool _imageLoading = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _controller.text = widget.state.player.action.raw;
+    _filtered = TextEditingController();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _filtered.dispose();
     super.dispose();
   }
 
-  void _submitRaw(String value) {
-    setState(() {
-      final action = widget.state.player.action;
+  Future<void> _fetchImage(String id) async {
+    setState(() => _imageLoading = true);
+    try {
+      final image = await apiActionImage(id);
 
-      action.raw = value;
-      action.filtered = value;
+      setState(() {
+        widget.state.player.action.image = image;
+      });
+    } catch (e) {
+      // TODO
+    } finally {
+      setState(() {
+        _imageLoading = false;
+      });
+    }
+  }
 
-      action.day = widget.state.day;
-    });
+  Future<void> _fetchAction() async {
+    setState(() => _textLoading = true);
+    try {
+      final filtered = await apiAction(
+        widget.state.player.id,
+        _controller.text,
+      );
+      final a = PlayerAction();
+
+      a.raw = _controller.text;
+      a.day = widget.state.day;
+
+      a.filtered = filtered['text'];
+
+      setState(() {
+        widget.state.player.action = a;
+        _filtered.text = widget.state.player.action.filtered;
+      });
+
+      _fetchImage(filtered['id']);
+    } catch (e) {
+      // TODO
+    } finally {
+      setState(() => _textLoading = false);
+    }
   }
 
   void _commit() {
@@ -104,10 +146,10 @@ class _WriteScreenState extends State<WriteScreen> {
                           decoration: const InputDecoration(
                             hintText: '(今日、何をしたか書いてみよう。)',
                           ),
-                          onSubmitted: (String value) => _submitRaw(value),
                           onChanged: (String value) => setState(() {}),
                           maxLines: null,
                           maxLength: 140,
+                          readOnly: _textLoading || _imageLoading,
                         ),
                       ),
                     ),
@@ -116,14 +158,19 @@ class _WriteScreenState extends State<WriteScreen> {
 
                   TranslucentPanel(
                     child: ElevatedButton(
-                      onPressed: _controller.text == ''
+                      onPressed:
+                          (_controller.text.isEmpty ||
+                              _textLoading ||
+                              _imageLoading)
                           ? null
-                          : () => _submitRaw(_controller.text),
+                          : _fetchAction,
                       child: const Text('日記に書く'),
                     ),
                   ),
 
-                  if (widget.state.player.action.hasFiltered) ...[
+                  if (_textLoading)
+                    const CircularProgressIndicator()
+                  else if (widget.state.player.flavor.hasFiltered) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(
@@ -133,8 +180,29 @@ class _WriteScreenState extends State<WriteScreen> {
                     const SizedBox(height: 24),
 
                     TranslucentPanel(
-                      child: Text(widget.state.player.action.filtered),
+                      child: TextField(
+                        controller: _filtered,
+                        maxLines: null,
+                        readOnly: true,
+                      ),
                     ),
+
+                    const SizedBox(height: 24),
+
+                    if (_imageLoading)
+                      const CircularProgressIndicator()
+                    else if (widget.state.player.action.image != null)
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 300),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.memory(
+                              widget.state.player.action.image!,
+                            ),
+                          ),
+                        ),
+                      ),
 
                     const SizedBox(height: 48),
 

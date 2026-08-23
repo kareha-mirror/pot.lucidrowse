@@ -21,19 +21,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
     List<Widget> list = [];
     for (final inhabitant in widget.state.inhabitants) {
       final flavor = inhabitant.lastFlavor;
-      final action = inhabitant.lastAction;
 
       list.add(const SizedBox(height: 24));
 
-      list.add(
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 300),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image(image: AssetImage(flavor.imageUrl)),
+      if (flavor.image != null) {
+        list.add(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(flavor.image!),
+            ),
           ),
-        ),
-      );
+        );
+      }
 
       list.add(const SizedBox(height: 8));
 
@@ -43,9 +44,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
       );
 
-      if (action != null) {
-        list.add(TranslucentPanel(child: Text(action.filtered)));
-      }
+      list.add(const SizedBox(height: 8));
+
+      list.add(TranslucentPanel(child: Text(flavor.filtered)));
     }
     return list;
   }
