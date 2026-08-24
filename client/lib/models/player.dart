@@ -3,6 +3,8 @@ import 'dart:typed_data';
 enum Inhabit { foreigner, inhabitant, hermit, forgotten }
 
 class Flavor {
+  String id = '';
+
   String raw = '';
   String filtered = '';
 
@@ -10,7 +12,7 @@ class Flavor {
   String race = '';
   String job = '';
 
-  Uint8List? image;
+  String? image;
 
   int day = 0;
 
@@ -18,6 +20,7 @@ class Flavor {
 
   Flavor clone() {
     final flavor = Flavor();
+    flavor.id = id;
     flavor.raw = raw;
     flavor.filtered = filtered;
     flavor.name = name;
@@ -39,10 +42,12 @@ class Flavor {
 }
 
 class PlayerAction {
+  String id = '';
+
   String raw = '';
   String filtered = '';
 
-  Uint8List? image;
+  String? image;
 
   int day = 0;
 

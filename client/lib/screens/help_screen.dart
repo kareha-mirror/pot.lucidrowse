@@ -134,12 +134,6 @@ List<Widget> _helpDebug = [
   const SizedBox(height: 48),
 
   TranslucentPanel(
-    child: Column(children: [const Text('「住人たちを追い出す」で夢の世界の住人たちを空っぽに戻せる。')]),
-  ),
-
-  const SizedBox(height: 48),
-
-  TranslucentPanel(
     child: Column(
       children: [
         const Text('「夢の世界に呼びかける」と夢が答えてくれる。'),

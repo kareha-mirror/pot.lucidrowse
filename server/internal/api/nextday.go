@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
@@ -12,16 +13,16 @@ type NextDayResponse struct {
 }
 
 func handleNextDay(w http.ResponseWriter, r *http.Request) {
-	dayCount, err := data.NextDay()
+	day, err := data.NextDay()
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	res := NextDayResponse{
-		Day: dayCount,
+		Day: day,
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:client/api/action.dart';
-import 'package:client/api/action_image.dart';
-import 'package:client/api/image.dart';
+import 'package:client/api/commit_action.dart';
+import 'package:client/api/day.dart';
+import 'package:client/api/new_action.dart';
+import 'package:client/api/image_action.dart';
+import 'package:client/constants.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
@@ -38,13 +40,28 @@ class _WriteScreenState extends State<WriteScreen> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _loadBackground();
+  }
+
+  Future<void> _loadBackground() async {
+    final result = await apiDay();
+
+    if (!mounted) return;
+
+    setState(() => widget.state.day = result['day']);
+  }
+
   Future<void> _fetchImage(String id) async {
     setState(() => _imageLoading = true);
     try {
-      final image = await apiActionImage(id);
+      final image = await apiImageAction(id);
 
       setState(() {
-        widget.state.player.action.image = image;
+        widget.state.player.action.image = image['image-id'];
       });
     } catch (e) {
       // TODO
@@ -58,7 +75,7 @@ class _WriteScreenState extends State<WriteScreen> {
   Future<void> _fetchAction() async {
     setState(() => _textLoading = true);
     try {
-      final filtered = await apiAction(
+      final filtered = await apiNewAction(
         widget.state.player.id,
         _inputController.text,
       );
@@ -67,14 +84,14 @@ class _WriteScreenState extends State<WriteScreen> {
       a.raw = _inputController.text;
       a.day = widget.state.day;
 
-      a.filtered = filtered['text'];
+      a.filtered = filtered['description'];
 
       setState(() {
         widget.state.player.action = a;
         _outputController.text = widget.state.player.action.filtered;
       });
 
-      _fetchImage(filtered['id']);
+      _fetchImage(widget.state.player.id);
     } catch (e) {
       // TODO
     } finally {
@@ -82,7 +99,9 @@ class _WriteScreenState extends State<WriteScreen> {
     }
   }
 
-  void _commit() {
+  Future<void> _commit() async {
+    await apiCommitAction(widget.state.player.id);
+
     setState(() {
       final player = widget.state.player;
       player.committed = true;
@@ -202,8 +221,8 @@ class _WriteScreenState extends State<WriteScreen> {
                           constraints: const BoxConstraints(maxWidth: 300),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.memory(
-                              widget.state.player.action.image!,
+                            child: Image.network(
+                              '$apiBaseUrl/image/${widget.state.player.action.image!}',
                             ),
                           ),
                         ),
@@ -212,8 +231,8 @@ class _WriteScreenState extends State<WriteScreen> {
                     const SizedBox(height: 48),
 
                     ElevatedButton(
-                      onPressed: () {
-                        _commit();
+                      onPressed: () async {
+                        await _commit();
                         Navigator.pushNamed(context, '/home');
                       },
                       child: const Text('これでよし'),

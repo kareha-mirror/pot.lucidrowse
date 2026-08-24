@@ -19,7 +19,7 @@ class DebugScreen extends StatefulWidget {
 }
 
 class _DebugScreenState extends State<DebugScreen> {
-  String? _hello;
+  String? _message;
 
   @override
   void didChangeDependencies() {
@@ -39,31 +39,19 @@ class _DebugScreenState extends State<DebugScreen> {
   void _nextDay() async {
     try {
       setState(() {
-        for (final inhabitant in widget.state.inhabitants) {
-          if (inhabitant.committed) {
-            inhabitant.actions.add(inhabitant.action);
-            inhabitant.committed = false;
-          }
-          inhabitant.action = PlayerAction();
-        }
+        widget.state.player.committed = false;
+        widget.state.player.action = PlayerAction();
       });
 
       final result = await apiNextDay();
       setState(() => widget.state.day = result['day']);
     } catch (e) {
-      setState(() => _hello = e.toString());
+      setState(() => _message = e.toString());
     }
   }
 
   void _clearMyself() {
     setState(() => widget.state.player = Player());
-  }
-
-  void _clearInhabitants() {
-    setState(() {
-      widget.state.player = Player();
-      widget.state.inhabitants = [];
-    });
   }
 
   @override
@@ -112,24 +100,15 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   const SizedBox(height: 48),
 
-                  TranslucentPanel(
-                    child: ElevatedButton(
-                      onPressed: widget.state.inhabitants.isEmpty
-                          ? null
-                          : () => _clearInhabitants(),
-                      child: const Text('住人たちを追い出す'),
-                    ),
-                  ),
-
                   const SizedBox(height: 48),
 
                   ElevatedButton(
                     onPressed: () async {
                       try {
                         final result = await apiHello();
-                        setState(() => _hello = result['text']);
+                        setState(() => _message = result['message']);
                       } catch (e) {
-                        setState(() => _hello = e.toString());
+                        setState(() => _message = e.toString());
                       }
                     },
                     child: const Text('夢の世界に呼びかける'),
@@ -137,7 +116,8 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   const SizedBox(height: 12),
 
-                  if (_hello != null) TranslucentPanel(child: Text(_hello!)),
+                  if (_message != null)
+                    TranslucentPanel(child: Text(_message!)),
 
                   const SizedBox(height: 48),
 

@@ -1,0 +1,119 @@
+package api
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+
+	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
+	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+)
+
+type ImageFlavorRequest struct {
+	PlayerId string `json:"player-id"`
+}
+
+type ImageFlavorResponse struct {
+	ImageId string `json:"image-id"`
+}
+
+func newFlavorImage(cfg *config.Config, flavor string) ([]byte, error) {
+	return ai.Image(cfg, flavor)
+}
+
+func updateFlavorImage(
+	cfg *config.Config, image []byte, updatedFlavor string,
+) ([]byte, error) {
+	return ai.UpdateImage(cfg, image, updatedFlavor)
+}
+
+func handleImageFlavor(
+	cfg *config.Config, w http.ResponseWriter, r *http.Request,
+) {
+	var req ImageFlavorRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Println(err)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	playerId, err := data.PlayerId(req.PlayerId)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	f, err := data.LoadLastFlavor(playerId)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	flavor := Flavor{
+		Name:        f.Name,
+		Race:        f.Race,
+		Job:         f.Job,
+		Description: f.Description,
+	}
+
+	flavorStr, err := json.Marshal(flavor)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	var newImage []byte
+	if f.ImagePubId == nil {
+		newImage, err = newFlavorImage(cfg, string(flavorStr))
+	} else {
+		image, err := data.LoadImage(*f.ImagePubId)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		newImage, err = updateFlavorImage(cfg, image, string(flavorStr))
+	}
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	imagePubId, err := newPubId()
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	err = data.SaveImage(imagePubId, newImage)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	err = data.AddImageToLastFlavor(playerId, imagePubId)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	res := ImageFlavorResponse{
+		ImageId: imagePubId,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
+
+func imageFlavorHandler(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handleImageFlavor(cfg, w, r)
+	}
+}

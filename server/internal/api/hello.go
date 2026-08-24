@@ -6,22 +6,23 @@ import (
 )
 
 type HelloResponse struct {
-	Text string `json:"text"`
+	Message string `json:"message"`
 }
 
-var hellos = []string{
+var messages = []string{
 	"おはよう、まだ寝てるの？",
 	"こんにちは、ごきげんいかが？",
 	"こんばんは、まだ起きてるの？",
 }
 
-var helloIndex = 0
+var messageIndex = 0
 
 func handleHello(w http.ResponseWriter, r *http.Request) {
 	res := HelloResponse{
-		Text: hellos[helloIndex%len(hellos)],
+		Message: messages[messageIndex%len(messages)],
 	}
-	helloIndex++
+
+	messageIndex++
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

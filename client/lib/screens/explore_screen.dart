@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/api/list_players.dart';
+import 'package:client/constants.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/state/app_state.dart';
@@ -17,21 +19,35 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   int regionIndex = -1;
+  List<dynamic> _players = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _loadBackground();
+  }
+
+  Future<void> _loadBackground() async {
+    final result = await apiListPlayers();
+
+    if (!mounted) return;
+
+    setState(() => _players = result['players']);
+  }
 
   List<Widget> inhabitantsList() {
     List<Widget> list = [];
-    for (final inhabitant in widget.state.inhabitants) {
-      final flavor = inhabitant.lastFlavor;
-
+    for (final player in _players) {
       list.add(const SizedBox(height: 24));
 
-      if (flavor.image != null) {
+      if (player['image-id'] != null) {
         list.add(
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.memory(flavor.image!),
+              child: Image.network('$apiBaseUrl/image/${player['image-id']}'),
             ),
           ),
         );
@@ -46,16 +62,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             TranslucentPanel(
-              child: Text('${flavor.name} / ${flavor.race} / ${flavor.job}'),
+              child: Text(
+                '${player['name']} / ${player['race']} / ${player['job']}',
+              ),
             ),
-            diaryButton(context, widget.state, inhabitant),
+            diaryButton(context, widget.state, player['player-id']),
           ],
         ),
       );
 
       list.add(const SizedBox(height: 8));
 
-      list.add(TranslucentPanel(child: Text(flavor.filtered)));
+      list.add(TranslucentPanel(child: Text(player['description'])));
     }
     return list;
   }
@@ -141,7 +159,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
                     const SizedBox(height: 24),
 
-                    if (widget.state.inhabitants.isEmpty)
+                    if (_players.isEmpty)
                       TranslucentPanel(child: const Text('まだ誰も住んでない。'))
                     else
                       ...inhabitantsList(),

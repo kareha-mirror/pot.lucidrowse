@@ -18,13 +18,51 @@ CREATE TABLE IF NOT EXISTS state (
 	boot_counter BIGINT NOT NULL DEFAULT 0,
 	day_counter BIGINT NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS players (
+	id SERIAL PRIMARY KEY,
+	pub_id TEXT NOT NULL UNIQUE,
+	day BIGINT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now(),
+	activated BOOL NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS images (
+	pub_id TEXT PRIMARY KEY,
+	content BYTEA NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS flavors (
+	id SERIAL PRIMARY KEY,
+	player_id INT NOT NULL REFERENCES players(id),
+	input TEXT NOT NULL,
+	name TEXT NOT NULL,
+	race TEXT NOT NULL,
+	job TEXT NOT NULL,
+	description TEXT NOT NULL,
+	day BIGINT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now(),
+	image_pub_id TEXT REFERENCES images(pub_id),
+	committed BOOL NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS actions (
+	id SERIAL PRIMARY KEY,
+	player_id INT NOT NULL REFERENCES players(id),
+	input TEXT NOT NULL,
+	description TEXT NOT NULL,
+	day BIGINT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now(),
+	image_pub_id TEXT REFERENCES images(pub_id),
+	committed BOOL NOT NULL DEFAULT FALSE,
+	fixed BOOL NOT NULL DEFAULT FALSE
+);
 `
 
 var bootCount int64
 
 func Connect(cfg *config.Config) *pgxpool.Pool {
-	var err error
-
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		cfg.Database.User,
@@ -35,6 +73,7 @@ func Connect(cfg *config.Config) *pgxpool.Pool {
 		cfg.Database.SSLMode,
 	)
 
+	var err error
 	db, err = pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
@@ -51,40 +90,10 @@ func Connect(cfg *config.Config) *pgxpool.Pool {
 		ON CONFLICT (id)
 		DO UPDATE SET boot_counter = state.boot_counter + 1
 		RETURNING boot_counter;
-	`).Scan(&bootCount)
+		`).Scan(&bootCount)
 	if err != nil {
 		log.Fatalf("failed to count up boot conter: %v", err)
 	}
 
 	return db
-}
-
-func Day() (int64, error) {
-	var dayCount int64
-	err := db.QueryRow(
-		context.Background(),
-		"SELECT day_counter FROM state WHERE id = 1",
-	).Scan(&dayCount)
-	if err != nil {
-		return 0, err
-	}
-
-	return dayCount, nil
-}
-
-func NextDay() (int64, error) {
-	ctx := context.Background()
-
-	var dayCount int64
-	err := db.QueryRow(ctx, `
-		UPDATE state
-		SET day_counter = day_counter + 1
-		WHERE id = 1
-		RETURNING day_counter
-	`).Scan(&dayCount)
-	if err != nil {
-		return 0, err
-	}
-
-	return dayCount, nil
 }

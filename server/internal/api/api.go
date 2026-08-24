@@ -11,13 +11,24 @@ func Run(cfg *config.Config) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/hello", handleHello)
-	mux.HandleFunc("POST /api/player/create", wrapCreateHandler(cfg))
-	mux.HandleFunc("POST /api/player/image", wrapImageHandler(cfg))
-	mux.HandleFunc("POST /api/player/update", wrapUpdateHandler(cfg))
-	mux.HandleFunc("POST /api/player/action", wrapActionHandler(cfg))
-	mux.HandleFunc("POST /api/player/action-image", wrapActionImageHandler(cfg))
 	mux.HandleFunc("GET /api/day", handleDay)
 	mux.HandleFunc("GET /api/next-day", handleNextDay)
+
+	mux.HandleFunc("GET /api/new-player", handleNewPlayer)
+
+	mux.HandleFunc("POST /api/new-flavor", newFlavorHandler(cfg))
+	mux.HandleFunc("POST /api/image-flavor", imageFlavorHandler(cfg))
+	mux.HandleFunc("POST /api/update-flavor", updateFlavorHandler(cfg))
+	mux.HandleFunc("POST /api/commit-flavor", handleCommitFlavor)
+
+	mux.HandleFunc("POST /api/new-action", newActionHandler(cfg))
+	mux.HandleFunc("POST /api/image-action", imageActionHandler(cfg))
+	mux.HandleFunc("POST /api/commit-action", handleCommitAction)
+
+	mux.HandleFunc("GET /api/image/{id}", handleImage)
+
+	mux.HandleFunc("GET /api/list-players", handleListPlayers)
+	mux.HandleFunc("GET /api/list-actions/{id}", handleListActions)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	log.Fatal(http.ListenAndServe(cfg.App.Addr, mux))

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:client/api/create.dart';
-import 'package:client/api/image.dart';
-import 'package:client/api/update.dart';
+import 'package:client/api/commit_flavor.dart';
+import 'package:client/api/image_flavor.dart';
+import 'package:client/api/new_flavor.dart';
+import 'package:client/api/new_player.dart';
+import 'package:client/api/update_flavor.dart';
+import 'package:client/constants.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -21,7 +24,6 @@ class _CreateScreenState extends State<CreateScreen> {
   late TextEditingController _outputController;
   bool _textLoading = false;
   bool _imageLoading = false;
-  String _id = '';
 
   @override
   void initState() {
@@ -43,11 +45,10 @@ class _CreateScreenState extends State<CreateScreen> {
   Future<void> _fetchImage(String id) async {
     setState(() => _imageLoading = true);
     try {
-      final image = await apiImage(id);
+      final image = await apiImageFlavor(id);
 
       setState(() {
-        widget.state.player.flavor.image = image;
-        _id = id;
+        widget.state.player.flavor.image = image['image-id'];
       });
     } catch (e) {
       // TODO
@@ -62,34 +63,42 @@ class _CreateScreenState extends State<CreateScreen> {
     setState(() => _textLoading = true);
     try {
       final Map<String, dynamic> filtered;
-      if (widget.state.player.id != '') {
-        filtered = await apiUpdate(
+      if (widget.state.player.flavor.hasFiltered) {
+        filtered = await apiUpdateFlavor(
           widget.state.player.id,
           _inputController.text,
         );
       } else {
-        filtered = await apiCreate(_inputController.text);
+        if (widget.state.player.id == '') {
+          final created = await apiNewPlayer();
+          widget.state.player.id = created['player-id'];
+        }
+
+        filtered = await apiNewFlavor(
+          widget.state.player.id,
+          _inputController.text,
+        );
       }
-      if (filtered['flavor']['error'] == '') {
+      if (filtered['error'] == '') {
         final f = Flavor();
 
         f.raw = _inputController.text;
         f.day = widget.state.day;
 
-        f.name = filtered['flavor']['name'];
-        f.race = filtered['flavor']['race'];
-        f.job = filtered['flavor']['job'];
-        f.filtered = filtered['flavor']['text'];
+        f.name = filtered['name'];
+        f.race = filtered['race'];
+        f.job = filtered['job'];
+        f.filtered = filtered['description'];
 
         setState(() {
           widget.state.player.flavor = f;
           _outputController.text = widget.state.player.flavor.formatText();
         });
 
-        _fetchImage(filtered['id']);
+        _fetchImage(widget.state.player.id);
       } else {
         setState(() {
-          _outputController.text = 'エラー:\n${filtered['flavor']['error']}';
+          _outputController.text = 'エラー:\n${filtered['error']}';
         });
       }
     } catch (e) {
@@ -99,7 +108,9 @@ class _CreateScreenState extends State<CreateScreen> {
     }
   }
 
-  void _commit() {
+  Future<void> _commit() async {
+    await apiCommitFlavor(widget.state.player.id);
+
     setState(() {
       final player = widget.state.player;
       player.flavors.add(player.flavor.clone());
@@ -107,8 +118,6 @@ class _CreateScreenState extends State<CreateScreen> {
       if (player.isForeigner) {
         player.inhabit = Inhabit.inhabitant;
         player.settled = widget.state.day;
-        player.id = _id;
-        widget.state.inhabitants.add(player);
       }
     });
   }
@@ -243,8 +252,8 @@ class _CreateScreenState extends State<CreateScreen> {
                           constraints: const BoxConstraints(maxWidth: 300),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.memory(
-                              widget.state.player.flavor.image!,
+                            child: Image.network(
+                              '$apiBaseUrl/image/${widget.state.player.flavor.image!}',
                             ),
                           ),
                         ),
@@ -253,8 +262,8 @@ class _CreateScreenState extends State<CreateScreen> {
                     const SizedBox(height: 48),
 
                     ElevatedButton(
-                      onPressed: () {
-                        _commit();
+                      onPressed: () async {
+                        await _commit();
                         Navigator.pop(context);
                       },
                       child: const Text('これでよし'),
