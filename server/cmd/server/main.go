@@ -6,6 +6,7 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/api"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
 func main() {
@@ -15,6 +16,9 @@ func main() {
 	}
 
 	cfg := config.Load(os.Args[1])
+
+	db := data.Connect(cfg)
+	defer db.Close()
 
 	api.Run(cfg)
 }

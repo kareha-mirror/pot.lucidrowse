@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:client/api/day.dart';
 import 'package:client/api/hello.dart';
+import 'package:client/api/next_day.dart';
 import 'package:client/models/player.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state/app_state.dart';
@@ -19,18 +21,38 @@ class DebugScreen extends StatefulWidget {
 class _DebugScreenState extends State<DebugScreen> {
   String? _hello;
 
-  void _nextDay() {
-    setState(() {
-      for (final inhabitant in widget.state.inhabitants) {
-        if (inhabitant.committed) {
-          inhabitant.actions.add(inhabitant.action);
-          inhabitant.committed = false;
-        }
-        inhabitant.action = PlayerAction();
-      }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-      widget.state.day++;
-    });
+    _loadBackground();
+  }
+
+  Future<void> _loadBackground() async {
+    final result = await apiDay();
+
+    if (!mounted) return;
+
+    setState(() => widget.state.day = result['day']);
+  }
+
+  void _nextDay() async {
+    try {
+      setState(() {
+        for (final inhabitant in widget.state.inhabitants) {
+          if (inhabitant.committed) {
+            inhabitant.actions.add(inhabitant.action);
+            inhabitant.committed = false;
+          }
+          inhabitant.action = PlayerAction();
+        }
+      });
+
+      final result = await apiNextDay();
+      setState(() => widget.state.day = result['day']);
+    } catch (e) {
+      setState(() => _hello = e.toString());
+    }
   }
 
   void _clearMyself() {
@@ -73,7 +95,7 @@ class _DebugScreenState extends State<DebugScreen> {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () => _nextDay(),
+                    onPressed: _nextDay,
                     child: const Text('明日まで寝る'),
                   ),
 

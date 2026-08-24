@@ -3,9 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:client/constants.dart';
+
 Future<Uint8List> apiImage(String id) async {
   try {
-    final uri = Uri.parse('http://localhost:8080/api/player/image');
+    final uri = Uri.parse('$apiBaseUrl/player/image');
 
     final response = await http.post(
       uri,

@@ -1,10 +1,11 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
+
+import 'package:client/constants.dart';
 
 Future<Map<String, dynamic>> apiAction(String id, String input) async {
   try {
-    final uri = Uri.parse('http://localhost:8080/api/player/action');
+    final uri = Uri.parse('$apiBaseUrl/player/action');
 
     final response = await http.post(
       uri,

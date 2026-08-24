@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/constants.dart';
 
-Future<Map<String, dynamic>> apiHello() async {
-  final uri = Uri.parse('$apiBaseUrl/hello');
+Future<Map<String, dynamic>> apiDay() async {
+  final uri = Uri.parse('$apiBaseUrl/day');
 
   final response = await http.get(uri);
 

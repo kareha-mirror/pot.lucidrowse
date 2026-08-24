@@ -43,14 +43,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             TranslucentPanel(
               child: Text('${flavor.name} / ${flavor.race} / ${flavor.job}'),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 6),
-              child: diaryButton(context, widget.state, inhabitant),
-            ),
+            diaryButton(context, widget.state, inhabitant),
           ],
         ),
       );

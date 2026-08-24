@@ -16,6 +16,8 @@ func Run(cfg *config.Config) {
 	mux.HandleFunc("POST /api/player/update", wrapUpdateHandler(cfg))
 	mux.HandleFunc("POST /api/player/action", wrapActionHandler(cfg))
 	mux.HandleFunc("POST /api/player/action-image", wrapActionImageHandler(cfg))
+	mux.HandleFunc("GET /api/day", handleDay)
+	mux.HandleFunc("GET /api/next-day", handleNextDay)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	log.Fatal(http.ListenAndServe(cfg.App.Addr, mux))

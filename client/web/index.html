@@ -42,5 +42,46 @@
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    let lucidrowseVersion = null;
+    let updateDialogShown = false;
+
+    async function checkForUpdate() {
+      try {
+        const response = await fetch(
+          '/version.txt?cache=' + Date.now(),
+          { cache: 'no-store' }
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const version = (await response.text()).trim();
+
+        if (lucidrowseVersion === null) {
+          lucidrowseVersion = version;
+          return;
+        }
+
+        if (version !== lucidrowseVersion && !updateDialogShown) {
+          updateDialogShown = true;
+
+          if (confirm(
+            '新しいバージョンが公開されました。\n再読み込みしますか？'
+          )) {
+            location.reload();
+          } else {
+            updateDialogShown = false;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    checkForUpdate();
+    setInterval(checkForUpdate, 600 * 1000);
+  </script>
 </body>
 </html>
