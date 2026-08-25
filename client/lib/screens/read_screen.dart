@@ -36,7 +36,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
     if (!mounted) return;
 
-    setState(() => _actions = result['actions']);
+    setState(() => _actions = result['actions'] ?? []);
   }
 
   List<Widget> _actionList() {
