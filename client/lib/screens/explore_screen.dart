@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/api/list_players.dart';
 import 'package:client/const.dart';
+import 'package:client/models/player.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/state.dart';
@@ -66,7 +67,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 '${player['name']} / ${player['race']} / ${player['job']}',
               ),
             ),
+
             diaryButton(context, widget.state, player['player-id']),
+
+            if (widget.state.override)
+              TranslucentPanel(
+                child: OutlinedButton(
+                  onPressed: () {
+                    final flavor = Flavor();
+                    flavor.name = player['name'];
+                    flavor.race = player['race'];
+                    flavor.job = player['job'];
+                    flavor.description = player['description'];
+                    flavor.imageId = player['image-id'];
+
+                    widget.state.player.inhabitant = true;
+                    widget.state.player.id = player['player-id'];
+                    widget.state.player.day = 0;
+                    widget.state.player.flavor = flavor;
+                    widget.state.player.action = PlayerAction();
+                    widget.state.player.committed = false;
+                  },
+                  child: Text("入り込む"),
+                ),
+              ),
           ],
         ),
       );

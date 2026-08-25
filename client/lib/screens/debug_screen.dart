@@ -130,6 +130,20 @@ class _DebugScreenState extends State<DebugScreen> {
                     child: const Text('ふたを閉じる'),
                   ),
 
+                  const SizedBox(height: 512),
+
+                  SizedBox(
+                    width: 300,
+                    child: SwitchListTile(
+                      title: TranslucentPanel(
+                        child: Center(child: const Text('時空の裂け目')),
+                      ),
+                      value: widget.state.override,
+                      onChanged: (value) =>
+                          setState(() => widget.state.override = value),
+                    ),
+                  ),
+
                   const SizedBox(height: 96),
                 ],
               ),
