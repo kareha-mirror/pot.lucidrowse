@@ -1,75 +1,63 @@
-import 'dart:typed_data';
-
-enum Inhabit { foreigner, inhabitant, hermit, forgotten }
-
 class Flavor {
-  String id = '';
-
-  String raw = '';
-  String filtered = '';
+  String input = '';
 
   String name = '';
   String race = '';
   String job = '';
 
-  String? image;
+  String description = '';
+
+  String? imageId;
 
   int day = 0;
 
-  bool get hasFiltered => filtered != '';
+  bool get hasDescription => description != '';
 
   Flavor clone() {
     final flavor = Flavor();
-    flavor.id = id;
-    flavor.raw = raw;
-    flavor.filtered = filtered;
+
+    flavor.input = input;
     flavor.name = name;
     flavor.race = race;
     flavor.job = job;
-    flavor.image = image;
+    flavor.description = description;
+    flavor.imageId = imageId;
     flavor.day = day;
+
     return flavor;
   }
 
   String formatText() {
     final buf = StringBuffer();
+
     buf.write('名前: $name\n');
     buf.write('種族: $race\n');
     buf.write('職業: $job\n');
-    buf.write('特徴の説明: $filtered\n');
+    buf.write('特徴の説明: $description\n');
+
     return buf.toString();
   }
 }
 
 class PlayerAction {
-  String id = '';
+  String input = '';
 
-  String raw = '';
-  String filtered = '';
+  String description = '';
 
-  String? image;
+  String? imageId;
 
   int day = 0;
 
-  bool get hasFiltered => filtered != '';
+  bool get hasDescription => description != '';
 }
 
 class Player {
-  Inhabit inhabit = Inhabit.foreigner;
-  int settled = 0;
+  bool inhabitant = false;
   String id = '';
+  int day = 0;
 
-  List<Flavor> flavors = [];
   Flavor flavor = Flavor();
 
-  List<PlayerAction> actions = [];
   PlayerAction action = PlayerAction();
   bool committed = false;
-
-  String summary = '';
-
-  bool get isForeigner => inhabit == Inhabit.foreigner;
-
-  Flavor get lastFlavor => flavors.last;
-  PlayerAction? get lastAction => actions.isEmpty ? null : actions.last;
 }

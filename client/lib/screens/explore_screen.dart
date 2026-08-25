@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_players.dart';
-import 'package:client/constants.dart';
+import 'package:client/const.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
-import 'package:client/state/app_state.dart';
+import 'package:client/state.dart';
 import 'package:client/widgets/region_card.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -47,7 +47,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network('$apiBaseUrl/image/${player['image-id']}'),
+              child: Image.network('$apiBase/image/${player['image-id']}'),
             ),
           ),
         );

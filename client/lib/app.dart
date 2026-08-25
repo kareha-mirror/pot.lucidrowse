@@ -6,7 +6,7 @@ import 'package:client/screens/explore_screen.dart';
 import 'package:client/screens/front_screen.dart';
 import 'package:client/screens/home_screen.dart';
 import 'package:client/screens/write_screen.dart';
-import 'package:client/state/app_state.dart';
+import 'package:client/state.dart';
 
 class App extends StatelessWidget {
   final AppState state;

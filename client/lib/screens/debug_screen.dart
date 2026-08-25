@@ -5,7 +5,7 @@ import 'package:client/api/hello.dart';
 import 'package:client/api/next_day.dart';
 import 'package:client/models/player.dart';
 import 'package:client/screens/help_screen.dart';
-import 'package:client/state/app_state.dart';
+import 'package:client/state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -37,12 +37,12 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   void _nextDay() async {
-    try {
-      setState(() {
-        widget.state.player.committed = false;
-        widget.state.player.action = PlayerAction();
-      });
+    setState(() {
+      widget.state.player.committed = false;
+      widget.state.player.action = PlayerAction();
+    });
 
+    try {
       final result = await apiNextDay();
       setState(() => widget.state.day = result['day']);
     } catch (e) {
@@ -91,7 +91,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   TranslucentPanel(
                     child: ElevatedButton(
-                      onPressed: widget.state.player.isForeigner
+                      onPressed: !widget.state.player.inhabitant
                           ? null
                           : () => _clearMyself(),
                       child: const Text('自分を手放す'),

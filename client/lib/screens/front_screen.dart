@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
-import 'package:client/screens/read_screen.dart';
 
 class FrontScreen extends StatefulWidget {
   const FrontScreen({super.key});
@@ -11,11 +10,15 @@ class FrontScreen extends StatefulWidget {
 }
 
 class _FrontScreenState extends State<FrontScreen> {
+  bool _initialized = false;
   bool _ready = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (_initialized) return;
+    _initialized = true;
 
     _loadBackground();
 
@@ -26,8 +29,10 @@ class _FrontScreenState extends State<FrontScreen> {
   }
 
   Future<void> _loadBackground() async {
-    await precacheImage(const AssetImage('assets/images/front.webp'), context);
-    await precacheImage(const AssetImage('assets/images/logo.webp'), context);
+    await Future.wait([
+      precacheImage(const AssetImage('assets/images/front.webp'), context),
+      precacheImage(const AssetImage('assets/images/logo.webp'), context),
+    ]);
 
     if (!mounted) return;
 

@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'package:client/constants.dart';
+import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiDay() async {
-  final uri = Uri.parse('$apiBaseUrl/day');
-
-  final response = await http.get(uri);
+  final response = await http.get(Uri.parse('$apiBase/day'));
 
   if (response.statusCode != 200) {
     throw Exception('HTTP error: ${response.statusCode}');

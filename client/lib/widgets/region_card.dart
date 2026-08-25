@@ -27,7 +27,9 @@ class RegionCard extends StatelessWidget {
               height: MediaQuery.sizeOf(context).width < 600 ? 75 : 150,
               fit: BoxFit.cover,
             ),
+
             const SizedBox(width: 16),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,11 +38,14 @@ class RegionCard extends StatelessWidget {
                     region.name,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+
                   const SizedBox(height: 4),
+
                   Text(areas.join(' / ')),
                 ],
               ),
             ),
+
             const SizedBox(width: 12),
           ],
         ),

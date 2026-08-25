@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'package:client/constants.dart';
+import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiNewFlavor(String playerId, String input) async {
-  final uri = Uri.parse('$apiBaseUrl/new-flavor');
-
   final response = await http.post(
-    uri,
+    Uri.parse('$apiBase/new-flavor'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({'player-id': playerId, 'input': input}),
   );
@@ -16,6 +14,5 @@ Future<Map<String, dynamic>> apiNewFlavor(String playerId, String input) async {
     throw Exception('HTTP error: ${response.statusCode}');
   }
 
-  final json = jsonDecode(response.body);
-  return json;
+  return jsonDecode(response.body);
 }

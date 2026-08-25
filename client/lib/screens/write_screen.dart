@@ -4,9 +4,9 @@ import 'package:client/api/commit_action.dart';
 import 'package:client/api/day.dart';
 import 'package:client/api/new_action.dart';
 import 'package:client/api/image_action.dart';
-import 'package:client/constants.dart';
+import 'package:client/const.dart';
 import 'package:client/models/player.dart';
-import 'package:client/state/app_state.dart';
+import 'package:client/state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -22,15 +22,16 @@ class WriteScreen extends StatefulWidget {
 class _WriteScreenState extends State<WriteScreen> {
   late TextEditingController _inputController;
   late TextEditingController _outputController;
-  bool _textLoading = false;
+  bool _actionLoading = false;
   bool _imageLoading = false;
 
   @override
   void initState() {
     super.initState();
     _inputController = TextEditingController();
-    _inputController.text = widget.state.player.action.raw;
+    _inputController.text = widget.state.player.action.input;
     _outputController = TextEditingController();
+    _outputController.text = widget.state.player.action.description;
   }
 
   @override
@@ -55,13 +56,13 @@ class _WriteScreenState extends State<WriteScreen> {
     setState(() => widget.state.day = result['day']);
   }
 
-  Future<void> _fetchImage(String id) async {
+  Future<void> _loadImage() async {
     setState(() => _imageLoading = true);
     try {
-      final image = await apiImageAction(id);
+      final result = await apiImageAction(widget.state.player.id);
 
       setState(() {
-        widget.state.player.action.image = image['image-id'];
+        widget.state.player.action.imageId = result['image-id'];
       });
     } catch (e) {
       // TODO
@@ -72,30 +73,31 @@ class _WriteScreenState extends State<WriteScreen> {
     }
   }
 
-  Future<void> _fetchAction() async {
-    setState(() => _textLoading = true);
+  Future<void> _loadAction() async {
+    setState(() => _actionLoading = true);
     try {
-      final filtered = await apiNewAction(
+      final result = await apiNewAction(
         widget.state.player.id,
         _inputController.text,
       );
-      final a = PlayerAction();
+      final action = PlayerAction();
 
-      a.raw = _inputController.text;
-      a.day = widget.state.day;
+      action.input = _inputController.text;
 
-      a.filtered = filtered['description'];
+      action.description = result['description'];
+
+      action.day = widget.state.day;
 
       setState(() {
-        widget.state.player.action = a;
-        _outputController.text = widget.state.player.action.filtered;
+        _outputController.text = action.description;
+        widget.state.player.action = action;
       });
 
-      _fetchImage(widget.state.player.id);
+      _loadImage();
     } catch (e) {
       // TODO
     } finally {
-      setState(() => _textLoading = false);
+      setState(() => _actionLoading = false);
     }
   }
 
@@ -131,13 +133,13 @@ class _WriteScreenState extends State<WriteScreen> {
             child: Center(
               child: Column(
                 children: [
-                  if (!widget.state.player.isForeigner) ...[
+                  if (widget.state.player.inhabitant) ...[
                     TranslucentPanel(
                       child: Column(
                         children: [
                           Text(formatDate(widget.state.day)),
                           Text(
-                            'この世界に住んで ${widget.state.day - widget.state.player.settled + 1} 日目。',
+                            'この世界に住んで ${widget.state.day - widget.state.player.day + 1} 日目。',
                           ),
                         ],
                       ),
@@ -154,7 +156,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
                   const SizedBox(height: 24),
 
-                  if (!widget.state.player.isForeigner)
+                  if (widget.state.player.inhabitant)
                     Padding(
                       padding: EdgeInsets.all(
                         MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
@@ -168,7 +170,7 @@ class _WriteScreenState extends State<WriteScreen> {
                           onChanged: (String value) => setState(() {}),
                           maxLines: null,
                           maxLength: 140,
-                          readOnly: _textLoading || _imageLoading,
+                          readOnly: _actionLoading || _imageLoading,
                         ),
                       ),
                     ),
@@ -179,17 +181,18 @@ class _WriteScreenState extends State<WriteScreen> {
                     child: ElevatedButton(
                       onPressed:
                           (_inputController.text.isEmpty ||
-                              _textLoading ||
-                              _imageLoading)
+                              _actionLoading ||
+                              _imageLoading ||
+                              widget.state.player.committed)
                           ? null
-                          : _fetchAction,
+                          : _loadAction,
                       child: const Text('日記に書く'),
                     ),
                   ),
 
-                  if (_textLoading)
+                  if (_actionLoading)
                     const CircularProgressIndicator()
-                  else if (widget.state.player.action.hasFiltered) ...[
+                  else if (widget.state.player.action.hasDescription) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(
@@ -211,18 +214,18 @@ class _WriteScreenState extends State<WriteScreen> {
                     if (_imageLoading)
                       const Column(
                         children: [
-                          TranslucentPanel(child: const Text('情景を映し出しています…')),
-                          const CircularProgressIndicator(),
+                          TranslucentPanel(child: Text('情景を映し出しています…')),
+                          CircularProgressIndicator(),
                         ],
                       )
-                    else if (widget.state.player.action.image != null)
+                    else if (widget.state.player.action.imageId != null)
                       Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 300),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
-                              '$apiBaseUrl/image/${widget.state.player.action.image!}',
+                              '$apiBase/image/${widget.state.player.action.imageId!}',
                             ),
                           ),
                         ),
@@ -231,10 +234,18 @@ class _WriteScreenState extends State<WriteScreen> {
                     const SizedBox(height: 48),
 
                     ElevatedButton(
-                      onPressed: () async {
-                        await _commit();
-                        Navigator.pushNamed(context, '/home');
-                      },
+                      onPressed:
+                          (_actionLoading ||
+                              _imageLoading ||
+                              widget.state.player.committed)
+                          ? null
+                          : () async {
+                              await _commit();
+
+                              if (!context.mounted) return;
+
+                              Navigator.pushNamed(context, '/home');
+                            },
                       child: const Text('これでよし'),
                     ),
                   ],
@@ -242,7 +253,9 @@ class _WriteScreenState extends State<WriteScreen> {
                   const SizedBox(height: 96),
 
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: (_actionLoading || _imageLoading)
+                        ? null
+                        : () => Navigator.pop(context),
                     child: const Text('ペンを置く'),
                   ),
 

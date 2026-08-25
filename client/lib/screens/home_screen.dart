@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
 import 'package:client/screens/read_screen.dart';
-import 'package:client/state/app_state.dart';
+import 'package:client/state.dart';
 
 class HomeScreen extends StatefulWidget {
   final AppState state;

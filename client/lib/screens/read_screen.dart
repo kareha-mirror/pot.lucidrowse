@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_actions.dart';
-import 'package:client/constants.dart';
-import 'package:client/models/player.dart';
-import 'package:client/state/app_state.dart';
+import 'package:client/const.dart';
+import 'package:client/state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -69,7 +68,7 @@ class _ReadScreenState extends State<ReadScreen> {
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network('$apiBaseUrl/image/${action['image-id']}'),
+              child: Image.network('$apiBase/image/${action['image-id']}'),
             ),
           ),
         );
