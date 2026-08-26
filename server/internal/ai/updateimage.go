@@ -14,16 +14,11 @@ import (
 )
 
 func updateImageWithOpenAI(
-	cfg *config.Config, image []byte, updatedFlavor string,
-) ([]byte, error) {
+	cfg *config.Config, image data.Image, updatedFlavor string,
+) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return []byte{}, fmt.Errorf("key not set")
-	}
-
-	areas, err := data.DescribeAreas()
-	if err != nil {
-		return []byte{}, err
+		return data.Image{}, fmt.Errorf("key not set")
 	}
 
 	client := openai.NewClient(
@@ -31,7 +26,7 @@ func updateImageWithOpenAI(
 	)
 
 	message := "Input: " + updatedFlavor
-	prompt := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.UpdateImage + "\n" + message
+	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message
 
 	resp, err := client.Images.Edit(
 		context.Background(),
@@ -43,21 +38,21 @@ func updateImageWithOpenAI(
 			Prompt:       prompt,
 			Image: openai.ImageEditParamsImageUnion{
 				OfFile: openai.File(
-					bytes.NewReader(image),
+					bytes.NewReader(image.Content),
 					"image.webp",
-					"image/webp",
+					image.ContentType,
 				),
 			},
 		},
 	)
 	if err != nil {
-		return []byte{}, err
+		return data.Image{}, err
 	}
 
 	if len(resp.Data) == 0 {
-		return []byte{}, fmt.Errorf("no choices in response")
+		return data.Image{}, fmt.Errorf("no choices in response")
 	}
 	updatedImage, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
 
-	return updatedImage, nil
+	return data.Image{ContentType: "image/webp", Content: updatedImage}, nil
 }

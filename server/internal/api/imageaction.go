@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -19,8 +20,8 @@ type ImageActionResponse struct {
 }
 
 func newActionImage(
-	cfg *config.Config, image []byte, text string,
-) ([]byte, error) {
+	cfg *config.Config, image data.Image, text string,
+) (data.Image, error) {
 	return ai.ActionImage(cfg, image, text)
 }
 
@@ -60,7 +61,7 @@ func handleImageAction(
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	image, err := data.LoadImage(*f.ImagePubId)
+	image, err := data.LoadImage(context.Background(), *f.ImagePubId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -81,7 +82,7 @@ func handleImageAction(
 		return
 	}
 
-	err = data.SaveImage(imagePubId, newImage)
+	err = data.SaveImage(context.Background(), imagePubId, newImage)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

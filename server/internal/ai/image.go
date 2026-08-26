@@ -12,15 +12,10 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-func imageWithOpenAI(cfg *config.Config, flavor string) ([]byte, error) {
+func imageWithOpenAI(cfg *config.Config, flavor string) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return []byte{}, fmt.Errorf("key not set")
-	}
-
-	areas, err := data.DescribeAreas()
-	if err != nil {
-		return []byte{}, err
+		return data.Image{}, fmt.Errorf("key not set")
 	}
 
 	client := openai.NewClient(
@@ -28,7 +23,7 @@ func imageWithOpenAI(cfg *config.Config, flavor string) ([]byte, error) {
 	)
 
 	message := "JSON: " + flavor
-	prompt := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.Image + "\n" + message
+	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message
 
 	resp, err := client.Images.Generate(
 		context.Background(),
@@ -41,13 +36,13 @@ func imageWithOpenAI(cfg *config.Config, flavor string) ([]byte, error) {
 		},
 	)
 	if err != nil {
-		return []byte{}, err
+		return data.Image{}, err
 	}
 
 	if len(resp.Data) == 0 {
-		return []byte{}, fmt.Errorf("no choices in response")
+		return data.Image{}, fmt.Errorf("no choices in response")
 	}
 	image, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
 
-	return image, nil
+	return data.Image{ContentType: "image/webp", Content: image}, nil
 }

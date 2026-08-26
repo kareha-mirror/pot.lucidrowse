@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS players (
 
 CREATE TABLE IF NOT EXISTS images (
 	pub_id TEXT PRIMARY KEY,
+	content_type TEXT NOT NULL,
 	content BYTEA NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT now()
 );

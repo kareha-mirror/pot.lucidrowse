@@ -28,7 +28,7 @@ func updateWithOpenAI(
 		option.WithAPIKey(apiKey),
 	)
 
-	systemMessage := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.Update
+	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Areas + areas + "\n" + cfg.Prompts.Update
 	userMessage := "JSON: " + flavor + "\nInput: " + input
 
 	resp, err := client.Chat.Completions.New(

@@ -9,6 +9,7 @@ import (
 
 type Prompts struct {
 	Common      string `yaml:"common"`
+	Areas       string `yaml:"areas"`
 	Create      string `yaml:"create"`
 	Image       string `yaml:"image"`
 	Update      string `yaml:"update"`

@@ -26,7 +26,7 @@ func createWithOpenAI(cfg *config.Config, input string) (string, error) {
 		option.WithAPIKey(apiKey),
 	)
 
-	systemMessage := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.Create
+	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Areas + areas + "\n" + cfg.Prompts.Create
 	userMessage := "Input: " + input
 
 	resp, err := client.Chat.Completions.New(

@@ -13,7 +13,9 @@ type ListPlayersResponse struct {
 }
 
 func handleListPlayers(w http.ResponseWriter, r *http.Request) {
-	players, err := data.PlayerList()
+	regionCode := r.PathValue("id")
+
+	players, err := data.PlayerList(regionCode)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

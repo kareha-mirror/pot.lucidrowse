@@ -16,7 +16,7 @@ type PlayerItem struct {
 	ImagePubId  string `json:"image-id"`
 }
 
-func PlayerList() ([]PlayerItem, error) {
+func PlayerList(regionCode string) ([]PlayerItem, error) {
 	rows, err := db.Query(context.Background(), `
 		SELECT p.pub_id, f.name, f.race, f.job, f.description, f.area_code, f.area_name, f.image_pub_id
 		FROM players AS p
@@ -28,8 +28,9 @@ func PlayerList() ([]PlayerItem, error) {
 		  LIMIT 1
 		) AS f ON TRUE
 		WHERE p.activated = TRUE
+		  AND f.area_code LIKE $1 || '%'
 		ORDER BY p.id
-		`)
+		`, regionCode)
 	if err != nil {
 		return nil, err
 	}

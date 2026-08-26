@@ -3,8 +3,10 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/const.dart';
 
-Future<Map<String, dynamic>> apiListPlayers() async {
-  final response = await http.get(Uri.parse('$apiBase/list-players'));
+Future<Map<String, dynamic>> apiListPlayers(String regionCode) async {
+  final response = await http.get(
+    Uri.parse('$apiBase/list-players/$regionCode'),
+  );
 
   if (response.statusCode != 200) {
     throw Exception('HTTP error: ${response.statusCode}');

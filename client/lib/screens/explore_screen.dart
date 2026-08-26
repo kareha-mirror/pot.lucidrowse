@@ -22,29 +22,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
   int regionIndex = -1;
   List<dynamic> _players = [];
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  Future<void> _loadPlayers() async {
+    setState(() => _players = []);
 
-    _loadBackground();
-  }
-
-  Future<void> _loadBackground() async {
-    final result = await apiListPlayers();
+    final region = regions[regionIndex];
+    final result = await apiListPlayers(region.code);
 
     if (!mounted) return;
 
-    setState(() => _players = result['players']);
+    setState(() => _players = result['players'] ?? []);
   }
 
   List<Widget> inhabitantsList() {
     final region = regions[regionIndex];
+
     List<Widget> list = [];
     for (final player in _players) {
-      if (!player['area-code'].startsWith(region.code)) {
-        continue;
-      }
-
       list.add(const SizedBox(height: 24));
 
       if (player['image-id'] != null) {
@@ -161,7 +154,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           constraints: const BoxConstraints(maxWidth: 600),
                           child: RegionCard(
                             region: regions[index],
-                            onTap: () => setState(() => regionIndex = index),
+                            onTap: () {
+                              setState(() => regionIndex = index);
+                              _loadPlayers();
+                            },
                           ),
                         ),
                       ),

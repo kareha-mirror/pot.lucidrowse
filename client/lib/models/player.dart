@@ -38,7 +38,9 @@ class Flavor {
     buf.write('名前: $name\n');
     buf.write('種族: $race\n');
     buf.write('職業: $job\n');
+    buf.write('\n');
     buf.write('特徴の説明: $description\n');
+    buf.write('\n');
     //buf.write('住んでいる地域のコード: $areaCode\n');
     buf.write('住んでいる地域: $areaName\n');
 

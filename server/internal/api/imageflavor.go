@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -18,13 +19,13 @@ type ImageFlavorResponse struct {
 	ImageId string `json:"image-id"`
 }
 
-func newFlavorImage(cfg *config.Config, flavor string) ([]byte, error) {
+func newFlavorImage(cfg *config.Config, flavor string) (data.Image, error) {
 	return ai.Image(cfg, flavor)
 }
 
 func updateFlavorImage(
-	cfg *config.Config, image []byte, updatedFlavor string,
-) ([]byte, error) {
+	cfg *config.Config, image data.Image, updatedFlavor string,
+) (data.Image, error) {
 	return ai.UpdateImage(cfg, image, updatedFlavor)
 }
 
@@ -68,11 +69,11 @@ func handleImageFlavor(
 		return
 	}
 
-	var newImage []byte
+	var newImage data.Image
 	if f.ImagePubId == nil {
 		newImage, err = newFlavorImage(cfg, string(flavorStr))
 	} else {
-		image, err := data.LoadImage(*f.ImagePubId)
+		image, err := data.LoadImage(context.Background(), *f.ImagePubId)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -93,7 +94,7 @@ func handleImageFlavor(
 		return
 	}
 
-	err = data.SaveImage(imagePubId, newImage)
+	err = data.SaveImage(context.Background(), imagePubId, newImage)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

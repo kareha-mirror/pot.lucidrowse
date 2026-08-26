@@ -27,7 +27,7 @@ func Run(cfg *config.Config) {
 
 	mux.HandleFunc("GET /api/image/{id}", handleImage)
 
-	mux.HandleFunc("GET /api/list-players", handleListPlayers)
+	mux.HandleFunc("GET /api/list-players/{id}", handleListPlayers)
 	mux.HandleFunc("GET /api/list-actions/{id}", handleListActions)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
