@@ -50,6 +50,8 @@ func handleUpdateFlavor(
 		Race:        f.Race,
 		Job:         f.Job,
 		Description: f.Description,
+		AreaCode:    f.AreaCode,
+		AreaName:    f.AreaName,
 	}
 
 	flavorStr, err := json.Marshal(flavor)
@@ -80,6 +82,8 @@ func handleUpdateFlavor(
 		Race:        updatedFlavor.Race,
 		Job:         updatedFlavor.Job,
 		Description: updatedFlavor.Description,
+		AreaCode:    updatedFlavor.AreaCode,
+		AreaName:    updatedFlavor.AreaName,
 	}
 
 	if err = data.AddFlavor(id, updatedF); err != nil {

@@ -11,15 +11,17 @@ type PlayerItem struct {
 	Race        string `json:"race"`
 	Job         string `json:"job"`
 	Description string `json:"description"`
+	AreaCode    string `json:"area-code"`
+	AreaName    string `json:"area-name"`
 	ImagePubId  string `json:"image-id"`
 }
 
 func PlayerList() ([]PlayerItem, error) {
 	rows, err := db.Query(context.Background(), `
-		SELECT p.pub_id, f.name, f.race, f.job, f.description, f.image_pub_id
+		SELECT p.pub_id, f.name, f.race, f.job, f.description, f.area_code, f.area_name, f.image_pub_id
 		FROM players AS p
 		JOIN LATERAL (
-		  SELECT name, race, job, description, image_pub_id
+		  SELECT name, race, job, description, area_code, area_name, image_pub_id
 		  FROM flavors
 		  WHERE player_id = p.id AND committed = TRUE
 		  ORDER BY id DESC
@@ -44,6 +46,8 @@ func PlayerList() ([]PlayerItem, error) {
 			&p.Race,
 			&p.Job,
 			&p.Description,
+			&p.AreaCode,
+			&p.AreaName,
 			&p.ImagePubId,
 		)
 		if err != nil {

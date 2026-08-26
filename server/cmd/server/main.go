@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/api"
@@ -19,6 +20,10 @@ func main() {
 
 	db := data.Connect(cfg)
 	defer db.Close()
+
+	if err := data.SeedAreas(); err != nil {
+		log.Fatal(err)
+	}
 
 	api.Run(cfg)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/openai/openai-go/v3/option"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
 func imageWithOpenAI(cfg *config.Config, flavor string) ([]byte, error) {
@@ -17,12 +18,17 @@ func imageWithOpenAI(cfg *config.Config, flavor string) ([]byte, error) {
 		return []byte{}, fmt.Errorf("key not set")
 	}
 
+	areas, err := data.DescribeAreas()
+	if err != nil {
+		return []byte{}, err
+	}
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
 	message := "JSON: " + flavor
-	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message
+	prompt := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.Image + "\n" + message
 
 	resp, err := client.Images.Generate(
 		context.Background(),

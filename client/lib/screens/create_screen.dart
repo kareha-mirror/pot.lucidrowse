@@ -104,6 +104,8 @@ class _CreateScreenState extends State<CreateScreen> {
         flavor.race = result['race'];
         flavor.job = result['job'];
         flavor.description = result['description'];
+        flavor.areaCode = result['area-code'];
+        flavor.areaName = result['area-name'];
 
         flavor.day = widget.state.day;
 

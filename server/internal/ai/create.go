@@ -8,6 +8,7 @@ import (
 	"github.com/openai/openai-go/v3/option"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
 func createWithOpenAI(cfg *config.Config, input string) (string, error) {
@@ -16,11 +17,16 @@ func createWithOpenAI(cfg *config.Config, input string) (string, error) {
 		return "", fmt.Errorf("key not set")
 	}
 
+	areas, err := data.DescribeAreas()
+	if err != nil {
+		return "", err
+	}
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Create
+	systemMessage := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.Create
 	userMessage := "Input: " + input
 
 	resp, err := client.Chat.Completions.New(

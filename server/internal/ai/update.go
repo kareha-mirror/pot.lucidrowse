@@ -8,6 +8,7 @@ import (
 	"github.com/openai/openai-go/v3/option"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
 func updateWithOpenAI(
@@ -18,11 +19,16 @@ func updateWithOpenAI(
 		return "", fmt.Errorf("key not set")
 	}
 
+	areas, err := data.DescribeAreas()
+	if err != nil {
+		return "", err
+	}
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Update
+	systemMessage := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.Update
 	userMessage := "JSON: " + flavor + "\nInput: " + input
 
 	resp, err := client.Chat.Completions.New(

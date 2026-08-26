@@ -38,8 +38,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   List<Widget> inhabitantsList() {
+    final region = regions[regionIndex];
     List<Widget> list = [];
     for (final player in _players) {
+      if (!player['area-code'].startsWith(region.code)) {
+        continue;
+      }
+
       list.add(const SizedBox(height: 24));
 
       if (player['image-id'] != null) {

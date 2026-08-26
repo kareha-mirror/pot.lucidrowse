@@ -10,6 +10,7 @@ import (
 	"github.com/openai/openai-go/v3/option"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
 func updateImageWithOpenAI(
@@ -20,12 +21,17 @@ func updateImageWithOpenAI(
 		return []byte{}, fmt.Errorf("key not set")
 	}
 
+	areas, err := data.DescribeAreas()
+	if err != nil {
+		return []byte{}, err
+	}
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
 	message := "Input: " + updatedFlavor
-	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message
+	prompt := cfg.Prompts.Common + "\n" + areas + "\n" + cfg.Prompts.UpdateImage + "\n" + message
 
 	resp, err := client.Images.Edit(
 		context.Background(),

@@ -41,6 +41,8 @@ type Flavor struct {
 	Race        string
 	Job         string
 	Description string
+	AreaCode    string
+	AreaName    string
 
 	// optionals
 	Day        int64
@@ -51,11 +53,11 @@ type Flavor struct {
 func AddFlavor(playerId int, flavor Flavor) error {
 	_, err := db.Exec(context.Background(), `
 		INSERT INTO flavors
-		(player_id, input, name, race, job, description, day)
-		SELECT $1, $2, $3, $4, $5, $6, day_counter
+		(player_id, input, name, race, job, description, area_code, area_name, day)
+		SELECT $1, $2, $3, $4, $5, $6, $7, $8, day_counter
 		FROM state
 		WHERE id = 1
-		`, playerId, flavor.Input, flavor.Name, flavor.Race, flavor.Job, flavor.Description)
+		`, playerId, flavor.Input, flavor.Name, flavor.Race, flavor.Job, flavor.Description, flavor.AreaCode, flavor.AreaName)
 	if err != nil {
 		return err
 	}
@@ -95,7 +97,7 @@ func CommitLastFlavor(playerId int) error {
 func LoadLastFlavor(playerId int) (Flavor, error) {
 	var flavor Flavor
 	err := db.QueryRow(context.Background(), `
-		SELECT name, race, job, description, day, image_pub_id, committed
+		SELECT name, race, job, description, area_code, area_name, day, image_pub_id, committed
 		FROM flavors
 		WHERE id = (
 		  SELECT id
@@ -105,7 +107,7 @@ func LoadLastFlavor(playerId int) (Flavor, error) {
 		  LIMIT 1
 		)
 		`, playerId).
-		Scan(&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description, &flavor.Day, &flavor.ImagePubId, &flavor.Committed)
+		Scan(&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description, &flavor.AreaCode, &flavor.AreaName, &flavor.Day, &flavor.ImagePubId, &flavor.Committed)
 	if err != nil {
 		return Flavor{}, err
 	}

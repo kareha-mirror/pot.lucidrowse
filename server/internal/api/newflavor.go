@@ -21,6 +21,8 @@ type Flavor struct {
 	Race        string `json:"race"`
 	Job         string `json:"job"`
 	Description string `json:"description"`
+	AreaCode    string `json:"area-code"`
+	AreaName    string `json:"area-name"`
 	Error       string `json:"error"`
 }
 
@@ -71,6 +73,8 @@ func handleNewFlavor(
 		Race:        flavor.Race,
 		Job:         flavor.Job,
 		Description: flavor.Description,
+		AreaCode:    flavor.AreaCode,
+		AreaName:    flavor.AreaName,
 	}
 
 	if err = data.AddFlavor(playerId, f); err != nil {

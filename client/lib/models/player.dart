@@ -7,6 +7,9 @@ class Flavor {
 
   String description = '';
 
+  String areaCode = '';
+  String areaName = '';
+
   String? imageId;
 
   int day = 0;
@@ -21,6 +24,8 @@ class Flavor {
     flavor.race = race;
     flavor.job = job;
     flavor.description = description;
+    flavor.areaCode = areaCode;
+    flavor.areaName = areaName;
     flavor.imageId = imageId;
     flavor.day = day;
 
@@ -34,6 +39,8 @@ class Flavor {
     buf.write('種族: $race\n');
     buf.write('職業: $job\n');
     buf.write('特徴の説明: $description\n');
+    //buf.write('住んでいる地域のコード: $areaCode\n');
+    buf.write('住んでいる地域: $areaName\n');
 
     return buf.toString();
   }

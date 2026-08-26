@@ -57,6 +57,8 @@ func handleImageFlavor(
 		Race:        f.Race,
 		Job:         f.Job,
 		Description: f.Description,
+		AreaCode:    f.AreaCode,
+		AreaName:    f.AreaName,
 	}
 
 	flavorStr, err := json.Marshal(flavor)

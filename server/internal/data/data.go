@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS flavors (
 	race TEXT NOT NULL,
 	job TEXT NOT NULL,
 	description TEXT NOT NULL,
+	area_code TEXT NOT NULL,
+	area_name TEXT NOT NULL,
 	day BIGINT NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT now(),
 	image_pub_id TEXT REFERENCES images(pub_id),
@@ -57,6 +59,15 @@ CREATE TABLE IF NOT EXISTS actions (
 	image_pub_id TEXT REFERENCES images(pub_id),
 	committed BOOL NOT NULL DEFAULT FALSE,
 	fixed BOOL NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS areas (
+	id SERIAL PRIMARY KEY,
+	region_code TEXT NOT NULL,
+	area_code TEXT NOT NULL,
+	name TEXT NOT NULL,
+
+	UNIQUE (region_code, area_code)
 );
 `
 
