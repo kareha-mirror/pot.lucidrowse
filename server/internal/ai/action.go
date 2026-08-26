@@ -2,28 +2,39 @@ package ai
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
+	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
 func actionWithOpenAI(
-	cfg *config.Config, flavor string, input string,
+	cfg *config.Config, flavor string, areaCode string, input string,
 ) (string, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
 		return "", fmt.Errorf("key not set")
 	}
 
+	actions, err := data.EventList(areaCode)
+	if err != nil {
+		return "", err
+	}
+	actionsStr, err := json.Marshal(actions)
+	if err != nil {
+		return "", err
+	}
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Action
-	userMessage := "JSON: " + flavor + "\nInput: " + input
+	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.Action
+	userMessage := "ACTIONS: " + string(actionsStr) + "\nJSON: " + flavor + "\nInput: " + input
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),

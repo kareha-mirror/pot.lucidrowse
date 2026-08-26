@@ -54,12 +54,12 @@ func UpdateImage(
 	}
 }
 
-func Action(cfg *config.Config, flavor string, input string) (string, error) {
+func Action(cfg *config.Config, flavor string, areaCode string, input string) (string, error) {
 	normCurrent := norm.NFC.String(flavor)
 	normContent := norm.NFC.String(input)
 
 	if cfg.AI.Agent == "openai" {
-		text, err := actionWithOpenAI(cfg, normCurrent, normContent)
+		text, err := actionWithOpenAI(cfg, normCurrent, areaCode, normContent)
 		return norm.NFC.String(text), err
 	} else {
 		return "", fmt.Errorf("invalid AI agent")

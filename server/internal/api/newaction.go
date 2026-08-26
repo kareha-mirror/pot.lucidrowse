@@ -20,9 +20,9 @@ type NewActionResponse struct {
 }
 
 func newAction(
-	cfg *config.Config, flavor string, input string,
+	cfg *config.Config, flavor string, areaCode string, input string,
 ) (string, error) {
-	return ai.Action(cfg, flavor, input)
+	return ai.Action(cfg, flavor, areaCode, input)
 }
 
 func handleNewAction(
@@ -65,7 +65,7 @@ func handleNewAction(
 		return
 	}
 
-	description, err := newAction(cfg, string(flavorStr), req.Input)
+	description, err := newAction(cfg, string(flavorStr), flavor.AreaCode, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

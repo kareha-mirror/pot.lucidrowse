@@ -14,6 +14,7 @@ type Prompts struct {
 	Image       string `yaml:"image"`
 	Update      string `yaml:"update"`
 	UpdateImage string `yaml:"update-image"`
+	Events      string `yaml:"events"`
 	Action      string `yaml:"action"`
 	ActionImage string `yaml:"action-image"`
 }
