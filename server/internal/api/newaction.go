@@ -8,6 +8,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type NewActionRequest struct {
@@ -17,12 +18,6 @@ type NewActionRequest struct {
 
 type NewActionResponse struct {
 	Description string `json:"description"`
-}
-
-func newAction(
-	cfg *config.Config, flavor string, areaCode string, input string,
-) (string, error) {
-	return ai.Action(cfg, flavor, areaCode, input)
 }
 
 func handleNewAction(
@@ -49,7 +44,7 @@ func handleNewAction(
 		return
 	}
 
-	flavor := Flavor{
+	flavor := model.Flavor{
 		Name:        f.Name,
 		Race:        f.Race,
 		Job:         f.Job,
@@ -58,36 +53,28 @@ func handleNewAction(
 		AreaName:    f.AreaName,
 	}
 
-	flavorStr, err := json.Marshal(flavor)
+	action, err := ai.Action(cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	description, err := newAction(cfg, string(flavorStr), flavor.AreaCode, req.Input)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+	if action.Error == "" {
+		a := data.Action{
+			Input:       req.Input,
+			Description: action.Description,
+		}
+
+		if err = data.AddAction(playerId, a); err != nil {
+			log.Println(err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	a := data.Action{
-		Input:       req.Input,
-		Description: description,
-	}
-
-	if err = data.AddAction(playerId, a); err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	res := NewActionResponse{
-		Description: description,
-	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(action)
 }
 
 func newActionHandler(cfg *config.Config) http.HandlerFunc {

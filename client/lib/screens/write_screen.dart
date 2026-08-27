@@ -80,20 +80,26 @@ class _WriteScreenState extends State<WriteScreen> {
         widget.state.player.id,
         _inputController.text,
       );
-      final action = PlayerAction();
+      if (result['error'] == '') {
+        final action = PlayerAction();
 
-      action.input = _inputController.text;
+        action.input = _inputController.text;
 
-      action.description = result['description'];
+        action.description = result['description'];
 
-      action.day = widget.state.day;
+        action.day = widget.state.day;
 
-      setState(() {
-        _outputController.text = action.description;
-        widget.state.player.action = action;
-      });
+        setState(() {
+          _outputController.text = action.description;
+          widget.state.player.action = action;
+        });
 
-      _loadImage();
+        _loadImage();
+      } else {
+        setState(() {
+          _outputController.text = 'エラー:\n${result['error']}';
+        });
+      }
     } catch (e) {
       // TODO
     } finally {

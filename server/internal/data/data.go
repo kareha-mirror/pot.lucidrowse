@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -74,7 +73,7 @@ CREATE TABLE IF NOT EXISTS areas (
 
 var bootCount int64
 
-func Connect(cfg *config.Config) *pgxpool.Pool {
+func Connect(cfg *config.Config) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		cfg.Database.User,
@@ -88,12 +87,12 @@ func Connect(cfg *config.Config) *pgxpool.Pool {
 	var err error
 	db, err = pgxpool.New(context.Background(), dsn)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		return nil, err
 	}
 
 	_, err = db.Exec(context.Background(), createTablesSql)
 	if err != nil {
-		log.Fatalf("failed to create table: %v", err)
+		return nil, err
 	}
 
 	err = db.QueryRow(context.Background(), `
@@ -104,8 +103,8 @@ func Connect(cfg *config.Config) *pgxpool.Pool {
 		RETURNING boot_counter;
 		`).Scan(&bootCount)
 	if err != nil {
-		log.Fatalf("failed to count up boot conter: %v", err)
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }

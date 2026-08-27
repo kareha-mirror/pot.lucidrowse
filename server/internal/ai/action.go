@@ -10,23 +10,29 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 func actionWithOpenAI(
-	cfg *config.Config, flavor string, areaCode string, input string,
-) (string, error) {
+	cfg *config.Config, flavor model.Flavor, input string,
+) (model.Action, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return "", fmt.Errorf("key not set")
+		return model.Action{}, fmt.Errorf("key not set")
 	}
 
-	actions, err := data.EventList(areaCode)
+	flavorStr, err := flavor.Marshal()
 	if err != nil {
-		return "", err
+		return model.Action{}, err
+	}
+
+	actions, err := data.EventList(flavor.AreaCode)
+	if err != nil {
+		return model.Action{}, err
 	}
 	actionsStr, err := json.Marshal(actions)
 	if err != nil {
-		return "", err
+		return model.Action{}, err
 	}
 
 	client := openai.NewClient(
@@ -34,7 +40,7 @@ func actionWithOpenAI(
 	)
 
 	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.Action
-	userMessage := "ACTIONS: " + string(actionsStr) + "\nJSON: " + flavor + "\nInput: " + input
+	userMessage := "ACTIONS: " + string(actionsStr) + "\nJSON: " + flavorStr + "\nInput: " + input
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
@@ -49,13 +55,13 @@ func actionWithOpenAI(
 		},
 	)
 	if err != nil {
-		return "", err
+		return model.Action{}, err
 	}
 
 	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response")
+		return model.Action{}, fmt.Errorf("no choices in response")
 	}
 	text := resp.Choices[0].Message.Content
 
-	return text, nil
+	return model.ParseAction(text)
 }

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -40,18 +39,21 @@ type Config struct {
 	Prompts *Prompts
 }
 
-func Load(path string) *Config {
+func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		return nil, err
 	}
 
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		log.Fatalf("failed to parse config: %v", err)
+		return nil, err
 	}
 
-	cfg.Prompts = loadPrompts(cfg.PromptsPath)
+	cfg.Prompts, err = loadPrompts(cfg.PromptsPath)
+	if err != nil {
+		return nil, err
+	}
 
-	return &cfg
+	return &cfg, nil
 }

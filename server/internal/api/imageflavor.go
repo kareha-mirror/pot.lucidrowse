@@ -9,6 +9,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type ImageFlavorRequest struct {
@@ -17,16 +18,6 @@ type ImageFlavorRequest struct {
 
 type ImageFlavorResponse struct {
 	ImageId string `json:"image-id"`
-}
-
-func newFlavorImage(cfg *config.Config, flavor string) (data.Image, error) {
-	return ai.Image(cfg, flavor)
-}
-
-func updateFlavorImage(
-	cfg *config.Config, image data.Image, updatedFlavor string,
-) (data.Image, error) {
-	return ai.UpdateImage(cfg, image, updatedFlavor)
 }
 
 func handleImageFlavor(
@@ -53,7 +44,7 @@ func handleImageFlavor(
 		return
 	}
 
-	flavor := Flavor{
+	flavor := model.Flavor{
 		Name:        f.Name,
 		Race:        f.Race,
 		Job:         f.Job,
@@ -62,16 +53,9 @@ func handleImageFlavor(
 		AreaName:    f.AreaName,
 	}
 
-	flavorStr, err := json.Marshal(flavor)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-
 	var newImage data.Image
 	if f.ImagePubId == nil {
-		newImage, err = newFlavorImage(cfg, string(flavorStr))
+		newImage, err = ai.Image(cfg, flavor)
 	} else {
 		image, err := data.LoadImage(context.Background(), *f.ImagePubId)
 		if err != nil {
@@ -79,7 +63,7 @@ func handleImageFlavor(
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		newImage, err = updateFlavorImage(cfg, image, string(flavorStr))
+		newImage, err = ai.UpdateImage(cfg, image, flavor)
 	}
 	if err != nil {
 		log.Println(err)

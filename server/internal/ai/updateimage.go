@@ -11,21 +11,27 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 func updateImageWithOpenAI(
-	cfg *config.Config, image data.Image, updatedFlavor string,
+	cfg *config.Config, image data.Image, updatedFlavor model.Flavor,
 ) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
 		return data.Image{}, fmt.Errorf("key not set")
 	}
 
+	updatedFlavorStr, err := updatedFlavor.Marshal()
+	if err != nil {
+		return data.Image{}, err
+	}
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "Input: " + updatedFlavor
+	message := "Input: " + updatedFlavorStr
 	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message
 
 	resp, err := client.Images.Edit(

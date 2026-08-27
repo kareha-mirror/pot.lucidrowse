@@ -34,8 +34,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   List<Widget> inhabitantsList() {
-    final region = regions[regionIndex];
-
     List<Widget> list = [];
     for (final player in _players) {
       list.add(const SizedBox(height: 24));

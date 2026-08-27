@@ -11,10 +11,11 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 func actionImageWithOpenAI(
-	cfg *config.Config, image data.Image, text string,
+	cfg *config.Config, image data.Image, action model.Action,
 ) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
@@ -25,7 +26,7 @@ func actionImageWithOpenAI(
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "Text: " + text
+	message := "Text: " + action.Description
 	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.ActionImage + "\n" + message
 
 	resp, err := client.Images.Edit(

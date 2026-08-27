@@ -7,72 +7,66 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
-func Create(cfg *config.Config, input string) (string, error) {
-	normContent := norm.NFC.String(input)
+func Create(cfg *config.Config, input string) (model.Flavor, error) {
+	normInput := norm.NFC.String(input)
 
 	if cfg.AI.Agent == "openai" {
-		flavor, err := createWithOpenAI(cfg, normContent)
-		return norm.NFC.String(flavor), err
+		return createWithOpenAI(cfg, normInput)
 	} else {
-		return "", fmt.Errorf("invalid AI agent")
+		return model.Flavor{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
-func Image(cfg *config.Config, flavor string) (data.Image, error) {
-	normContent := norm.NFC.String(flavor)
-
+func Image(cfg *config.Config, flavor model.Flavor) (data.Image, error) {
 	if cfg.AI.Agent == "openai" {
-		return imageWithOpenAI(cfg, normContent)
+		return imageWithOpenAI(cfg, flavor)
 	} else {
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
-func Update(cfg *config.Config, flavor string, input string) (string, error) {
-	normCurrent := norm.NFC.String(flavor)
-	normContent := norm.NFC.String(input)
+func Update(
+	cfg *config.Config, flavor model.Flavor, input string,
+) (model.Flavor, error) {
+	normInput := norm.NFC.String(input)
 
 	if cfg.AI.Agent == "openai" {
-		updatedFlavor, err := updateWithOpenAI(cfg, normCurrent, normContent)
-		return norm.NFC.String(updatedFlavor), err
+		return updateWithOpenAI(cfg, flavor, normInput)
 	} else {
-		return "", fmt.Errorf("invalid AI agent")
+		return model.Flavor{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
 func UpdateImage(
-	cfg *config.Config, image data.Image, newFlavor string,
+	cfg *config.Config, image data.Image, newFlavor model.Flavor,
 ) (data.Image, error) {
-	normContent := norm.NFC.String(newFlavor)
-
 	if cfg.AI.Agent == "openai" {
-		return updateImageWithOpenAI(cfg, image, normContent)
+		return updateImageWithOpenAI(cfg, image, newFlavor)
 	} else {
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
-func Action(cfg *config.Config, flavor string, areaCode string, input string) (string, error) {
-	normCurrent := norm.NFC.String(flavor)
-	normContent := norm.NFC.String(input)
+func Action(
+	cfg *config.Config, flavor model.Flavor, input string,
+) (model.Action, error) {
+	normInput := norm.NFC.String(input)
 
 	if cfg.AI.Agent == "openai" {
-		text, err := actionWithOpenAI(cfg, normCurrent, areaCode, normContent)
-		return norm.NFC.String(text), err
+		return actionWithOpenAI(cfg, flavor, normInput)
 	} else {
-		return "", fmt.Errorf("invalid AI agent")
+		return model.Action{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
 func ActionImage(
-	cfg *config.Config, image data.Image, text string,
+	cfg *config.Config, image data.Image, action model.Action,
 ) (data.Image, error) {
-	normContent := norm.NFC.String(text)
-
 	if cfg.AI.Agent == "openai" {
-		return actionImageWithOpenAI(cfg, image, normContent)
+		return actionImageWithOpenAI(cfg, image, action)
 	} else {
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}

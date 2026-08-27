@@ -8,17 +8,12 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type UpdateFlavorRequest struct {
 	PlayerId string `json:"player-id"`
 	Input    string `json:"input"`
-}
-
-func updateFlavor(
-	cfg *config.Config, flavor string, input string,
-) (string, error) {
-	return ai.Update(cfg, flavor, input)
 }
 
 func handleUpdateFlavor(
@@ -45,7 +40,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	flavor := Flavor{
+	flavor := model.Flavor{
 		Name:        f.Name,
 		Race:        f.Race,
 		Job:         f.Job,
@@ -54,23 +49,8 @@ func handleUpdateFlavor(
 		AreaName:    f.AreaName,
 	}
 
-	flavorStr, err := json.Marshal(flavor)
+	updatedFlavor, err := ai.Update(cfg, flavor, req.Input)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	rawUpdatedFlavorStr, err := updateFlavor(cfg, string(flavorStr), req.Input)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	updatedFlavorStr := sanitizeFlavorString(rawUpdatedFlavorStr)
-	var updatedFlavor Flavor
-	if err := json.Unmarshal([]byte(updatedFlavorStr), &updatedFlavor); err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return

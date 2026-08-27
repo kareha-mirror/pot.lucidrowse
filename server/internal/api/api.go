@@ -7,7 +7,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 )
 
-func Run(cfg *config.Config) {
+func Run(cfg *config.Config) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/hello", handleHello)
@@ -31,5 +31,5 @@ func Run(cfg *config.Config) {
 	mux.HandleFunc("GET /api/list-actions/{id}", handleListActions)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
-	log.Fatal(http.ListenAndServe(cfg.App.Addr, mux))
+	return http.ListenAndServe(cfg.App.Addr, mux)
 }

@@ -9,6 +9,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type ImageActionRequest struct {
@@ -17,12 +18,6 @@ type ImageActionRequest struct {
 
 type ImageActionResponse struct {
 	ImageId string `json:"image-id"`
-}
-
-func newActionImage(
-	cfg *config.Config, image data.Image, text string,
-) (data.Image, error) {
-	return ai.ActionImage(cfg, image, text)
 }
 
 func handleImageAction(
@@ -68,7 +63,8 @@ func handleImageAction(
 		return
 	}
 
-	newImage, err := newActionImage(cfg, image, a.Description)
+	action := model.Action{Description: a.Description}
+	newImage, err := ai.ActionImage(cfg, image, action)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

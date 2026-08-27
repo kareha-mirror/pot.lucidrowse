@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/api"
@@ -16,14 +15,26 @@ func main() {
 		return
 	}
 
-	cfg := config.Load(os.Args[1])
-
-	db := data.Connect(cfg)
-	defer db.Close()
-
-	if err := data.SeedAreas(); err != nil {
-		log.Fatal(err)
+	cfg, err := config.Load(os.Args[1])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		return
 	}
 
-	api.Run(cfg)
+	db, err := data.Connect(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		return
+	}
+	defer db.Close()
+
+	if err = data.Seed(); err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		return
+	}
+
+	if err = api.Run(cfg); err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		return
+	}
 }

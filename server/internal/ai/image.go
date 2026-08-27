@@ -10,19 +10,27 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
+	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
-func imageWithOpenAI(cfg *config.Config, flavor string) (data.Image, error) {
+func imageWithOpenAI(
+	cfg *config.Config, flavor model.Flavor,
+) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
 		return data.Image{}, fmt.Errorf("key not set")
+	}
+
+	flavorStr, err := flavor.Marshal()
+	if err != nil {
+		return data.Image{}, err
 	}
 
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "JSON: " + flavor
+	message := "JSON: " + flavorStr
 	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.Image + "\n" + message
 
 	resp, err := client.Images.Generate(

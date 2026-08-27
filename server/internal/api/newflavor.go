@@ -16,20 +16,6 @@ type NewFlavorRequest struct {
 	Input    string `json:"input"`
 }
 
-type Flavor struct {
-	Name        string `json:"name"`
-	Race        string `json:"race"`
-	Job         string `json:"job"`
-	Description string `json:"description"`
-	AreaCode    string `json:"area-code"`
-	AreaName    string `json:"area-name"`
-	Error       string `json:"error"`
-}
-
-func newFlavor(cfg *config.Config, input string) (string, error) {
-	return ai.Create(cfg, input)
-}
-
 func sanitizeFlavorString(s string) string {
 	sanitized := strings.ReplaceAll(s, "```json", "")
 	return strings.ReplaceAll(sanitized, "```", "")
@@ -52,16 +38,8 @@ func handleNewFlavor(
 		return
 	}
 
-	rawFlavorStr, err := newFlavor(cfg, req.Input)
+	flavor, err := ai.Create(cfg, req.Input)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	flavorStr := sanitizeFlavorString(rawFlavorStr)
-	var flavor Flavor
-	if err := json.Unmarshal([]byte(flavorStr), &flavor); err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
