@@ -70,3 +70,11 @@ func NewActionImage(
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}
 }
+
+func UpdateState(cfg *config.Config, areaCode string) (string, error) {
+	if cfg.AI.Agent == "openai" {
+		return updateStateWithOpenAI(cfg, areaCode)
+	} else {
+		return "", fmt.Errorf("invalid AI agent")
+	}
+}

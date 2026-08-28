@@ -69,6 +69,16 @@ CREATE TABLE IF NOT EXISTS areas (
 
 	UNIQUE (region_code, area_code)
 );
+
+CREATE TABLE IF NOT EXISTS area_states (
+	id SERIAL PRIMARY KEY,
+	area_code TEXT NOT NULL,
+	day BIGINT NOT NULL,
+	state TEXT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now(),
+
+	UNIQUE (area_code, day)
+);
 `
 
 var bootCount int64

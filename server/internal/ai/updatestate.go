@@ -12,45 +12,41 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-func newActionWithOpenAI(
-	cfg *config.Config, flavor Flavor, input string,
-) (Action, error) {
+func updateStateWithOpenAI(
+	cfg *config.Config, areaCode string,
+) (string, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return Action{}, fmt.Errorf("key not set")
+		return "", fmt.Errorf("key not set")
 	}
 
-	flavorStr, err := flavor.Marshal()
+	state, err := data.AreaState(areaCode)
 	if err != nil {
-		return Action{}, err
+		return "", err
 	}
 
-	state, err := data.AreaState(flavor.AreaCode)
+	actions, err := data.EventList(areaCode)
 	if err != nil {
-		return Action{}, err
-	}
-
-	actions, err := data.EventList(flavor.AreaCode)
-	if err != nil {
-		return Action{}, err
+		return "", err
 	}
 	actionsStr, err := json.Marshal(actions)
 	if err != nil {
-		return Action{}, err
+		return "", err
 	}
 
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.Action
-	userMessage := "STATE: " + state + "\n\nACTIONS: " + string(actionsStr) + "\n\nJSON: " + flavorStr + "\n\nInput: " + input
+	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.UpdateState
+	userMessage := "STATE: " + state + "\n\nACTIONS: " + string(actionsStr)
 
 	// debug
 	//fmt.Println("System Message:")
 	//fmt.Println(systemMessage)
 	//fmt.Println("User Message:")
 	//fmt.Println(userMessage)
+	fmt.Println("UpdateAreaState: " + areaCode)
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
@@ -65,13 +61,13 @@ func newActionWithOpenAI(
 		},
 	)
 	if err != nil {
-		return Action{}, err
+		return "", err
 	}
 
 	if len(resp.Choices) == 0 {
-		return Action{}, fmt.Errorf("no choices in response")
+		return "", fmt.Errorf("no choices in response")
 	}
 	text := resp.Choices[0].Message.Content
 
-	return ParseAction(text)
+	return text, nil
 }

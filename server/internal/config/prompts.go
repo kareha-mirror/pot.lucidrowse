@@ -16,6 +16,7 @@ type Prompts struct {
 	Events      string `yaml:"events"`
 	Action      string `yaml:"action"`
 	ActionImage string `yaml:"action-image"`
+	UpdateState string `yaml:"update-state"`
 }
 
 func loadPrompts(path string) (*Prompts, error) {

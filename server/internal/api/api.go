@@ -12,7 +12,7 @@ func Run(cfg *config.Config) error {
 
 	mux.HandleFunc("GET /api/hello", handleHello)
 	mux.HandleFunc("GET /api/day", handleDay)
-	mux.HandleFunc("GET /api/next-day", handleNextDay)
+	mux.HandleFunc("GET /api/next-day", nextDayHandler(cfg))
 
 	mux.HandleFunc("GET /api/new-player", handleNewPlayer)
 
