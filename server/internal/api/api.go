@@ -29,6 +29,7 @@ func Run(cfg *config.Config) error {
 
 	mux.HandleFunc("GET /api/list-players/{id}", handleListPlayers)
 	mux.HandleFunc("GET /api/list-actions/{id}", handleListActions)
+	mux.HandleFunc("GET /api/region-state/{id}", handleRegionState)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	return http.ListenAndServe(cfg.App.Addr, mux)

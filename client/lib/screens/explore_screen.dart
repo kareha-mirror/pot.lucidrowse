@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_players.dart';
+import 'package:client/api/region_state.dart';
 import 'package:client/const.dart';
 import 'package:client/models/player.dart';
 import 'package:client/models/region.dart';
@@ -21,6 +22,32 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   int regionIndex = -1;
   List<dynamic> _players = [];
+  late TextEditingController _stateController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _stateController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _stateController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> _loadState() async {
+    setState(() => _stateController.text = '');
+
+    final region = regions[regionIndex];
+    final result = await apiRegionState(region.code);
+
+    if (!mounted) return;
+
+    setState(() => _stateController.text = result['state'] ?? '');
+  }
 
   Future<void> _loadPlayers() async {
     setState(() => _players = []);
@@ -154,6 +181,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             region: regions[index],
                             onTap: () {
                               setState(() => regionIndex = index);
+                              _loadState();
                               _loadPlayers();
                             },
                           ),
@@ -186,6 +214,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       TranslucentPanel(child: const Text('まだ誰も住んでない。'))
                     else
                       ...inhabitantsList(),
+
+                    const SizedBox(height: 48),
+
+                    TranslucentPanel(child: const Text('地域の様子')),
+
+                    const SizedBox(height: 12),
+
+                    TranslucentPanel(
+                      child: TextField(
+                        controller: _stateController,
+                        maxLines: null,
+                        readOnly: true,
+                      ),
+                    ),
 
                     const SizedBox(height: 96),
 
