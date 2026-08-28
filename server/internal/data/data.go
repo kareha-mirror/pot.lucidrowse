@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS flavors (
 
 CREATE TABLE IF NOT EXISTS actions (
 	id SERIAL PRIMARY KEY,
-	player_id INT NOT NULL REFERENCES players(id),
+	flavor_id INT NOT NULL REFERENCES flavors(id),
 	input TEXT NOT NULL,
 	description TEXT NOT NULL,
 	day BIGINT NOT NULL,

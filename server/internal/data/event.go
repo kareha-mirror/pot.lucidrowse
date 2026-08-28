@@ -17,20 +17,11 @@ func EventList(areaCode string) ([]EventItem, error) {
 	rows, err := db.Query(context.Background(), `
 		SELECT f.name, f.race, f.job, f.description, a.description
 		FROM actions AS a
-		JOIN players AS p
-		  ON p.id = a.player_id
-		JOIN LATERAL (
-		  SELECT name, race, job, description, area_code
-		  FROM flavors
-		  WHERE player_id = p.id
-		    AND committed = TRUE
-		  ORDER BY id DESC
-		  LIMIT 1
-		) AS f ON TRUE
+		JOIN flavors AS f ON f.id = a.flavor_id
 		WHERE a.committed = TRUE
 		  AND a.day = (SELECT day_counter FROM state WHERE id = 1)
 		  AND f.area_code = $1
-		ORDER BY a.id ASC;
+		ORDER BY a.id ASC
 		`, areaCode)
 	if err != nil {
 		return nil, err

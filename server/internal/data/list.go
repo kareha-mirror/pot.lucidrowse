@@ -75,7 +75,8 @@ func ActionList(playerPubId string) ([]ActionItem, error) {
 	rows, err := db.Query(context.Background(), `
 		SELECT a.day, a.description, a.image_pub_id
 		FROM actions AS a
-		JOIN players AS p ON p.id = a.player_id
+		JOIN flavors AS f ON f.id = a.flavor_id
+		JOIN players AS p ON p.id = f.player_id
 		WHERE p.pub_id = $1 AND a.fixed = TRUE
 		ORDER BY a.id DESC
 		`, playerPubId)

@@ -128,10 +128,15 @@ type Action struct {
 func AddAction(playerId int, action Action) error {
 	_, err := db.Exec(context.Background(), `
 		INSERT INTO actions
-		(player_id, input, description, day)
-		SELECT $1, $2, $3, day_counter
-		FROM state
-		WHERE id = 1
+		(flavor_id, input, description, day)
+		SELECT f.id, $2, $3, day_counter
+		FROM flavors f
+		CROSS JOIN state s
+		WHERE f.player_id = $1
+		  AND f.committed = TRUE
+		  AND s.id = 1
+		ORDER BY f.id DESC
+		LIMIT 1
 		`, playerId, action.Input, action.Description)
 	if err != nil {
 		return err
@@ -144,10 +149,11 @@ func AddImageToLastAction(playerId int, imagePubId string) error {
 		UPDATE actions
 		SET image_pub_id=$1
 		WHERE id = (
-		  SELECT id
-		  FROM actions
-		  WHERE player_id=$2
-		  ORDER BY id DESC
+		  SELECT a.id
+		  FROM actions a
+		  JOIN flavors f ON a.flavor_id = f.id
+		  WHERE f.player_id = $2
+		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
 		`, imagePubId, playerId)
@@ -157,12 +163,13 @@ func AddImageToLastAction(playerId int, imagePubId string) error {
 func CommitLastAction(playerId int) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE actions
-		SET committed=TRUE
+		SET committed = TRUE
 		WHERE id = (
-		  SELECT id
-		  FROM actions
-		  WHERE player_id=$1
-		  ORDER BY id DESC
+		  SELECT a.id
+		  FROM actions a
+		  JOIN flavors f ON a.flavor_id = f.id
+		  WHERE f.player_id = $1
+		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
 		`, playerId)
@@ -175,10 +182,11 @@ func LoadLastAction(playerId int) (Action, error) {
 		SELECT description, day, image_pub_id, committed, fixed
 		FROM actions
 		WHERE id = (
-		  SELECT id
-		  FROM actions
-		  WHERE player_id=$1
-		  ORDER BY id DESC
+		  SELECT a.id
+		  FROM actions a
+		  JOIN flavors f ON a.flavor_id = f.id
+		  WHERE f.player_id = $1
+		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
 		`, playerId).

@@ -42,6 +42,12 @@ func actionWithOpenAI(
 	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.Action
 	userMessage := "ACTIONS: " + string(actionsStr) + "\nJSON: " + flavorStr + "\nInput: " + input
 
+	// debug
+	//fmt.Println("System Message:")
+	//fmt.Println(systemMessage)
+	//fmt.Println("User Message:")
+	//fmt.Println(userMessage)
+
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
 		openai.ChatCompletionNewParams{
