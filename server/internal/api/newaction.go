@@ -8,7 +8,6 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
-	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type NewActionRequest struct {
@@ -44,7 +43,7 @@ func handleNewAction(
 		return
 	}
 
-	flavor := model.Flavor{
+	flavor := ai.Flavor{
 		Name:        f.Name,
 		Race:        f.Race,
 		Job:         f.Job,
@@ -53,7 +52,7 @@ func handleNewAction(
 		AreaName:    f.AreaName,
 	}
 
-	action, err := ai.Action(cfg, flavor, req.Input)
+	action, err := ai.NewAction(cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

@@ -10,11 +10,10 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
-	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
-func imageWithOpenAI(
-	cfg *config.Config, flavor model.Flavor,
+func newFlavorImageWithOpenAI(
+	cfg *config.Config, flavor Flavor,
 ) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {

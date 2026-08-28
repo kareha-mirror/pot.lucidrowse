@@ -8,7 +8,6 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
-	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type UpdateFlavorRequest struct {
@@ -40,7 +39,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	flavor := model.Flavor{
+	flavor := ai.Flavor{
 		Name:        f.Name,
 		Race:        f.Race,
 		Job:         f.Job,
@@ -49,7 +48,7 @@ func handleUpdateFlavor(
 		AreaName:    f.AreaName,
 	}
 
-	updatedFlavor, err := ai.Update(cfg, flavor, req.Input)
+	updatedFlavor, err := ai.UpdateFlavor(cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

@@ -11,28 +11,22 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
-	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
-func updateImageWithOpenAI(
-	cfg *config.Config, image data.Image, updatedFlavor model.Flavor,
+func newActionImageWithOpenAI(
+	cfg *config.Config, image data.Image, action Action,
 ) (data.Image, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
 		return data.Image{}, fmt.Errorf("key not set")
 	}
 
-	updatedFlavorStr, err := updatedFlavor.Marshal()
-	if err != nil {
-		return data.Image{}, err
-	}
-
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	message := "Input: " + updatedFlavorStr
-	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message
+	message := "Text: " + action.Description
+	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.ActionImage + "\n" + message
 
 	resp, err := client.Images.Edit(
 		context.Background(),
@@ -58,7 +52,7 @@ func updateImageWithOpenAI(
 	if len(resp.Data) == 0 {
 		return data.Image{}, fmt.Errorf("no choices in response")
 	}
-	updatedImage, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
+	newImage, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
 
-	return data.Image{ContentType: "image/webp", Content: updatedImage}, nil
+	return data.Image{ContentType: "image/webp", Content: newImage}, nil
 }

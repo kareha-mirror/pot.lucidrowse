@@ -9,18 +9,17 @@ import (
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
-	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
-func createWithOpenAI(cfg *config.Config, input string) (model.Flavor, error) {
+func newFlavorWithOpenAI(cfg *config.Config, input string) (Flavor, error) {
 	apiKey := cfg.AI.Key
 	if apiKey == "" {
-		return model.Flavor{}, fmt.Errorf("key not set")
+		return Flavor{}, fmt.Errorf("key not set")
 	}
 
 	areas, err := data.DescribeAreas()
 	if err != nil {
-		return model.Flavor{}, err
+		return Flavor{}, err
 	}
 
 	client := openai.NewClient(
@@ -43,13 +42,13 @@ func createWithOpenAI(cfg *config.Config, input string) (model.Flavor, error) {
 		},
 	)
 	if err != nil {
-		return model.Flavor{}, err
+		return Flavor{}, err
 	}
 
 	if len(resp.Choices) == 0 {
-		return model.Flavor{}, fmt.Errorf("no choices in response")
+		return Flavor{}, fmt.Errorf("no choices in response")
 	}
 	flavor := resp.Choices[0].Message.Content
 
-	return model.ParseFlavor(flavor)
+	return ParseFlavor(flavor)
 }

@@ -38,7 +38,7 @@ func handleNewFlavor(
 		return
 	}
 
-	flavor, err := ai.Create(cfg, req.Input)
+	flavor, err := ai.NewFlavor(cfg, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

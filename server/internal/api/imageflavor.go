@@ -9,7 +9,6 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
-	"tea.kareha.org/pot/lucidrowse/server/internal/model"
 )
 
 type ImageFlavorRequest struct {
@@ -44,7 +43,7 @@ func handleImageFlavor(
 		return
 	}
 
-	flavor := model.Flavor{
+	flavor := ai.Flavor{
 		Name:        f.Name,
 		Race:        f.Race,
 		Job:         f.Job,
@@ -55,7 +54,7 @@ func handleImageFlavor(
 
 	var newImage data.Image
 	if f.ImagePubId == nil {
-		newImage, err = ai.Image(cfg, flavor)
+		newImage, err = ai.NewFlavorImage(cfg, flavor)
 	} else {
 		image, err := data.LoadImage(context.Background(), *f.ImagePubId)
 		if err != nil {
@@ -63,7 +62,7 @@ func handleImageFlavor(
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		newImage, err = ai.UpdateImage(cfg, image, flavor)
+		newImage, err = ai.UpdateFlavorImage(cfg, image, flavor)
 	}
 	if err != nil {
 		log.Println(err)
