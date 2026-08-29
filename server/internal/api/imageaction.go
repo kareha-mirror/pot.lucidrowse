@@ -11,10 +11,6 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type ImageActionRequest struct {
-	PlayerId string `json:"player-id"`
-}
-
 type ImageActionResponse struct {
 	ImageId string `json:"image-id"`
 }
@@ -22,14 +18,9 @@ type ImageActionResponse struct {
 func handleImageAction(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
-	var req ImageActionRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
+	playerPubId := r.PathValue("id")
 
-	playerId, err := data.PlayerId(req.PlayerId)
+	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "bad request", http.StatusBadRequest)

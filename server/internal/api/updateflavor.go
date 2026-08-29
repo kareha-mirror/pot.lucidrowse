@@ -11,13 +11,14 @@ import (
 )
 
 type UpdateFlavorRequest struct {
-	PlayerId string `json:"player-id"`
-	Input    string `json:"input"`
+	Input string `json:"input"`
 }
 
 func handleUpdateFlavor(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
+	playerPubId := r.PathValue("id")
+
 	var req UpdateFlavorRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Println(err)
@@ -25,7 +26,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	id, err := data.PlayerId(req.PlayerId)
+	id, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "bad request", http.StatusBadRequest)

@@ -14,7 +14,7 @@ type RegionStateResponse struct {
 }
 
 func handleRegionState(w http.ResponseWriter, r *http.Request) {
-	regionCode := r.PathValue("id")
+	regionCode := r.PathValue("code")
 
 	areas, err := data.AreaList()
 	if err != nil {

@@ -12,24 +12,30 @@ func Run(cfg *config.Config) error {
 
 	mux.HandleFunc("GET /api/hello", handleHello)
 	mux.HandleFunc("GET /api/day", handleDay)
-	mux.HandleFunc("GET /api/next-day", nextDayHandler(cfg))
+	mux.HandleFunc("POST /api/next-day", nextDayHandler(cfg))
 
-	mux.HandleFunc("GET /api/new-player", handleNewPlayer)
+	mux.HandleFunc("POST /api/players", handleNewPlayer)
 
-	mux.HandleFunc("POST /api/new-flavor", newFlavorHandler(cfg))
-	mux.HandleFunc("POST /api/image-flavor", imageFlavorHandler(cfg))
-	mux.HandleFunc("POST /api/update-flavor", updateFlavorHandler(cfg))
-	mux.HandleFunc("POST /api/commit-flavor", handleCommitFlavor)
+	mux.HandleFunc("POST /api/players/{id}/flavor", newFlavorHandler(cfg))
+	mux.HandleFunc(
+		"POST /api/players/{id}/flavor/image", imageFlavorHandler(cfg),
+	)
+	mux.HandleFunc(
+		"POST /api/players/{id}/flavor/update", updateFlavorHandler(cfg),
+	)
+	mux.HandleFunc("POST /api/players/{id}/flavor/commit", handleCommitFlavor)
 
-	mux.HandleFunc("POST /api/new-action", newActionHandler(cfg))
-	mux.HandleFunc("POST /api/image-action", imageActionHandler(cfg))
-	mux.HandleFunc("POST /api/commit-action", handleCommitAction)
+	mux.HandleFunc("POST /api/players/{id}/actions", newActionHandler(cfg))
+	mux.HandleFunc(
+		"POST /api/players/{id}/actions/image", imageActionHandler(cfg),
+	)
+	mux.HandleFunc("POST /api/players/{id}/actions/commit", handleCommitAction)
 
-	mux.HandleFunc("GET /api/image/{id}", handleImage)
+	mux.HandleFunc("GET /api/images/{id}", handleImage)
 
-	mux.HandleFunc("GET /api/list-players/{id}", handleListPlayers)
-	mux.HandleFunc("GET /api/list-actions/{id}", handleListActions)
-	mux.HandleFunc("GET /api/region-state/{id}", handleRegionState)
+	mux.HandleFunc("GET /api/regions/{code}/players", handleListPlayers)
+	mux.HandleFunc("GET /api/players/{id}/actions", handleListActions)
+	mux.HandleFunc("GET /api/regions/{code}/state", handleRegionState)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	return http.ListenAndServe(cfg.App.Addr, mux)

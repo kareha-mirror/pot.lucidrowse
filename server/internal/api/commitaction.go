@@ -8,21 +8,12 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type CommitActionRequest struct {
-	PlayerId string `json:"player-id"`
-}
-
 type CommitActionResponse struct{}
 
 func handleCommitAction(w http.ResponseWriter, r *http.Request) {
-	var req CommitActionRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
+	playerPubId := r.PathValue("id")
 
-	playerId, err := data.PlayerId(req.PlayerId)
+	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "bad request", http.StatusBadRequest)

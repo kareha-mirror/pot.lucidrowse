@@ -5,9 +5,9 @@ import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiCommitAction(String playerId) async {
   final response = await http.post(
-    Uri.parse('$apiBase/commit-action'),
+    Uri.parse('$apiBase/players/$playerId/actions/commit'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'player-id': playerId}),
+    body: jsonEncode({}),
   );
 
   if (response.statusCode != 200) {

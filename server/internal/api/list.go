@@ -13,7 +13,7 @@ type ListPlayersResponse struct {
 }
 
 func handleListPlayers(w http.ResponseWriter, r *http.Request) {
-	regionCode := r.PathValue("id")
+	regionCode := r.PathValue("code")
 
 	players, err := data.PlayerList(regionCode)
 	if err != nil {

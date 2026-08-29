@@ -8,9 +8,9 @@ Future<Map<String, dynamic>> apiUpdateFlavor(
   String input,
 ) async {
   final response = await http.post(
-    Uri.parse('$apiBase/update-flavor'),
+    Uri.parse('$apiBase/players/$playerId/flavor/update'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'player-id': playerId, 'input': input}),
+    body: jsonEncode({'input': input}),
   );
 
   if (response.statusCode != 200) {

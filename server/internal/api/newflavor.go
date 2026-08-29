@@ -12,8 +12,7 @@ import (
 )
 
 type NewFlavorRequest struct {
-	PlayerId string `json:"player-id"`
-	Input    string `json:"input"`
+	Input string `json:"input"`
 }
 
 func sanitizeFlavorString(s string) string {
@@ -24,6 +23,8 @@ func sanitizeFlavorString(s string) string {
 func handleNewFlavor(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
+	playerPubId := r.PathValue("id")
+
 	var req NewFlavorRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Println(err)
@@ -31,7 +32,7 @@ func handleNewFlavor(
 		return
 	}
 
-	playerId, err := data.PlayerId(req.PlayerId)
+	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "bad request", http.StatusBadRequest)

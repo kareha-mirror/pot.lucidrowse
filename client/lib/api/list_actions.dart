@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiListActions(String playerId) async {
-  final response = await http.get(Uri.parse('$apiBase/list-actions/$playerId'));
+  final response = await http.get(
+    Uri.parse('$apiBase/players/$playerId/actions'),
+  );
 
   if (response.statusCode != 200) {
     throw Exception('HTTP error: ${response.statusCode}');

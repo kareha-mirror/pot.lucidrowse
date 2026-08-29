@@ -5,7 +5,7 @@ import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiListPlayers(String regionCode) async {
   final response = await http.get(
-    Uri.parse('$apiBase/list-players/$regionCode'),
+    Uri.parse('$apiBase/regions/$regionCode/players'),
   );
 
   if (response.statusCode != 200) {

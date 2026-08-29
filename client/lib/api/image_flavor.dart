@@ -5,9 +5,9 @@ import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiImageFlavor(String playerId) async {
   final response = await http.post(
-    Uri.parse('$apiBase/image-flavor'),
+    Uri.parse('$apiBase/players/$playerId/flavor/image'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'player-id': playerId}),
+    body: jsonEncode({}),
   );
 
   if (response.statusCode != 200) {

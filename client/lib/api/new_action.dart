@@ -5,9 +5,9 @@ import 'package:client/const.dart';
 
 Future<Map<String, dynamic>> apiNewAction(String playerId, String input) async {
   final response = await http.post(
-    Uri.parse('$apiBase/new-action'),
+    Uri.parse('$apiBase/players/$playerId/actions'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'player-id': playerId, 'input': input}),
+    body: jsonEncode({'input': input}),
   );
 
   if (response.statusCode != 200) {
