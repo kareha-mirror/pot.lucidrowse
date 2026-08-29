@@ -8,14 +8,11 @@ class Region {
   final String code;
   final String name;
   final List<Area> areas;
-  final String image;
 
-  const Region({
-    required this.code,
-    required this.name,
-    required this.areas,
-    required this.image,
-  });
+  const Region({required this.code, required this.name, required this.areas});
+
+  String get imagePath => 'assets/images/regions/$code.webp';
+  String get thumbnailPath => 'assets/images/regions/$code-thumb.webp';
 }
 
 const List<Region> regions = [
@@ -26,7 +23,6 @@ const List<Region> regions = [
       Area(name: '王都'),
       Area(name: '近郊'),
     ],
-    image: 'assets/images/regions/capital.webp',
   ),
   Region(
     code: 'west',
@@ -35,7 +31,6 @@ const List<Region> regions = [
       Area(name: '街道'),
       Area(name: '丘陵'),
     ],
-    image: 'assets/images/regions/west.webp',
   ),
   Region(
     code: 'north',
@@ -44,7 +39,6 @@ const List<Region> regions = [
       Area(name: '山岳'),
       Area(name: '高原'),
     ],
-    image: 'assets/images/regions/north.webp',
   ),
   Region(
     code: 'east',
@@ -53,7 +47,6 @@ const List<Region> regions = [
       Area(name: '森林'),
       Area(name: '湖沼'),
     ],
-    image: 'assets/images/regions/east.webp',
   ),
   Region(
     code: 'south',
@@ -62,7 +55,6 @@ const List<Region> regions = [
       Area(name: '平野'),
       Area(name: '農村'),
     ],
-    image: 'assets/images/regions/south.webp',
   ),
   Region(
     code: 'coast',
@@ -71,7 +63,6 @@ const List<Region> regions = [
       Area(name: '港湾'),
       Area(name: '海岸'),
     ],
-    image: 'assets/images/regions/coast.webp',
   ),
   Region(
     code: 'islands',
@@ -80,6 +71,5 @@ const List<Region> regions = [
       Area(name: '大島'),
       Area(name: '周辺諸島'),
     ],
-    image: 'assets/images/regions/islands.webp',
   ),
 ];

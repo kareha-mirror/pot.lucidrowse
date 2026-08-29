@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:client/api/list_players.dart';
 import 'package:client/api/region_state.dart';
-import 'package:client/const.dart';
 import 'package:client/models/player.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/state.dart';
+import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/region_card.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -22,7 +22,9 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   int regionIndex = -1;
   List<dynamic> _players = [];
+  String? _playersErrorMessage;
   late TextEditingController _stateController;
+  String? _stateErrorMessage;
 
   @override
   void initState() {
@@ -39,28 +41,42 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Future<void> _loadState() async {
-    setState(() => _stateController.text = '');
+    try {
+      setState(() {
+        _stateController.text = '';
+        _stateErrorMessage = null;
+      });
 
-    final region = regions[regionIndex];
-    final result = await apiRegionState(region.code);
+      final region = regions[regionIndex];
+      final result = await apiRegionState(region.code);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => _stateController.text = result['state'] ?? '');
+      setState(() => _stateController.text = result['state'] ?? '');
+    } catch (e) {
+      setState(() => _stateErrorMessage = e.toString());
+    }
   }
 
   Future<void> _loadPlayers() async {
-    setState(() => _players = []);
+    try {
+      setState(() {
+        _players = [];
+        _playersErrorMessage = null;
+      });
 
-    final region = regions[regionIndex];
-    final result = await apiListPlayers(region.code);
+      final region = regions[regionIndex];
+      final result = await apiListPlayers(region.code);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => _players = result['players'] ?? []);
+      setState(() => _players = result['players'] ?? []);
+    } catch (e) {
+      setState(() => _playersErrorMessage = e.toString());
+    }
   }
 
-  List<Widget> inhabitantsList() {
+  List<Widget> playersList() {
     List<Widget> list = [];
     for (final player in _players) {
       list.add(const SizedBox(height: 24));
@@ -71,7 +87,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network('$apiBase/image/${player['image-id']}'),
+              child: Image.network(imageUrl(player['image-id'])),
             ),
           ),
         );
@@ -148,7 +164,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               width: double.infinity,
               height: double.infinity,
               child: Image(
-                image: AssetImage(regions[regionIndex].image),
+                image: AssetImage(regions[regionIndex].imagePath),
                 fit: BoxFit.cover,
               ),
             ),
@@ -210,10 +226,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
                     const SizedBox(height: 24),
 
+                    if (_playersErrorMessage != null)
+                      const SizedBox(height: 12),
+                    if (_playersErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _playersErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
+
                     if (_players.isEmpty)
                       TranslucentPanel(child: const Text('まだ誰も住んでない。'))
                     else
-                      ...inhabitantsList(),
+                      ...playersList(),
 
                     const SizedBox(height: 48),
 
@@ -228,6 +256,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         readOnly: true,
                       ),
                     ),
+
+                    if (_stateErrorMessage != null) const SizedBox(height: 12),
+                    if (_stateErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _stateErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
 
                     const SizedBox(height: 96),
 

@@ -5,9 +5,9 @@ import 'package:client/api/image_flavor.dart';
 import 'package:client/api/new_flavor.dart';
 import 'package:client/api/new_player.dart';
 import 'package:client/api/update_flavor.dart';
-import 'package:client/const.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state.dart';
+import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class CreateScreen extends StatefulWidget {
@@ -21,10 +21,12 @@ class CreateScreen extends StatefulWidget {
 
 class _CreateScreenState extends State<CreateScreen> {
   late TextEditingController _inputController;
+  String? _flavorErrorMessage;
   late TextEditingController _outputController;
   Flavor _flavor = Flavor();
   bool _flavorLoading = false;
   bool _imageLoading = false;
+  String? _imageErrorMessage;
 
   @override
   void initState() {
@@ -33,7 +35,7 @@ class _CreateScreenState extends State<CreateScreen> {
     _inputController = TextEditingController();
     _outputController = TextEditingController();
 
-    _flavor = widget.state.player.flavor.clone();
+    _flavor = Flavor.copy(widget.state.player.flavor);
     if (_flavor.hasDescription) {
       _outputController.text = _flavor.formatText();
     }
@@ -59,7 +61,10 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _loadImage() async {
-    setState(() => _imageLoading = true);
+    setState(() {
+      _imageLoading = true;
+      _imageErrorMessage = null;
+    });
     try {
       final result = await apiImageFlavor(widget.state.player.id);
 
@@ -67,7 +72,7 @@ class _CreateScreenState extends State<CreateScreen> {
         _flavor.imageId = result['image-id'];
       });
     } catch (e) {
-      // TODO
+      setState(() => _imageErrorMessage = e.toString());
     } finally {
       setState(() {
         _imageLoading = false;
@@ -76,7 +81,10 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _loadFlavor() async {
-    setState(() => _flavorLoading = true);
+    setState(() {
+      _flavorLoading = true;
+      _flavorErrorMessage = null;
+    });
     try {
       final Map<String, dynamic> result;
       if (widget.state.player.flavor.hasDescription) {
@@ -96,17 +104,9 @@ class _CreateScreenState extends State<CreateScreen> {
         );
       }
       if (result['error'] == '') {
-        final flavor = Flavor();
+        final flavor = Flavor.fromJson(result);
 
         flavor.input = _inputController.text;
-
-        flavor.name = result['name'];
-        flavor.race = result['race'];
-        flavor.job = result['job'];
-        flavor.description = result['description'];
-        flavor.areaCode = result['area-code'];
-        flavor.areaName = result['area-name'];
-
         flavor.day = widget.state.day;
 
         setState(() {
@@ -121,7 +121,7 @@ class _CreateScreenState extends State<CreateScreen> {
         });
       }
     } catch (e) {
-      // TODO
+      setState(() => _flavorErrorMessage = e.toString());
     } finally {
       setState(() => _flavorLoading = false);
     }
@@ -240,6 +240,17 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
 
+                  if (_flavorErrorMessage != null) const SizedBox(height: 12),
+                  if (_flavorErrorMessage != null)
+                    TranslucentPanel(
+                      child: Text(
+                        _flavorErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+
                   if (_flavorLoading)
                     const CircularProgressIndicator()
                   else if (_flavor.hasDescription) ...[
@@ -274,9 +285,18 @@ class _CreateScreenState extends State<CreateScreen> {
                           constraints: const BoxConstraints(maxWidth: 300),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              '$apiBase/image/${_flavor.imageId!}',
-                            ),
+                            child: Image.network(imageUrl(_flavor.imageId!)),
+                          ),
+                        ),
+                      ),
+
+                    if (_imageErrorMessage != null) const SizedBox(height: 12),
+                    if (_imageErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _imageErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
                       ),

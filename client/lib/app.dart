@@ -16,7 +16,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ルシドロウズ',
+      title: 'ルシドロウズ - Lucidrowse',
 
       theme: ThemeData(
         colorScheme: .fromSeed(

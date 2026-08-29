@@ -4,10 +4,10 @@ import 'package:client/api/commit_action.dart';
 import 'package:client/api/day.dart';
 import 'package:client/api/new_action.dart';
 import 'package:client/api/image_action.dart';
-import 'package:client/const.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state.dart';
 import 'package:client/utils/calendar.dart';
+import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class WriteScreen extends StatefulWidget {
@@ -20,10 +20,14 @@ class WriteScreen extends StatefulWidget {
 }
 
 class _WriteScreenState extends State<WriteScreen> {
+  bool _initialized = false;
+  String? _dayErrorMessage;
   late TextEditingController _inputController;
+  String? _actionErrorMessage;
   late TextEditingController _outputController;
   bool _actionLoading = false;
   bool _imageLoading = false;
+  String? _imageErrorMessage;
 
   @override
   void initState() {
@@ -45,19 +49,30 @@ class _WriteScreenState extends State<WriteScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadBackground();
+    _loadDay();
   }
 
-  Future<void> _loadBackground() async {
-    final result = await apiDay();
+  Future<void> _loadDay() async {
+    try {
+      final result = await apiDay();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => widget.state.day = result['day']);
+      setState(() {
+        widget.state.day = result['day'];
+
+        _initialized = true;
+      });
+    } catch (e) {
+      setState(() => _dayErrorMessage = e.toString());
+    }
   }
 
   Future<void> _loadImage() async {
-    setState(() => _imageLoading = true);
+    setState(() {
+      _imageLoading = true;
+      _imageErrorMessage = null;
+    });
     try {
       final result = await apiImageAction(widget.state.player.id);
 
@@ -65,7 +80,7 @@ class _WriteScreenState extends State<WriteScreen> {
         widget.state.player.action.imageId = result['image-id'];
       });
     } catch (e) {
-      // TODO
+      setState(() => _imageErrorMessage = e.toString());
     } finally {
       setState(() {
         _imageLoading = false;
@@ -74,7 +89,10 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _loadAction() async {
-    setState(() => _actionLoading = true);
+    setState(() {
+      _actionLoading = true;
+      _actionErrorMessage = null;
+    });
     try {
       final result = await apiNewAction(
         widget.state.player.id,
@@ -101,7 +119,7 @@ class _WriteScreenState extends State<WriteScreen> {
         });
       }
     } catch (e) {
-      // TODO
+      setState(() => _actionErrorMessage = e.toString());
     } finally {
       setState(() => _actionLoading = false);
     }
@@ -143,13 +161,24 @@ class _WriteScreenState extends State<WriteScreen> {
                     TranslucentPanel(
                       child: Column(
                         children: [
-                          Text(formatDate(widget.state.day)),
+                          if (_initialized) Text(formatDate(widget.state.day)),
                           Text(
                             'この世界に住んで ${widget.state.day - widget.state.player.day + 1} 日目。',
                           ),
                         ],
                       ),
                     ),
+
+                    if (_dayErrorMessage != null) const SizedBox(height: 12),
+                    if (_dayErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _dayErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
 
                     const SizedBox(height: 24),
 
@@ -196,6 +225,17 @@ class _WriteScreenState extends State<WriteScreen> {
                     ),
                   ),
 
+                  if (_actionErrorMessage != null) const SizedBox(height: 12),
+                  if (_actionErrorMessage != null)
+                    TranslucentPanel(
+                      child: Text(
+                        _actionErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+
                   if (_actionLoading)
                     const CircularProgressIndicator()
                   else if (widget.state.player.action.hasDescription) ...[
@@ -231,8 +271,19 @@ class _WriteScreenState extends State<WriteScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
-                              '$apiBase/image/${widget.state.player.action.imageId!}',
+                              imageUrl(widget.state.player.action.imageId!),
                             ),
+                          ),
+                        ),
+                      ),
+
+                    if (_imageErrorMessage != null) const SizedBox(height: 12),
+                    if (_imageErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _imageErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
                       ),

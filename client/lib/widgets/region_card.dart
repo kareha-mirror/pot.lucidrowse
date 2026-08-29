@@ -22,7 +22,7 @@ class RegionCard extends StatelessWidget {
         child: Row(
           children: [
             Image.asset(
-              region.image,
+              region.thumbnailPath,
               width: MediaQuery.sizeOf(context).width < 600 ? 150 : 300,
               height: MediaQuery.sizeOf(context).width < 600 ? 75 : 150,
               fit: BoxFit.cover,

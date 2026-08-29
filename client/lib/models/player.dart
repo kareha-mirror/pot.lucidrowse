@@ -14,23 +14,33 @@ class Flavor {
 
   int day = 0;
 
-  bool get hasDescription => description != '';
+  Flavor();
 
-  Flavor clone() {
+  factory Flavor.fromJson(Map<String, dynamic> json) {
     final flavor = Flavor();
 
-    flavor.input = input;
-    flavor.name = name;
-    flavor.race = race;
-    flavor.job = job;
-    flavor.description = description;
-    flavor.areaCode = areaCode;
-    flavor.areaName = areaName;
-    flavor.imageId = imageId;
-    flavor.day = day;
+    flavor.name = json['name'] as String;
+    flavor.race = json['race'] as String;
+    flavor.job = json['job'] as String;
+    flavor.description = json['description'] as String;
+    flavor.areaCode = json['area-code'] as String;
+    flavor.areaName = json['area-name'] as String;
 
     return flavor;
   }
+
+  bool get hasDescription => description != '';
+
+  Flavor.copy(Flavor other)
+    : input = other.input,
+      name = other.name,
+      race = other.race,
+      job = other.job,
+      description = other.description,
+      areaCode = other.areaCode,
+      areaName = other.areaName,
+      imageId = other.imageId,
+      day = other.day;
 
   String formatText() {
     final buf = StringBuffer();

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_actions.dart';
-import 'package:client/const.dart';
 import 'package:client/state.dart';
 import 'package:client/utils/calendar.dart';
+import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class ReadScreen extends StatefulWidget {
@@ -18,25 +18,30 @@ class ReadScreen extends StatefulWidget {
 }
 
 class _ReadScreenState extends State<ReadScreen> {
+  String? _actionsErrorMessage;
   List<dynamic> _actions = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadBackground();
+    _loadActions();
   }
 
-  Future<void> _loadBackground() async {
+  Future<void> _loadActions() async {
     if (widget.playerId == '') {
       return;
     }
 
-    final result = await apiListActions(widget.playerId);
+    try {
+      final result = await apiListActions(widget.playerId);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => _actions = result['actions'] ?? []);
+      setState(() => _actions = result['actions'] ?? []);
+    } catch (e) {
+      setState(() => _actionsErrorMessage = e.toString());
+    }
   }
 
   List<Widget> _actionList() {
@@ -68,7 +73,7 @@ class _ReadScreenState extends State<ReadScreen> {
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network('$apiBase/image/${action['image-id']}'),
+              child: Image.network(imageUrl(action['image-id'])),
             ),
           ),
         );
@@ -100,6 +105,17 @@ class _ReadScreenState extends State<ReadScreen> {
             child: Center(
               child: Column(
                 children: [
+                  if (_actionsErrorMessage != null) const SizedBox(height: 12),
+                  if (_actionsErrorMessage != null)
+                    TranslucentPanel(
+                      child: Text(
+                        _actionsErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+
                   ..._actionList(),
 
                   SizedBox(height: 96),

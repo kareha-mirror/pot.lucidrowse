@@ -19,39 +19,66 @@ class DebugScreen extends StatefulWidget {
 }
 
 class _DebugScreenState extends State<DebugScreen> {
+  bool _initialized = false;
+  String? _dayErrorMessage;
+  String? _nextDayErrorMessage;
   String? _message;
+  String? _helloErrorMessage;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadBackground();
+    _loadDay();
   }
 
-  Future<void> _loadBackground() async {
-    final result = await apiDay();
+  Future<void> _loadDay() async {
+    try {
+      final result = await apiDay();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => widget.state.day = result['day']);
+      setState(() {
+        widget.state.day = result['day'];
+
+        _initialized = true;
+      });
+    } catch (e) {
+      setState(() => _dayErrorMessage = e.toString());
+    }
   }
 
   void _nextDay() async {
-    setState(() {
-      widget.state.player.committed = false;
-      widget.state.player.action = PlayerAction();
-    });
+    setState(() => _nextDayErrorMessage = null);
 
     try {
       final result = await apiNextDay();
-      setState(() => widget.state.day = result['day']);
+
+      setState(() {
+        widget.state.day = result['day'];
+
+        widget.state.player.committed = false;
+        widget.state.player.action = PlayerAction();
+      });
     } catch (e) {
-      setState(() => _message = e.toString());
+      setState(() => _nextDayErrorMessage = e.toString());
     }
   }
 
   void _clearMyself() {
     setState(() => widget.state.player = Player());
+  }
+
+  void _hello() async {
+    try {
+      setState(() => _message = null);
+
+      final result = await apiHello();
+
+      setState(() => _message = result['message']);
+    } catch (e) {
+      setState(() => _helloErrorMessage = e.toString());
+    }
   }
 
   @override
@@ -73,19 +100,43 @@ class _DebugScreenState extends State<DebugScreen> {
             child: Center(
               child: Column(
                 children: [
-                  TranslucentPanel(
-                    child: Column(
-                      children: [
-                        Text(formatDate(widget.state.day)),
-                        Text('夢路開通 ${widget.state.day + 1} 日目'),
-                      ],
+                  if (_initialized)
+                    TranslucentPanel(
+                      child: Column(
+                        children: [
+                          Text(formatDate(widget.state.day)),
+                          Text('夢路開通 ${widget.state.day + 1} 日目'),
+                        ],
+                      ),
                     ),
-                  ),
+
+                  if (_dayErrorMessage != null) const SizedBox(height: 12),
+                  if (_dayErrorMessage != null)
+                    TranslucentPanel(
+                      child: Text(
+                        _dayErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: _nextDay,
                     child: const Text('明日まで寝る'),
                   ),
+
+                  if (_nextDayErrorMessage != null) const SizedBox(height: 12),
+                  if (_nextDayErrorMessage != null)
+                    TranslucentPanel(
+                      child: Text(
+                        _nextDayErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
 
                   const SizedBox(height: 48),
 
@@ -100,24 +151,25 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   const SizedBox(height: 48),
 
-                  const SizedBox(height: 48),
-
                   ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        final result = await apiHello();
-                        setState(() => _message = result['message']);
-                      } catch (e) {
-                        setState(() => _message = e.toString());
-                      }
-                    },
+                    onPressed: _hello,
                     child: const Text('夢の世界に呼びかける'),
                   ),
 
-                  const SizedBox(height: 12),
-
+                  if (_message != null) const SizedBox(height: 12),
                   if (_message != null)
                     TranslucentPanel(child: Text(_message!)),
+
+                  if (_helloErrorMessage != null) const SizedBox(height: 12),
+                  if (_helloErrorMessage != null)
+                    TranslucentPanel(
+                      child: Text(
+                        _helloErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
 
                   const SizedBox(height: 48),
 
