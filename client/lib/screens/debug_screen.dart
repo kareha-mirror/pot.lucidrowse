@@ -54,12 +54,16 @@ class _DebugScreenState extends State<DebugScreen> {
     try {
       final result = await apiNextDay();
 
-      setState(() {
-        widget.state.day = result['day'];
+      if (result['error'] != '') {
+        setState(() => _nextDayErrorMessage = result['error']);
+      } else {
+        setState(() {
+          widget.state.day = result['day'];
 
-        widget.state.player.committed = false;
-        widget.state.player.action = PlayerAction();
-      });
+          widget.state.player.committed = false;
+          widget.state.player.action = PlayerAction();
+        });
+      }
     } catch (e) {
       setState(() => _nextDayErrorMessage = e.toString());
     }

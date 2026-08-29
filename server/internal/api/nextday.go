@@ -4,19 +4,34 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
+var nextDayMu sync.Mutex
+
 type NextDayResponse struct {
-	Day int64 `json:"day"`
+	Day   int64  `json:"day"`
+	Error string `json:"error"`
 }
 
 func handleNextDay(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
+	if !nextDayMu.TryLock() {
+		res := NextDayResponse{
+			Day:   0,
+			Error: "excluded",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+	defer nextDayMu.Unlock()
+
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
@@ -67,7 +82,8 @@ func handleNextDay(
 	}
 
 	res := NextDayResponse{
-		Day: day,
+		Day:   day,
+		Error: "",
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
