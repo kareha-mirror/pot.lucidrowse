@@ -12,7 +12,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-func updateStateWithOpenAI(
+func updateAreaStateWithOpenAI(
 	cfg *config.Config, areaCode string,
 ) (string, error) {
 	apiKey := cfg.AI.Key
@@ -34,12 +34,13 @@ func updateStateWithOpenAI(
 		return "", err
 	}
 
-	client := openai.NewClient(
-		option.WithAPIKey(apiKey),
-	)
-
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.UpdateState
-	userMessage := "STATE: " + state + "\n\nACTIONS: " + string(actionsStr)
+	systemMessage :=
+		cfg.Prompts.Common + "\n\n" +
+			cfg.Prompts.Events + "\n\n" +
+			cfg.Prompts.UpdateAreaState
+	userMessage :=
+		"AREASTATE: " + state + "\n\n" +
+			"ACTIONS: " + string(actionsStr)
 
 	// debug
 	//fmt.Println("System Message:")
@@ -47,6 +48,10 @@ func updateStateWithOpenAI(
 	//fmt.Println("User Message:")
 	//fmt.Println(userMessage)
 	fmt.Println("UpdateAreaState: " + areaCode)
+
+	client := openai.NewClient(
+		option.WithAPIKey(apiKey),
+	)
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),

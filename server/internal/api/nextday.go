@@ -55,7 +55,7 @@ func handleNextDay(
 		if len(eventList) < 1 {
 			continue
 		}
-		state, err := ai.UpdateState(cfg, areaCode)
+		state, err := ai.UpdateAreaState(cfg, areaCode)
 		if err != nil {
 			log.Println(err)
 			http.Error(

@@ -52,7 +52,7 @@ func SeedAreas() error {
 		)
 		if err != nil {
 			return fmt.Errorf(
-				"seed area %q-%q: %w", area.RegionCode, area.AreaCode, err,
+				"seed area %s-%s: %v", area.RegionCode, area.AreaCode, err,
 			)
 		}
 	}
@@ -104,7 +104,13 @@ func DescribeAreas() (string, error) {
 	b := strings.Builder{}
 
 	for _, area := range areas {
-		b.WriteString(fmt.Sprintf("code: %s-%s  name: %s %s\n", area.RegionCode, area.AreaCode, regionNames[area.RegionCode], area.Name))
+		b.WriteString(fmt.Sprintf(
+			"code: %s-%s  name: %s %s\n",
+			area.RegionCode,
+			area.AreaCode,
+			regionNames[area.RegionCode],
+			area.Name,
+		))
 	}
 
 	return b.String(), nil

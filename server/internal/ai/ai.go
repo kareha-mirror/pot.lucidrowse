@@ -12,17 +12,19 @@ import (
 func NewFlavor(cfg *config.Config, input string) (Flavor, error) {
 	normInput := norm.NFC.String(input)
 
-	if cfg.AI.Agent == "openai" {
+	switch cfg.AI.Agent {
+	case "openai":
 		return newFlavorWithOpenAI(cfg, normInput)
-	} else {
+	default:
 		return Flavor{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
 func NewFlavorImage(cfg *config.Config, flavor Flavor) (data.Image, error) {
-	if cfg.AI.Agent == "openai" {
+	switch cfg.AI.Agent {
+	case "openai":
 		return newFlavorImageWithOpenAI(cfg, flavor)
-	} else {
+	default:
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}
 }
@@ -32,9 +34,10 @@ func UpdateFlavor(
 ) (Flavor, error) {
 	normInput := norm.NFC.String(input)
 
-	if cfg.AI.Agent == "openai" {
+	switch cfg.AI.Agent {
+	case "openai":
 		return updateFlavorWithOpenAI(cfg, flavor, normInput)
-	} else {
+	default:
 		return Flavor{}, fmt.Errorf("invalid AI agent")
 	}
 }
@@ -42,9 +45,10 @@ func UpdateFlavor(
 func UpdateFlavorImage(
 	cfg *config.Config, image data.Image, newFlavor Flavor,
 ) (data.Image, error) {
-	if cfg.AI.Agent == "openai" {
+	switch cfg.AI.Agent {
+	case "openai":
 		return updateFlavorImageWithOpenAI(cfg, image, newFlavor)
-	} else {
+	default:
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}
 }
@@ -54,9 +58,10 @@ func NewAction(
 ) (Action, error) {
 	normInput := norm.NFC.String(input)
 
-	if cfg.AI.Agent == "openai" {
+	switch cfg.AI.Agent {
+	case "openai":
 		return newActionWithOpenAI(cfg, flavor, normInput)
-	} else {
+	default:
 		return Action{}, fmt.Errorf("invalid AI agent")
 	}
 }
@@ -64,17 +69,19 @@ func NewAction(
 func NewActionImage(
 	cfg *config.Config, image data.Image, action Action,
 ) (data.Image, error) {
-	if cfg.AI.Agent == "openai" {
+	switch cfg.AI.Agent {
+	case "openai":
 		return newActionImageWithOpenAI(cfg, image, action)
-	} else {
+	default:
 		return data.Image{}, fmt.Errorf("invalid AI agent")
 	}
 }
 
-func UpdateState(cfg *config.Config, areaCode string) (string, error) {
-	if cfg.AI.Agent == "openai" {
-		return updateStateWithOpenAI(cfg, areaCode)
-	} else {
+func UpdateAreaState(cfg *config.Config, areaCode string) (string, error) {
+	switch cfg.AI.Agent {
+	case "openai":
+		return updateAreaStateWithOpenAI(cfg, areaCode)
+	default:
 		return "", fmt.Errorf("invalid AI agent")
 	}
 }

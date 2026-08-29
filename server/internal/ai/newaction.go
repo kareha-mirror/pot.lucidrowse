@@ -20,7 +20,7 @@ func newActionWithOpenAI(
 		return Action{}, fmt.Errorf("key not set")
 	}
 
-	flavorStr, err := flavor.Marshal()
+	flavorStr, err := json.Marshal(flavor)
 	if err != nil {
 		return Action{}, err
 	}
@@ -39,18 +39,25 @@ func newActionWithOpenAI(
 		return Action{}, err
 	}
 
-	client := openai.NewClient(
-		option.WithAPIKey(apiKey),
-	)
-
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Events + "\n" + cfg.Prompts.Action
-	userMessage := "STATE: " + state + "\n\nACTIONS: " + string(actionsStr) + "\n\nJSON: " + flavorStr + "\n\nInput: " + input
+	systemMessage :=
+		cfg.Prompts.Common + "\n\n" +
+			cfg.Prompts.Events + "\n\n" +
+			cfg.Prompts.Action
+	userMessage :=
+		"AREASTATE: " + state + "\n\n" +
+			"ACTIONS: " + string(actionsStr) + "\n\n" +
+			"FLAVOR: " + string(flavorStr) + "\n\n" +
+			"INPUT: " + input
 
 	// debug
 	//fmt.Println("System Message:")
 	//fmt.Println(systemMessage)
 	//fmt.Println("User Message:")
 	//fmt.Println(userMessage)
+
+	client := openai.NewClient(
+		option.WithAPIKey(apiKey),
+	)
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
@@ -71,7 +78,7 @@ func newActionWithOpenAI(
 	if len(resp.Choices) == 0 {
 		return Action{}, fmt.Errorf("no choices in response")
 	}
-	text := resp.Choices[0].Message.Content
+	actionStr := resp.Choices[0].Message.Content
 
-	return ParseAction(text)
+	return ParseAction(actionStr)
 }

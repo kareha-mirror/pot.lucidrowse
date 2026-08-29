@@ -12,9 +12,9 @@ type Action struct {
 }
 
 func ParseAction(rawActionStr string) (Action, error) {
-	normRawActionStr := norm.NFC.String(rawActionStr)
+	normActionStr := norm.NFC.String(rawActionStr)
 
-	actionStr := sanitizeJSONString(normRawActionStr)
+	actionStr := sanitizeJSONString(normActionStr)
 	var action Action
 	if err := json.Unmarshal([]byte(actionStr), &action); err != nil {
 		return Action{}, err

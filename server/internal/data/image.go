@@ -21,7 +21,7 @@ func SaveImage(ctx context.Context, pubId string, image Image) error {
 func LoadImage(ctx context.Context, pubId string) (Image, error) {
 	var image Image
 	err := db.QueryRow(ctx, `
-		SELECT content_type, content FROM images WHERE pub_id=$1
+		SELECT content_type, content FROM images WHERE pub_id = $1
 		`, pubId,
 	).Scan(&image.ContentType, &image.Content)
 	if err != nil {

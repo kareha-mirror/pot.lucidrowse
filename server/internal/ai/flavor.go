@@ -17,23 +17,15 @@ type Flavor struct {
 	Error       string `json:"error"`
 }
 
-func (flavor Flavor) Marshal() (string, error) {
-	b, err := json.Marshal(flavor)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
-}
-
 func sanitizeJSONString(s string) string {
 	sanitized := strings.ReplaceAll(s, "```json", "")
 	return strings.ReplaceAll(sanitized, "```", "")
 }
 
 func ParseFlavor(rawFlavorStr string) (Flavor, error) {
-	normRawFlavorStr := norm.NFC.String(rawFlavorStr)
+	normFlavorStr := norm.NFC.String(rawFlavorStr)
 
-	flavorStr := sanitizeJSONString(normRawFlavorStr)
+	flavorStr := sanitizeJSONString(normFlavorStr)
 	var flavor Flavor
 	if err := json.Unmarshal([]byte(flavorStr), &flavor); err != nil {
 		return Flavor{}, err

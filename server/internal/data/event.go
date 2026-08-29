@@ -28,28 +28,28 @@ func EventList(areaCode string) ([]EventItem, error) {
 	}
 	defer rows.Close()
 
-	var events []EventItem
+	var list []EventItem
 
 	for rows.Next() {
-		var i EventItem
+		var item EventItem
 
 		err := rows.Scan(
-			&i.Name,
-			&i.Race,
-			&i.Job,
-			&i.Description,
-			&i.Action,
+			&item.Name,
+			&item.Race,
+			&item.Job,
+			&item.Description,
+			&item.Action,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		events = append(events, i)
+		list = append(list, item)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return events, nil
+	return list, nil
 }

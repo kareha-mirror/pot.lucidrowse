@@ -21,12 +21,16 @@ func newActionImageWithOpenAI(
 		return data.Image{}, fmt.Errorf("key not set")
 	}
 
+	message :=
+		"DESCRIPTION: " + action.Description
+	prompt :=
+		cfg.Prompts.Common + "\n\n" +
+			cfg.Prompts.ActionImage + "\n\n" +
+			message
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
-
-	message := "Text: " + action.Description
-	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.ActionImage + "\n" + message
 
 	resp, err := client.Images.Edit(
 		context.Background(),
@@ -53,6 +57,9 @@ func newActionImageWithOpenAI(
 		return data.Image{}, fmt.Errorf("no choices in response")
 	}
 	newImage, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
+	if err != nil {
+		return data.Image{}, err
+	}
 
 	return data.Image{ContentType: "image/webp", Content: newImage}, nil
 }

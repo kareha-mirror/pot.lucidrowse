@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/openai/openai-go/v3"
@@ -21,17 +22,21 @@ func updateFlavorImageWithOpenAI(
 		return data.Image{}, fmt.Errorf("key not set")
 	}
 
-	updatedFlavorStr, err := updatedFlavor.Marshal()
+	updatedFlavorStr, err := json.Marshal(updatedFlavor)
 	if err != nil {
 		return data.Image{}, err
 	}
 
+	message :=
+		"FLAVOR: " + string(updatedFlavorStr)
+	prompt :=
+		cfg.Prompts.Common + "\n\n" +
+			cfg.Prompts.UpdateImage + "\n\n" +
+			message
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
-
-	message := "Input: " + updatedFlavorStr
-	prompt := cfg.Prompts.Common + "\n" + cfg.Prompts.UpdateImage + "\n" + message
 
 	resp, err := client.Images.Edit(
 		context.Background(),
@@ -58,6 +63,9 @@ func updateFlavorImageWithOpenAI(
 		return data.Image{}, fmt.Errorf("no choices in response")
 	}
 	updatedImage, err := base64.StdEncoding.DecodeString(resp.Data[0].B64JSON)
+	if err != nil {
+		return data.Image{}, nil
+	}
 
 	return data.Image{ContentType: "image/webp", Content: updatedImage}, nil
 }

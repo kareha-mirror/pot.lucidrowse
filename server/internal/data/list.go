@@ -18,10 +18,12 @@ type PlayerItem struct {
 
 func PlayerList(regionCode string) ([]PlayerItem, error) {
 	rows, err := db.Query(context.Background(), `
-		SELECT p.pub_id, f.name, f.race, f.job, f.description, f.area_code, f.area_name, f.image_pub_id
+		SELECT p.pub_id, f.name, f.race, f.job, f.description,
+		  f.area_code, f.area_name, f.image_pub_id
 		FROM players AS p
 		JOIN LATERAL (
-		  SELECT name, race, job, description, area_code, area_name, image_pub_id
+		  SELECT name, race, job, description,
+		    area_code, area_name, image_pub_id
 		  FROM flavors
 		  WHERE player_id = p.id AND committed = TRUE
 		  ORDER BY id DESC
@@ -36,33 +38,33 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 	}
 	defer rows.Close()
 
-	var players []PlayerItem
+	var list []PlayerItem
 
 	for rows.Next() {
-		var p PlayerItem
+		var item PlayerItem
 
 		err := rows.Scan(
-			&p.PlayerPubId,
-			&p.Name,
-			&p.Race,
-			&p.Job,
-			&p.Description,
-			&p.AreaCode,
-			&p.AreaName,
-			&p.ImagePubId,
+			&item.PlayerPubId,
+			&item.Name,
+			&item.Race,
+			&item.Job,
+			&item.Description,
+			&item.AreaCode,
+			&item.AreaName,
+			&item.ImagePubId,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		players = append(players, p)
+		list = append(list, item)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return players, nil
+	return list, nil
 }
 
 type ActionItem struct {
@@ -85,26 +87,26 @@ func ActionList(playerPubId string) ([]ActionItem, error) {
 	}
 	defer rows.Close()
 
-	var actions []ActionItem
+	var list []ActionItem
 
 	for rows.Next() {
-		var a ActionItem
+		var item ActionItem
 
 		err := rows.Scan(
-			&a.Day,
-			&a.Description,
-			&a.ImagePubId,
+			&item.Day,
+			&item.Description,
+			&item.ImagePubId,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		actions = append(actions, a)
+		list = append(list, item)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return actions, nil
+	return list, nil
 }

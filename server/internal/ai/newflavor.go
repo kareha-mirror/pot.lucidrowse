@@ -22,12 +22,16 @@ func newFlavorWithOpenAI(cfg *config.Config, input string) (Flavor, error) {
 		return Flavor{}, err
 	}
 
+	systemMessage :=
+		cfg.Prompts.Common + "\n\n" +
+			cfg.Prompts.Areas + areas + "\n\n" +
+			cfg.Prompts.Create
+	userMessage :=
+		"INPUT: " + input
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
-
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Areas + areas + "\n" + cfg.Prompts.Create
-	userMessage := "Input: " + input
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
@@ -48,7 +52,7 @@ func newFlavorWithOpenAI(cfg *config.Config, input string) (Flavor, error) {
 	if len(resp.Choices) == 0 {
 		return Flavor{}, fmt.Errorf("no choices in response")
 	}
-	flavor := resp.Choices[0].Message.Content
+	flavorStr := resp.Choices[0].Message.Content
 
-	return ParseFlavor(flavor)
+	return ParseFlavor(flavorStr)
 }

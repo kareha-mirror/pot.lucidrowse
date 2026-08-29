@@ -2,6 +2,7 @@ package ai
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/openai/openai-go/v3"
@@ -19,7 +20,7 @@ func updateFlavorWithOpenAI(
 		return Flavor{}, fmt.Errorf("key not set")
 	}
 
-	flavorStr, err := flavor.Marshal()
+	flavorStr, err := json.Marshal(flavor)
 	if err != nil {
 		return Flavor{}, err
 	}
@@ -29,12 +30,17 @@ func updateFlavorWithOpenAI(
 		return Flavor{}, err
 	}
 
+	systemMessage :=
+		cfg.Prompts.Common + "\n\n" +
+			cfg.Prompts.Areas + areas + "\n\n" +
+			cfg.Prompts.Update
+	userMessage :=
+		"FLAVOR: " + string(flavorStr) + "\n\n" +
+			"INPUT: " + input
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
-
-	systemMessage := cfg.Prompts.Common + "\n" + cfg.Prompts.Areas + areas + "\n" + cfg.Prompts.Update
-	userMessage := "JSON: " + flavorStr + "\nInput: " + input
 
 	resp, err := client.Chat.Completions.New(
 		context.Background(),
@@ -55,7 +61,7 @@ func updateFlavorWithOpenAI(
 	if len(resp.Choices) == 0 {
 		return Flavor{}, fmt.Errorf("no choices in response")
 	}
-	updatedFlavor := resp.Choices[0].Message.Content
+	updatedFlavorStr := resp.Choices[0].Message.Content
 
-	return ParseFlavor(updatedFlavor)
+	return ParseFlavor(updatedFlavorStr)
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
@@ -13,11 +12,6 @@ import (
 
 type NewFlavorRequest struct {
 	Input string `json:"input"`
-}
-
-func sanitizeFlavorString(s string) string {
-	sanitized := strings.ReplaceAll(s, "```json", "")
-	return strings.ReplaceAll(sanitized, "```", "")
 }
 
 func handleNewFlavor(

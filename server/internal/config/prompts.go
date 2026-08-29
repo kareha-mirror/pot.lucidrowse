@@ -7,16 +7,16 @@ import (
 )
 
 type Prompts struct {
-	Common      string `yaml:"common"`
-	Areas       string `yaml:"areas"`
-	Create      string `yaml:"create"`
-	Image       string `yaml:"image"`
-	Update      string `yaml:"update"`
-	UpdateImage string `yaml:"update-image"`
-	Events      string `yaml:"events"`
-	Action      string `yaml:"action"`
-	ActionImage string `yaml:"action-image"`
-	UpdateState string `yaml:"update-state"`
+	Common          string `yaml:"common"`
+	Areas           string `yaml:"areas"`
+	Create          string `yaml:"create"`
+	Image           string `yaml:"image"`
+	Update          string `yaml:"update"`
+	UpdateImage     string `yaml:"update-image"`
+	Events          string `yaml:"events"`
+	Action          string `yaml:"action"`
+	ActionImage     string `yaml:"action-image"`
+	UpdateAreaState string `yaml:"update-area-state"`
 }
 
 func loadPrompts(path string) (*Prompts, error) {
