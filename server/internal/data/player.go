@@ -114,6 +114,26 @@ func LoadLastFlavor(playerId int) (Flavor, error) {
 	return flavor, nil
 }
 
+func LoadCurrentFlavor(playerId int) (Flavor, error) {
+	var flavor Flavor
+	err := db.QueryRow(context.Background(), `
+		SELECT name, race, job, description, area_code, area_name, day, image_pub_id, committed
+		FROM flavors
+		WHERE id = (
+		  SELECT id
+		  FROM flavors
+		  WHERE player_id = $1 AND committed = TRUE
+		  ORDER BY id DESC
+		  LIMIT 1
+		)
+		`, playerId).
+		Scan(&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description, &flavor.AreaCode, &flavor.AreaName, &flavor.Day, &flavor.ImagePubId, &flavor.Committed)
+	if err != nil {
+		return Flavor{}, err
+	}
+	return flavor, nil
+}
+
 type Action struct {
 	Input       string
 	Description string

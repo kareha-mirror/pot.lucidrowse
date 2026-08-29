@@ -32,7 +32,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	f, err := data.LoadLastFlavor(id)
+	f, err := data.LoadCurrentFlavor(id)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

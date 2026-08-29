@@ -43,7 +43,7 @@ func handleImageAction(
 		return
 	}
 
-	f, err := data.LoadLastFlavor(playerId)
+	f, err := data.LoadCurrentFlavor(playerId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
