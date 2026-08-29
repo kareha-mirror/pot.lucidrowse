@@ -33,14 +33,14 @@ func handleNewAction(
 	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
 	f, err := data.LoadCurrentFlavor(playerId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "current flavor not found", http.StatusNotFound)
 		return
 	}
 
@@ -56,7 +56,7 @@ func handleNewAction(
 	action, err := ai.NewAction(cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to create action", http.StatusInternalServerError)
 		return
 	}
 
@@ -68,7 +68,11 @@ func handleNewAction(
 
 		if err = data.AddAction(playerId, a); err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"failed to add action",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 	}

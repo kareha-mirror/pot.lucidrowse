@@ -35,14 +35,14 @@ func handleNewFlavor(
 	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
 	flavor, err := ai.NewFlavor(cfg, req.Input)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to create flavor", http.StatusInternalServerError)
 		return
 	}
 
@@ -58,7 +58,7 @@ func handleNewFlavor(
 
 	if err = data.AddFlavor(playerId, f); err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to add flavor", http.StatusInternalServerError)
 		return
 	}
 

@@ -18,7 +18,7 @@ func handleListPlayers(w http.ResponseWriter, r *http.Request) {
 	players, err := data.PlayerList(regionCode)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to list players", http.StatusInternalServerError)
 		return
 	}
 
@@ -39,7 +39,7 @@ func handleListActions(w http.ResponseWriter, r *http.Request) {
 	actions, err := data.ActionList(playerPubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to list actions", http.StatusInternalServerError)
 		return
 	}
 

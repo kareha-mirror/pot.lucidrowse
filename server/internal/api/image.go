@@ -13,7 +13,7 @@ func handleImage(w http.ResponseWriter, r *http.Request) {
 	image, err := data.LoadImage(r.Context(), imagePubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "image not found", http.StatusNotFound)
 		return
 	}
 

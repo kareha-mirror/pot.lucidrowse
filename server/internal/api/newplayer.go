@@ -28,13 +28,13 @@ func handleNewPlayer(w http.ResponseWriter, r *http.Request) {
 	playerId, err := newPubId()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
 		return
 	}
 
 	if err = data.CreatePlayer(playerId); err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to create player", http.StatusInternalServerError)
 		return
 	}
 

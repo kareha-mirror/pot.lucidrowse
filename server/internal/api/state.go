@@ -19,7 +19,7 @@ func handleRegionState(w http.ResponseWriter, r *http.Request) {
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to list areas", http.StatusInternalServerError)
 		return
 	}
 
@@ -34,12 +34,11 @@ func handleRegionState(w http.ResponseWriter, r *http.Request) {
 		state, err := data.AreaState(area.RegionCode + "-" + area.AreaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(w, "area state not found", http.StatusNotFound)
 			return
 		}
 		b.WriteString(state)
 
-		// TODO
 		b.WriteString("\n\n")
 	}
 

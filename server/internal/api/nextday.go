@@ -35,7 +35,7 @@ func handleNextDay(
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to list areas", http.StatusInternalServerError)
 		return
 	}
 
@@ -45,7 +45,11 @@ func handleNextDay(
 		eventList, err := data.EventList(areaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"failed to list actions",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 		if len(eventList) < 1 {
@@ -54,7 +58,11 @@ func handleNextDay(
 		state, err := ai.UpdateState(cfg, areaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"failed to update area state",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 		states[areaCode] = state
@@ -63,7 +71,7 @@ func handleNextDay(
 	day, err := data.NextDay()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to go next day", http.StatusInternalServerError)
 		return
 	}
 
@@ -76,7 +84,11 @@ func handleNextDay(
 		err := data.AddAreaState(areaCode, states[areaCode])
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"failed to add area state",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 	}

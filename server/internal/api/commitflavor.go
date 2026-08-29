@@ -16,19 +16,23 @@ func handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
 	if err = data.CommitLastFlavor(playerId); err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "last flavor not found", http.StatusNotFound)
 		return
 	}
 
 	if err = data.ActivatePlayer(playerId); err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"failed to activate player",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 

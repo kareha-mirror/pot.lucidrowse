@@ -16,7 +16,7 @@ func handleDay(w http.ResponseWriter, r *http.Request) {
 	day, err := data.Day()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to identify day", http.StatusInternalServerError)
 		return
 	}
 

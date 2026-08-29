@@ -23,14 +23,14 @@ func handleImageFlavor(
 	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
 	f, err := data.LoadLastFlavor(playerId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "last flavor not found", http.StatusNotFound)
 		return
 	}
 
@@ -46,39 +46,60 @@ func handleImageFlavor(
 	var newImage data.Image
 	if f.ImagePubId == nil {
 		newImage, err = ai.NewFlavorImage(cfg, flavor)
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to create image",
+				http.StatusInternalServerError,
+			)
+			return
+		}
 	} else {
 		image, err := data.LoadImage(context.Background(), *f.ImagePubId)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"failed to load image",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 		newImage, err = ai.UpdateFlavorImage(cfg, image, flavor)
-	}
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to update image",
+				http.StatusInternalServerError,
+			)
+			return
+		}
 	}
 
 	imagePubId, err := newPubId()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
 		return
 	}
 
 	err = data.SaveImage(context.Background(), imagePubId, newImage)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to save image", http.StatusInternalServerError)
 		return
 	}
 
 	err = data.AddImageToLastFlavor(playerId, imagePubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"failed to add image to last flavor",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 

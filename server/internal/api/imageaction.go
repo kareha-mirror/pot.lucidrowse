@@ -23,33 +23,33 @@ func handleImageAction(
 	playerId, err := data.PlayerId(playerPubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
 	a, err := data.LoadLastAction(playerId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "last action not found", http.StatusNotFound)
 		return
 	}
 
 	f, err := data.LoadCurrentFlavor(playerId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "current flavor not found", http.StatusNotFound)
 		return
 	}
 
 	if f.ImagePubId == nil {
 		log.Println("image not found")
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "image not found", http.StatusNotFound)
 		return
 	}
 	image, err := data.LoadImage(context.Background(), *f.ImagePubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to load image", http.StatusInternalServerError)
 		return
 	}
 
@@ -57,28 +57,32 @@ func handleImageAction(
 	newImage, err := ai.NewActionImage(cfg, image, action)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to create image", http.StatusInternalServerError)
 		return
 	}
 
 	imagePubId, err := newPubId()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
 		return
 	}
 
 	err = data.SaveImage(context.Background(), imagePubId, newImage)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "failed to save image", http.StatusInternalServerError)
 		return
 	}
 
 	err = data.AddImageToLastAction(playerId, imagePubId)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"failed to add image to last action",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
