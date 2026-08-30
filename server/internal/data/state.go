@@ -15,7 +15,7 @@ func AreaState(areaCode string) (string, error) {
 		WHERE area_code = $1
 		ORDER BY day DESC
 		LIMIT 1
-		`, areaCode).Scan(&state)
+	`, areaCode).Scan(&state)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
@@ -33,7 +33,7 @@ func AddAreaState(areaCode string, areaState string) error {
 		SELECT $1, day_counter, $2
 		FROM state
 		WHERE id = 1
-		`, areaCode, areaState)
+	`, areaCode, areaState)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func RegionState(regionCode string) (string, error) {
 		WHERE region_code = $1
 		ORDER BY day DESC
 		LIMIT 1
-		`, regionCode).Scan(&state)
+	`, regionCode).Scan(&state)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
@@ -67,7 +67,7 @@ func AddRegionState(regionCode string, regionState string) error {
 		SELECT $1, day_counter, $2
 		FROM state
 		WHERE id = 1
-		`, regionCode, regionState)
+	`, regionCode, regionState)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func WorldState() (string, error) {
 		SELECT state FROM world_states
 		ORDER BY day DESC
 		LIMIT 1
-		`).Scan(&state)
+	`).Scan(&state)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
@@ -100,7 +100,7 @@ func AddWorldState(worldState string) error {
 		SELECT day_counter, $1
 		FROM state
 		WHERE id = 1
-		`, worldState)
+	`, worldState)
 	if err != nil {
 		return err
 	}

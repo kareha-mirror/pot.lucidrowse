@@ -22,7 +22,7 @@ func EventList(areaCode string) ([]EventItem, error) {
 		  AND a.day = (SELECT day_counter FROM state WHERE id = 1)
 		  AND f.area_code = $1
 		ORDER BY a.id ASC
-		`, areaCode)
+	`, areaCode)
 	if err != nil {
 		return nil, err
 	}

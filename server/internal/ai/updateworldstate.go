@@ -42,7 +42,7 @@ func updateWorldStateWithOpenAI(cfg *config.Config) (string, error) {
 			cfg.Prompts.UpdateWorldState
 	userMessage :=
 		"WORLDSTATE: " + worldState + "\n\n" +
-			"REGIONSTATES: " + regionStates
+			"REGION_STATES: " + regionStates
 
 	// debug
 	//fmt.Println("System Message:")

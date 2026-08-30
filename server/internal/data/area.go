@@ -22,6 +22,14 @@ type AreaItem struct {
 	Name       string
 }
 
+func (area AreaItem) FullCode() string {
+	return area.RegionCode + "-" + area.AreaCode
+}
+
+func (area AreaItem) FullName() string {
+	return RegionNames[area.RegionCode] + " " + area.Name
+}
+
 var areaSeeds = []AreaItem{
 	{"capital", "city", "王都"},
 	{"capital", "outskirts", "近郊"},
@@ -52,7 +60,7 @@ func SeedAreas() error {
 		)
 		if err != nil {
 			return fmt.Errorf(
-				"seed area %s-%s: %v", area.RegionCode, area.AreaCode, err,
+				"seed area %s: %v", area.FullCode(), err,
 			)
 		}
 	}
@@ -105,11 +113,7 @@ func DescribeAreas() (string, error) {
 
 	for _, area := range areas {
 		b.WriteString(fmt.Sprintf(
-			"code: %s-%s  name: %s %s\n",
-			area.RegionCode,
-			area.AreaCode,
-			RegionNames[area.RegionCode],
-			area.Name,
+			"code: %s  name: %s\n", area.FullCode(), area.FullName(),
 		))
 	}
 

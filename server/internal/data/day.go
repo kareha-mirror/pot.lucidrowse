@@ -6,7 +6,7 @@ func Day() (int64, error) {
 	var day int64
 	err := db.QueryRow(context.Background(), `
 		SELECT day_counter FROM state WHERE id = 1
-		`).Scan(&day)
+	`).Scan(&day)
 	if err != nil {
 		return 0, err
 	}
@@ -28,7 +28,7 @@ func NextDay() (int64, error) {
 		WHERE day = (SELECT day_counter FROM state WHERE id = 1)
 		AND committed = TRUE
 		AND fixed = FALSE
-		`)
+	`)
 	if err != nil {
 		return 0, err
 	}
@@ -39,7 +39,7 @@ func NextDay() (int64, error) {
 		SET day_counter = day_counter + 1
 		WHERE id = 1
 		RETURNING day_counter
-		`).Scan(&day)
+	`).Scan(&day)
 	if err != nil {
 		return 0, err
 	}

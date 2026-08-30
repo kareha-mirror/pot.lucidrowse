@@ -18,25 +18,11 @@ type NextDayResponse struct {
 	Error string `json:"error"`
 }
 
-func handleNextDay(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
-	if !nextDayMu.TryLock() {
-		res := NextDayResponse{
-			Day:   0,
-			Error: "excluded",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
-		return
-	}
-	defer nextDayMu.Unlock()
-
+func nextDay(cfg *config.Config) (int64, error) {
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to list areas", http.StatusInternalServerError)
-		return
+		return 0, err
 	}
 
 	areaStates := map[string]string{}
@@ -46,12 +32,7 @@ func handleNextDay(
 		eventList, err := data.EventList(areaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(
-				w,
-				"failed to list actions",
-				http.StatusInternalServerError,
-			)
-			return
+			return 0, err
 		}
 		if len(eventList) < 1 {
 			continue
@@ -59,23 +40,13 @@ func handleNextDay(
 		state, err := ai.UpdateAreaState(cfg, areaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(
-				w,
-				"failed to update area state",
-				http.StatusInternalServerError,
-			)
-			return
+			return 0, err
 		}
 		areaStates[areaCode] = state
 		regionCode, err := data.RegionFromArea(areaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(
-				w,
-				"failed to infer region code from area code",
-				http.StatusInternalServerError,
-			)
-			return
+			return 0, err
 		}
 		updatedRegions[regionCode] = struct{}{}
 	}
@@ -90,32 +61,24 @@ func handleNextDay(
 		state, err := ai.UpdateRegionState(cfg, regionCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(
-				w,
-				"failed to update region state",
-				http.StatusInternalServerError,
-			)
-			return
+			return 0, err
 		}
 		regionStates[regionCode] = state
 	}
 
-	worldState, err := ai.UpdateWorldState(cfg)
-	if err != nil {
-		log.Println(err)
-		http.Error(
-			w,
-			"failed to update world state",
-			http.StatusInternalServerError,
-		)
-		return
+	var worldState string
+	if len(updatedRegions) > 0 {
+		worldState, err = ai.UpdateWorldState(cfg)
+		if err != nil {
+			log.Println(err)
+			return 0, err
+		}
 	}
 
 	day, err := data.NextDay()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to go next day", http.StatusInternalServerError)
-		return
+		return 0, err
 	}
 
 	for _, area := range areas {
@@ -127,12 +90,7 @@ func handleNextDay(
 		err := data.AddAreaState(areaCode, areaStates[areaCode])
 		if err != nil {
 			log.Println(err)
-			http.Error(
-				w,
-				"failed to add area state",
-				http.StatusInternalServerError,
-			)
-			return
+			return 0, err
 		}
 	}
 
@@ -144,23 +102,39 @@ func handleNextDay(
 		err := data.AddRegionState(regionCode, regionState)
 		if err != nil {
 			log.Println(err)
-			http.Error(
-				w,
-				"failed to add region state",
-				http.StatusInternalServerError,
-			)
-			return
+			return 0, err
 		}
 	}
 
-	err = data.AddWorldState(worldState)
+	if len(updatedRegions) > 0 {
+		err = data.AddWorldState(worldState)
+		if err != nil {
+			log.Println(err)
+			return 0, err
+		}
+	}
+
+	return day, nil
+}
+
+func handleNextDay(
+	cfg *config.Config, w http.ResponseWriter, r *http.Request,
+) {
+	if !nextDayMu.TryLock() {
+		res := NextDayResponse{
+			Day:   0,
+			Error: "excluded",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+	defer nextDayMu.Unlock()
+
+	day, err := nextDay(cfg)
 	if err != nil {
 		log.Println(err)
-		http.Error(
-			w,
-			"failed to add world state",
-			http.StatusInternalServerError,
-		)
+		http.Error(w, "failed to go next day", http.StatusInternalServerError)
 		return
 	}
 

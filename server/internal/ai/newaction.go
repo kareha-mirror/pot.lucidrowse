@@ -58,9 +58,9 @@ func newActionWithOpenAI(
 			cfg.Prompts.Events + "\n\n" +
 			cfg.Prompts.Action
 	userMessage :=
-		"AREASTATE: " + areaState + "\n\n" +
-			"REGIONSTATE: " + regionState + "\n\n" +
-			"WORLDSTATE: " + worldState + "\n\n" +
+		"AREA_STATE: " + areaState + "\n\n" +
+			"REGION_STATE: " + regionState + "\n\n" +
+			"WORLD_STATE: " + worldState + "\n\n" +
 			"ACTIONS: " + string(actionsStr) + "\n\n" +
 			"FLAVOR: " + string(flavorStr) + "\n\n" +
 			"INPUT: " + input

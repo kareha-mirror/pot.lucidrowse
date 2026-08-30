@@ -205,7 +205,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
 
                     ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pushNamed(context, '/home'),
                       child: const Text('ふたを閉じる'),
                     ),
 

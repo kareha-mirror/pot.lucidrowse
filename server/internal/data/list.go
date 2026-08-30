@@ -32,7 +32,7 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 		WHERE p.activated = TRUE
 		  AND f.area_code LIKE $1 || '%'
 		ORDER BY p.id
-		`, regionCode)
+	`, regionCode)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func ActionList(playerPubId string) ([]ActionItem, error) {
 		JOIN players AS p ON p.id = f.player_id
 		WHERE p.pub_id = $1 AND a.fixed = TRUE
 		ORDER BY a.id DESC
-		`, playerPubId)
+	`, playerPubId)
 	if err != nil {
 		return nil, err
 	}

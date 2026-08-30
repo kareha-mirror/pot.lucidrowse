@@ -11,7 +11,7 @@ import (
 
 var db *pgxpool.Pool
 
-const createTablesSql = `
+const createTablesSQL = `
 CREATE TABLE IF NOT EXISTS state (
 	id INT PRIMARY KEY DEFAULT 1,
 	boot_counter BIGINT NOT NULL DEFAULT 0,
@@ -117,7 +117,7 @@ func Connect(cfg *config.Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(context.Background(), createTablesSql)
+	_, err = db.Exec(context.Background(), createTablesSQL)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func Connect(cfg *config.Config) (*pgxpool.Pool, error) {
 		ON CONFLICT (id)
 		DO UPDATE SET boot_counter = state.boot_counter + 1
 		RETURNING boot_counter;
-		`).Scan(&bootCount)
+	`).Scan(&bootCount)
 	if err != nil {
 		return nil, err
 	}

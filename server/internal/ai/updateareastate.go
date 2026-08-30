@@ -39,7 +39,7 @@ func updateAreaStateWithOpenAI(
 			cfg.Prompts.Events + "\n\n" +
 			cfg.Prompts.UpdateAreaState
 	userMessage :=
-		"AREASTATE: " + state + "\n\n" +
+		"AREA_STATE: " + state + "\n\n" +
 			"ACTIONS: " + string(actionsStr)
 
 	// debug

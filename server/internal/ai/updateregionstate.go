@@ -36,10 +36,10 @@ func updateRegionStateWithOpenAI(
 			continue
 		}
 
-		b.WriteString("== " + data.RegionNames[area.RegionCode] + " " + area.Name + " ==\n")
+		b.WriteString("== " + area.FullName() + " ==\n")
 		b.WriteString("\n")
 
-		areaState, err := data.AreaState(area.RegionCode + "-" + area.AreaCode)
+		areaState, err := data.AreaState(area.FullCode())
 		if err != nil {
 			return "", err
 		}
@@ -52,8 +52,8 @@ func updateRegionStateWithOpenAI(
 		cfg.Prompts.Common + "\n\n" +
 			cfg.Prompts.UpdateRegionState
 	userMessage :=
-		"REGIONSTATE: " + regionState + "\n\n" +
-			"AREASTATES: " + areaStates
+		"REGION_STATE: " + regionState + "\n\n" +
+			"AREA_STATES: " + areaStates
 
 	// debug
 	//fmt.Println("System Message:")

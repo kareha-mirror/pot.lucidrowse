@@ -7,7 +7,7 @@ func CreatePlayer(playerPubId string) error {
 		INSERT INTO players (pub_id, day)
 		SELECT $1, day_counter
 		FROM state WHERE id = 1
-		`, playerPubId)
+	`, playerPubId)
 	if err != nil {
 		return err
 	}
@@ -18,8 +18,7 @@ func PlayerId(playerPubId string) (int, error) {
 	var playerId int
 	err := db.QueryRow(context.Background(), `
 		SELECT id FROM players WHERE pub_id = $1
-		`, playerPubId).
-		Scan(&playerId)
+	`, playerPubId).Scan(&playerId)
 	if err != nil {
 		return 0, err
 	}
@@ -29,7 +28,7 @@ func PlayerId(playerPubId string) (int, error) {
 func ActivatePlayer(playerId int) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE players SET activated = TRUE WHERE id = $1
-		`, playerId)
+	`, playerId)
 	return err
 }
 
@@ -55,7 +54,7 @@ func AddFlavor(playerId int, flavor Flavor) error {
 		  area_code, area_name, day)
 		SELECT $1, $2, $3, $4, $5, $6, $7, $8, day_counter
 		FROM state WHERE id = 1
-		`, playerId, flavor.Input, flavor.Name, flavor.Race, flavor.Job, flavor.Description, flavor.AreaCode, flavor.AreaName)
+	`, playerId, flavor.Input, flavor.Name, flavor.Race, flavor.Job, flavor.Description, flavor.AreaCode, flavor.AreaName)
 	if err != nil {
 		return err
 	}
@@ -73,7 +72,7 @@ func AddImageToLastFlavor(playerId int, imagePubId string) error {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-		`, imagePubId, playerId)
+	`, imagePubId, playerId)
 	return err
 }
 
@@ -88,7 +87,7 @@ func CommitLastFlavor(playerId int) error {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-		`, playerId)
+	`, playerId)
 	return err
 }
 
@@ -105,12 +104,11 @@ func LoadLastFlavor(playerId int) (Flavor, error) {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-		`, playerId).
-		Scan(
-			&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description,
-			&flavor.AreaCode, &flavor.AreaName, &flavor.Day,
-			&flavor.ImagePubId, &flavor.Committed,
-		)
+	`, playerId).Scan(
+		&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description,
+		&flavor.AreaCode, &flavor.AreaName, &flavor.Day,
+		&flavor.ImagePubId, &flavor.Committed,
+	)
 	if err != nil {
 		return Flavor{}, err
 	}
@@ -130,12 +128,11 @@ func LoadCurrentFlavor(playerId int) (Flavor, error) {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-		`, playerId).
-		Scan(
-			&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description,
-			&flavor.AreaCode, &flavor.AreaName, &flavor.Day,
-			&flavor.ImagePubId, &flavor.Committed,
-		)
+	`, playerId).Scan(
+		&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description,
+		&flavor.AreaCode, &flavor.AreaName, &flavor.Day,
+		&flavor.ImagePubId, &flavor.Committed,
+	)
 	if err != nil {
 		return Flavor{}, err
 	}
@@ -165,7 +162,7 @@ func AddAction(playerId int, action Action) error {
 		  AND s.id = 1
 		ORDER BY f.id DESC
 		LIMIT 1
-		`, playerId, action.Input, action.Description)
+	`, playerId, action.Input, action.Description)
 	if err != nil {
 		return err
 	}
@@ -184,7 +181,7 @@ func AddImageToLastAction(playerId int, imagePubId string) error {
 		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
-		`, imagePubId, playerId)
+	`, imagePubId, playerId)
 	return err
 }
 
@@ -200,7 +197,7 @@ func CommitLastAction(playerId int) error {
 		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
-		`, playerId)
+	`, playerId)
 	return err
 }
 
@@ -217,11 +214,10 @@ func LoadLastAction(playerId int) (Action, error) {
 		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
-		`, playerId).
-		Scan(
-			&action.Description, &action.Day, &action.ImagePubId,
-			&action.Committed, &action.Fixed,
-		)
+	`, playerId).Scan(
+		&action.Description, &action.Day, &action.ImagePubId,
+		&action.Committed, &action.Fixed,
+	)
 	if err != nil {
 		return Action{}, err
 	}
