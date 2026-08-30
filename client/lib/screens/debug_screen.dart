@@ -21,6 +21,7 @@ class DebugScreen extends StatefulWidget {
 class _DebugScreenState extends State<DebugScreen> {
   bool _initialized = false;
   String? _dayErrorMessage;
+  bool _sleeping = false;
   String? _nextDayErrorMessage;
   String? _message;
   String? _helloErrorMessage;
@@ -49,7 +50,10 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   void _nextDay() async {
-    setState(() => _nextDayErrorMessage = null);
+    setState(() {
+      _sleeping = true;
+      _nextDayErrorMessage = null;
+    });
 
     try {
       final result = await apiNextDay();
@@ -66,6 +70,8 @@ class _DebugScreenState extends State<DebugScreen> {
       }
     } catch (e) {
       setState(() => _nextDayErrorMessage = e.toString());
+    } finally {
+      setState(() => _sleeping = false);
     }
   }
 
@@ -127,9 +133,11 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: _nextDay,
+                    onPressed: _sleeping ? null : _nextDay,
                     child: const Text('明日まで寝る'),
                   ),
+
+                  if (_sleeping) const CircularProgressIndicator(),
 
                   if (_nextDayErrorMessage != null) const SizedBox(height: 12),
                   if (_nextDayErrorMessage != null)

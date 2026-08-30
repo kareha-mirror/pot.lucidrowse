@@ -126,6 +126,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     widget.state.player.flavor = flavor;
                     widget.state.player.action = PlayerAction();
                     widget.state.player.committed = false;
+
+                    Navigator.pushNamed(context, '/home');
                   },
                   child: Text("入り込む"),
                 ),
