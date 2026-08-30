@@ -79,6 +79,23 @@ CREATE TABLE IF NOT EXISTS area_states (
 
 	UNIQUE (area_code, day)
 );
+
+CREATE TABLE IF NOT EXISTS region_states (
+	id SERIAL PRIMARY KEY,
+	region_code TEXT NOT NULL,
+	day BIGINT NOT NULL,
+	state TEXT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now(),
+
+	UNIQUE (region_code, day)
+);
+
+CREATE TABLE IF NOT EXISTS world_states (
+	id SERIAL PRIMARY KEY,
+	day BIGINT NOT NULL UNIQUE,
+	state TEXT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT now()
+);
 `
 
 var bootCount int64

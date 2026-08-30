@@ -39,7 +39,8 @@ func handleNextDay(
 		return
 	}
 
-	states := map[string]string{}
+	areaStates := map[string]string{}
+	updatedRegions := map[string]struct{}{}
 	for _, area := range areas {
 		areaCode := area.RegionCode + "-" + area.AreaCode
 		eventList, err := data.EventList(areaCode)
@@ -65,7 +66,49 @@ func handleNextDay(
 			)
 			return
 		}
-		states[areaCode] = state
+		areaStates[areaCode] = state
+		regionCode, err := data.RegionFromArea(areaCode)
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to infer region code from area code",
+				http.StatusInternalServerError,
+			)
+			return
+		}
+		updatedRegions[regionCode] = struct{}{}
+	}
+
+	regionStates := map[string]string{}
+	for regionCode, _ := range data.RegionNames {
+		_, ok := updatedRegions[regionCode]
+		if !ok {
+			continue
+		}
+
+		state, err := ai.UpdateRegionState(cfg, regionCode)
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to update region state",
+				http.StatusInternalServerError,
+			)
+			return
+		}
+		regionStates[regionCode] = state
+	}
+
+	worldState, err := ai.UpdateWorldState(cfg)
+	if err != nil {
+		log.Println(err)
+		http.Error(
+			w,
+			"failed to update world state",
+			http.StatusInternalServerError,
+		)
+		return
 	}
 
 	day, err := data.NextDay()
@@ -77,11 +120,11 @@ func handleNextDay(
 
 	for _, area := range areas {
 		areaCode := area.RegionCode + "-" + area.AreaCode
-		_, ok := states[areaCode]
+		_, ok := areaStates[areaCode]
 		if !ok {
 			continue
 		}
-		err := data.AddAreaState(areaCode, states[areaCode])
+		err := data.AddAreaState(areaCode, areaStates[areaCode])
 		if err != nil {
 			log.Println(err)
 			http.Error(
@@ -91,6 +134,34 @@ func handleNextDay(
 			)
 			return
 		}
+	}
+
+	for regionCode, _ := range data.RegionNames {
+		regionState, ok := regionStates[regionCode]
+		if !ok {
+			continue
+		}
+		err := data.AddRegionState(regionCode, regionState)
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to add region state",
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	err = data.AddWorldState(worldState)
+	if err != nil {
+		log.Println(err)
+		http.Error(
+			w,
+			"failed to add world state",
+			http.StatusInternalServerError,
+		)
+		return
 	}
 
 	res := NextDayResponse{

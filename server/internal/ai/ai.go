@@ -85,3 +85,21 @@ func UpdateAreaState(cfg *config.Config, areaCode string) (string, error) {
 		return "", fmt.Errorf("invalid AI agent")
 	}
 }
+
+func UpdateRegionState(cfg *config.Config, regionCode string) (string, error) {
+	switch cfg.AI.Agent {
+	case "openai":
+		return updateRegionStateWithOpenAI(cfg, regionCode)
+	default:
+		return "", fmt.Errorf("invalid AI agent")
+	}
+}
+
+func UpdateWorldState(cfg *config.Config) (string, error) {
+	switch cfg.AI.Agent {
+	case "openai":
+		return updateWorldStateWithOpenAI(cfg)
+	default:
+		return "", fmt.Errorf("invalid AI agent")
+	}
+}

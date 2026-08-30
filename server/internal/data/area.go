@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var regionNames = map[string]string{
+var RegionNames = map[string]string{
 	"capital": "王都地方",
 	"west":    "西方地方",
 	"north":   "北方地方",
@@ -108,10 +108,18 @@ func DescribeAreas() (string, error) {
 			"code: %s-%s  name: %s %s\n",
 			area.RegionCode,
 			area.AreaCode,
-			regionNames[area.RegionCode],
+			RegionNames[area.RegionCode],
 			area.Name,
 		))
 	}
 
 	return b.String(), nil
+}
+
+func RegionFromArea(areaCode string) (string, error) {
+	parts := strings.Split(areaCode, "-")
+	if len(parts) != 2 {
+		return "", fmt.Errorf("invalid area code")
+	}
+	return parts[0], nil
 }

@@ -25,7 +25,21 @@ func newActionWithOpenAI(
 		return Action{}, err
 	}
 
-	state, err := data.AreaState(flavor.AreaCode)
+	areaState, err := data.AreaState(flavor.AreaCode)
+	if err != nil {
+		return Action{}, err
+	}
+
+	regionCode, err := data.RegionFromArea(flavor.AreaCode)
+	if err != nil {
+		return Action{}, err
+	}
+	regionState, err := data.RegionState(regionCode)
+	if err != nil {
+		return Action{}, err
+	}
+
+	worldState, err := data.WorldState()
 	if err != nil {
 		return Action{}, err
 	}
@@ -44,7 +58,9 @@ func newActionWithOpenAI(
 			cfg.Prompts.Events + "\n\n" +
 			cfg.Prompts.Action
 	userMessage :=
-		"AREASTATE: " + state + "\n\n" +
+		"AREASTATE: " + areaState + "\n\n" +
+			"REGIONSTATE: " + regionState + "\n\n" +
+			"WORLDSTATE: " + worldState + "\n\n" +
 			"ACTIONS: " + string(actionsStr) + "\n\n" +
 			"FLAVOR: " + string(flavorStr) + "\n\n" +
 			"INPUT: " + input
