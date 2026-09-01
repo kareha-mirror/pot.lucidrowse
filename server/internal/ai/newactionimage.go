@@ -21,11 +21,18 @@ func newActionImageWithOpenAI(
 		return data.Image{}, fmt.Errorf("key not set")
 	}
 
+	day, err := data.Day()
+	if err != nil {
+		return data.Image{}, err
+	}
+	date := data.NewDate(day)
+
 	message :=
-		"DESCRIPTION: " + action.Description
+		"DATE: " + date.String() + "\n\n" +
+			"DESCRIPTION: " + action.Description
 	prompt :=
 		cfg.Prompts.Common + "\n\n" +
-			cfg.Prompts.ActionImage + "\n\n" +
+			cfg.Prompts.NewActionImage + "\n\n" +
 			message
 
 	client := openai.NewClient(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:client/api/list_actions.dart';
 import 'package:client/state.dart';
-import 'package:client/utils/calendar.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -59,7 +58,7 @@ class _ReadScreenState extends State<ReadScreen> {
         TranslucentPanel(
           child: Column(
             children: [
-              Text(formatDate(action['day'])),
+              Text(action['date']),
               SizedBox(height: 8),
               Text(action['description']),
             ],

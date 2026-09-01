@@ -68,7 +68,7 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 }
 
 type ActionItem struct {
-	Day         int64  `json:"day"`
+	Date        string `json:"date"`
 	Description string `json:"description"`
 	ImagePubId  string `json:"image-id"`
 }
@@ -91,15 +91,19 @@ func ActionList(playerPubId string) ([]ActionItem, error) {
 
 	for rows.Next() {
 		var item ActionItem
+		var day int64
 
 		err := rows.Scan(
-			&item.Day,
+			&day,
 			&item.Description,
 			&item.ImagePubId,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		date := NewDate(day)
+		item.Date = date.String()
 
 		list = append(list, item)
 	}

@@ -28,7 +28,7 @@ func main() {
 	}
 	defer db.Close()
 
-	if err = data.Seed(); err != nil {
+	if err = data.Seed(cfg); err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		return
 	}

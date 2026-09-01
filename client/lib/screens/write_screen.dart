@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/commit_action.dart';
-import 'package:client/api/day.dart';
+import 'package:client/api/date.dart';
 import 'package:client/api/new_action.dart';
 import 'package:client/api/image_action.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state.dart';
-import 'package:client/utils/calendar.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -20,8 +19,9 @@ class WriteScreen extends StatefulWidget {
 }
 
 class _WriteScreenState extends State<WriteScreen> {
-  bool _initialized = false;
-  String? _dayErrorMessage;
+  String _date = '';
+  bool _dateLoaded = false;
+  String? _dateErrorMessage;
   late TextEditingController _inputController;
   String? _actionErrorMessage;
   late TextEditingController _outputController;
@@ -49,22 +49,24 @@ class _WriteScreenState extends State<WriteScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadDay();
+    _loadDate();
   }
 
-  Future<void> _loadDay() async {
+  Future<void> _loadDate() async {
+    setState(() => _dateLoaded = false);
+
     try {
-      final result = await apiDay();
+      final result = await apiDate();
 
       if (!mounted) return;
 
       setState(() {
-        widget.state.day = result['day'];
+        _date = result['date'];
 
-        _initialized = true;
+        _dateLoaded = true;
       });
     } catch (e) {
-      setState(() => _dayErrorMessage = e.toString());
+      setState(() => _dateErrorMessage = e.toString());
     }
   }
 
@@ -104,8 +106,6 @@ class _WriteScreenState extends State<WriteScreen> {
         action.input = _inputController.text;
 
         action.description = result['description'];
-
-        action.day = widget.state.day;
 
         setState(() {
           _outputController.text = action.description;
@@ -158,22 +158,13 @@ class _WriteScreenState extends State<WriteScreen> {
               child: Column(
                 children: [
                   if (widget.state.player.inhabitant) ...[
-                    TranslucentPanel(
-                      child: Column(
-                        children: [
-                          if (_initialized) Text(formatDate(widget.state.day)),
-                          Text(
-                            'この世界に住んで ${widget.state.day - widget.state.player.day + 1} 日目。',
-                          ),
-                        ],
-                      ),
-                    ),
+                    if (_dateLoaded) TranslucentPanel(child: Text(_date)),
 
-                    if (_dayErrorMessage != null) const SizedBox(height: 12),
-                    if (_dayErrorMessage != null)
+                    if (_dateErrorMessage != null) const SizedBox(height: 12),
+                    if (_dateErrorMessage != null)
                       TranslucentPanel(
                         child: Text(
-                          _dayErrorMessage!,
+                          _dateErrorMessage!,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),

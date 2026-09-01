@@ -20,6 +20,12 @@ func updateAreaStateWithOpenAI(
 		return "", fmt.Errorf("key not set")
 	}
 
+	day, err := data.Day()
+	if err != nil {
+		return "", err
+	}
+	date := data.NewDate(day)
+
 	state, err := data.AreaState(areaCode)
 	if err != nil {
 		return "", err
@@ -39,7 +45,8 @@ func updateAreaStateWithOpenAI(
 			cfg.Prompts.Events + "\n\n" +
 			cfg.Prompts.UpdateAreaState
 	userMessage :=
-		"AREA_STATE: " + state + "\n\n" +
+		"DATE: " + date.String() + "\n\n" +
+			"AREA_STATE: " + state + "\n\n" +
 			"ACTIONS: " + string(actionsStr)
 
 	// debug

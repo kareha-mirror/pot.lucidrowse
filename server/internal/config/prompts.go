@@ -9,13 +9,13 @@ import (
 type Prompts struct {
 	Common            string `yaml:"common"`
 	Areas             string `yaml:"areas"`
-	Create            string `yaml:"create"`
-	Image             string `yaml:"image"`
-	Update            string `yaml:"update"`
-	UpdateImage       string `yaml:"update-image"`
+	NewFlavor         string `yaml:"new-flavor"`
+	NewFlavorImage    string `yaml:"new-flavor-image"`
+	UpdateFlavor      string `yaml:"update-flavor"`
+	UpdateFlavorImage string `yaml:"update-flavor-image"`
 	Events            string `yaml:"events"`
-	Action            string `yaml:"action"`
-	ActionImage       string `yaml:"action-image"`
+	NewAction         string `yaml:"new-action"`
+	NewActionImage    string `yaml:"new-action-image"`
 	UpdateAreaState   string `yaml:"update-area-state"`
 	UpdateRegionState string `yaml:"update-region-state"`
 	UpdateWorldState  string `yaml:"update-world-state"`

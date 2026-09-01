@@ -25,6 +25,12 @@ func newActionWithOpenAI(
 		return Action{}, err
 	}
 
+	day, err := data.Day()
+	if err != nil {
+		return Action{}, err
+	}
+	date := data.NewDate(day)
+
 	areaState, err := data.AreaState(flavor.AreaCode)
 	if err != nil {
 		return Action{}, err
@@ -56,9 +62,10 @@ func newActionWithOpenAI(
 	systemMessage :=
 		cfg.Prompts.Common + "\n\n" +
 			cfg.Prompts.Events + "\n\n" +
-			cfg.Prompts.Action
+			cfg.Prompts.NewAction
 	userMessage :=
-		"AREA_STATE: " + areaState + "\n\n" +
+		"DATE: " + date.String() + "\n\n" +
+			"AREA_STATE: " + areaState + "\n\n" +
 			"REGION_STATE: " + regionState + "\n\n" +
 			"WORLD_STATE: " + worldState + "\n\n" +
 			"ACTIONS: " + string(actionsStr) + "\n\n" +

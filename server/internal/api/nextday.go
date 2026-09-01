@@ -14,15 +14,14 @@ import (
 var nextDayMu sync.Mutex
 
 type NextDayResponse struct {
-	Day   int64  `json:"day"`
 	Error string `json:"error"`
 }
 
-func nextDay(cfg *config.Config) (int64, error) {
+func nextDay(cfg *config.Config) error {
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
-		return 0, err
+		return err
 	}
 
 	areaStates := map[string]string{}
@@ -32,7 +31,7 @@ func nextDay(cfg *config.Config) (int64, error) {
 		eventList, err := data.EventList(areaCode)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 		if len(eventList) < 1 {
 			continue
@@ -40,13 +39,13 @@ func nextDay(cfg *config.Config) (int64, error) {
 		state, err := ai.UpdateAreaState(cfg, areaCode)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 		areaStates[areaCode] = state
 		regionCode, err := data.RegionFromArea(areaCode)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 		updatedRegions[regionCode] = struct{}{}
 	}
@@ -61,7 +60,7 @@ func nextDay(cfg *config.Config) (int64, error) {
 		state, err := ai.UpdateRegionState(cfg, regionCode)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 		regionStates[regionCode] = state
 	}
@@ -71,14 +70,14 @@ func nextDay(cfg *config.Config) (int64, error) {
 		worldState, err = ai.UpdateWorldState(cfg)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 	}
 
-	day, err := data.NextDay()
+	_, err = data.NextDay()
 	if err != nil {
 		log.Println(err)
-		return 0, err
+		return err
 	}
 
 	for _, area := range areas {
@@ -90,7 +89,7 @@ func nextDay(cfg *config.Config) (int64, error) {
 		err := data.AddAreaState(areaCode, areaStates[areaCode])
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 	}
 
@@ -102,7 +101,7 @@ func nextDay(cfg *config.Config) (int64, error) {
 		err := data.AddRegionState(regionCode, regionState)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 	}
 
@@ -110,11 +109,11 @@ func nextDay(cfg *config.Config) (int64, error) {
 		err = data.AddWorldState(worldState)
 		if err != nil {
 			log.Println(err)
-			return 0, err
+			return err
 		}
 	}
 
-	return day, nil
+	return nil
 }
 
 func handleNextDay(
@@ -122,7 +121,6 @@ func handleNextDay(
 ) {
 	if !nextDayMu.TryLock() {
 		res := NextDayResponse{
-			Day:   0,
 			Error: "excluded",
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -131,15 +129,13 @@ func handleNextDay(
 	}
 	defer nextDayMu.Unlock()
 
-	day, err := nextDay(cfg)
-	if err != nil {
+	if err := nextDay(cfg); err != nil {
 		log.Println(err)
 		http.Error(w, "failed to go next day", http.StatusInternalServerError)
 		return
 	}
 
 	res := NextDayResponse{
-		Day:   day,
 		Error: "",
 	}
 	w.Header().Set("Content-Type", "application/json")

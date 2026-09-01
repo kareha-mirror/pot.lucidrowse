@@ -25,7 +25,7 @@ func newFlavorWithOpenAI(cfg *config.Config, input string) (Flavor, error) {
 	systemMessage :=
 		cfg.Prompts.Common + "\n\n" +
 			cfg.Prompts.Areas + areas + "\n\n" +
-			cfg.Prompts.Create
+			cfg.Prompts.NewFlavor
 	userMessage :=
 		"INPUT: " + input
 

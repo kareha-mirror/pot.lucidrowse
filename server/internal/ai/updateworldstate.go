@@ -18,6 +18,12 @@ func updateWorldStateWithOpenAI(cfg *config.Config) (string, error) {
 		return "", fmt.Errorf("key not set")
 	}
 
+	day, err := data.Day()
+	if err != nil {
+		return "", err
+	}
+	date := data.NewDate(day)
+
 	worldState, err := data.WorldState()
 	if err != nil {
 		return "", err
@@ -41,7 +47,8 @@ func updateWorldStateWithOpenAI(cfg *config.Config) (string, error) {
 		cfg.Prompts.Common + "\n\n" +
 			cfg.Prompts.UpdateWorldState
 	userMessage :=
-		"WORLDSTATE: " + worldState + "\n\n" +
+		"DATE: " + date.String() + "\n\n" +
+			"WORLDSTATE: " + worldState + "\n\n" +
 			"REGION_STATES: " + regionStates
 
 	// debug

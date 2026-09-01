@@ -22,3 +22,4 @@ ai:
   top_p: 0.9
 
 prompts-path: "./prompts.yaml"
+world-path: "./world.yaml"

@@ -12,8 +12,6 @@ class Flavor {
 
   String? imageId;
 
-  int day = 0;
-
   Flavor();
 
   factory Flavor.fromJson(Map<String, dynamic> json) {
@@ -39,8 +37,7 @@ class Flavor {
       description = other.description,
       areaCode = other.areaCode,
       areaName = other.areaName,
-      imageId = other.imageId,
-      day = other.day;
+      imageId = other.imageId;
 
   String formatText() {
     final buf = StringBuffer();
@@ -65,7 +62,7 @@ class PlayerAction {
 
   String? imageId;
 
-  int day = 0;
+  String date = '';
 
   bool get hasDescription => description != '';
 }
@@ -73,7 +70,6 @@ class PlayerAction {
 class Player {
   bool inhabitant = false;
   String id = '';
-  int day = 0;
 
   Flavor flavor = Flavor();
 

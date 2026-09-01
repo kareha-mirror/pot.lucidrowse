@@ -31,7 +31,7 @@ func updateFlavorImageWithOpenAI(
 		"FLAVOR: " + string(updatedFlavorStr)
 	prompt :=
 		cfg.Prompts.Common + "\n\n" +
-			cfg.Prompts.UpdateImage + "\n\n" +
+			cfg.Prompts.UpdateFlavorImage + "\n\n" +
 			message
 
 	client := openai.NewClient(

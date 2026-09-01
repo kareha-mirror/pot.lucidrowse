@@ -35,8 +35,10 @@ type Config struct {
 	} `yaml:"ai"`
 
 	PromptsPath string `yaml:"prompts-path"`
+	WorldPath   string `yaml:"world-path"`
 
 	Prompts *Prompts
+	World   *World
 }
 
 func Load(path string) (*Config, error) {
@@ -51,6 +53,11 @@ func Load(path string) (*Config, error) {
 	}
 
 	cfg.Prompts, err = loadPrompts(cfg.PromptsPath)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.World, err = loadWorld(cfg.WorldPath)
 	if err != nil {
 		return nil, err
 	}

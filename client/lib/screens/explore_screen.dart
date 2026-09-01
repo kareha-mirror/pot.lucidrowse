@@ -122,7 +122,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
                     widget.state.player.inhabitant = true;
                     widget.state.player.id = player['player-id'];
-                    widget.state.player.day = 0;
                     widget.state.player.flavor = flavor;
                     widget.state.player.action = PlayerAction();
                     widget.state.player.committed = false;

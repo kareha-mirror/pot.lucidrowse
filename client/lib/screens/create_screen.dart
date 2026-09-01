@@ -54,9 +54,6 @@ class _CreateScreenState extends State<CreateScreen> {
     if (player.committed) {
       return true;
     }
-    if (player.flavor.hasDescription && player.flavor.day >= widget.state.day) {
-      return true;
-    }
     return false;
   }
 
@@ -107,7 +104,6 @@ class _CreateScreenState extends State<CreateScreen> {
         final flavor = Flavor.fromJson(result);
 
         flavor.input = _inputController.text;
-        flavor.day = widget.state.day;
 
         setState(() {
           _outputController.text = flavor.formatText();
@@ -134,7 +130,6 @@ class _CreateScreenState extends State<CreateScreen> {
       final player = widget.state.player;
 
       if (!player.inhabitant) {
-        player.day = widget.state.day;
         player.inhabitant = true;
       }
 

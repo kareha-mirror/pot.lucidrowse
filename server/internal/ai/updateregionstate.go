@@ -20,6 +20,12 @@ func updateRegionStateWithOpenAI(
 		return "", fmt.Errorf("key not set")
 	}
 
+	day, err := data.Day()
+	if err != nil {
+		return "", err
+	}
+	date := data.NewDate(day)
+
 	regionState, err := data.RegionState(regionCode)
 	if err != nil {
 		return "", err
@@ -52,7 +58,8 @@ func updateRegionStateWithOpenAI(
 		cfg.Prompts.Common + "\n\n" +
 			cfg.Prompts.UpdateRegionState
 	userMessage :=
-		"REGION_STATE: " + regionState + "\n\n" +
+		"DATE: " + date.String() + "\n\n" +
+			"REGION_STATE: " + regionState + "\n\n" +
 			"AREA_STATES: " + areaStates
 
 	// debug

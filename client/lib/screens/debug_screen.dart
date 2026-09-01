@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:client/api/day.dart';
+import 'package:client/api/date.dart';
 import 'package:client/api/hello.dart';
 import 'package:client/api/next_day.dart';
 import 'package:client/models/player.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state.dart';
-import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class DebugScreen extends StatefulWidget {
@@ -19,8 +18,9 @@ class DebugScreen extends StatefulWidget {
 }
 
 class _DebugScreenState extends State<DebugScreen> {
-  bool _initialized = false;
-  String? _dayErrorMessage;
+  String _date = '';
+  bool _dateLoaded = false;
+  String? _dateErrorMessage;
   bool _sleeping = false;
   String? _nextDayErrorMessage;
   String? _message;
@@ -30,22 +30,24 @@ class _DebugScreenState extends State<DebugScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadDay();
+    _loadDate();
   }
 
-  Future<void> _loadDay() async {
+  Future<void> _loadDate() async {
+    setState(() => _dateLoaded = false);
+
     try {
-      final result = await apiDay();
+      final result = await apiDate();
 
       if (!mounted) return;
 
       setState(() {
-        widget.state.day = result['day'];
+        _date = result['date'];
 
-        _initialized = true;
+        _dateLoaded = true;
       });
     } catch (e) {
-      setState(() => _dayErrorMessage = e.toString());
+      setState(() => _dateErrorMessage = e.toString());
     }
   }
 
@@ -62,11 +64,11 @@ class _DebugScreenState extends State<DebugScreen> {
         setState(() => _nextDayErrorMessage = result['error']);
       } else {
         setState(() {
-          widget.state.day = result['day'];
-
           widget.state.player.committed = false;
           widget.state.player.action = PlayerAction();
         });
+
+        await _loadDate();
       }
     } catch (e) {
       setState(() => _nextDayErrorMessage = e.toString());
@@ -110,21 +112,13 @@ class _DebugScreenState extends State<DebugScreen> {
             child: Center(
               child: Column(
                 children: [
-                  if (_initialized)
-                    TranslucentPanel(
-                      child: Column(
-                        children: [
-                          Text(formatDate(widget.state.day)),
-                          Text('夢路開通 ${widget.state.day + 1} 日目'),
-                        ],
-                      ),
-                    ),
+                  if (_dateLoaded) TranslucentPanel(child: Text(_date)),
 
-                  if (_dayErrorMessage != null) const SizedBox(height: 12),
-                  if (_dayErrorMessage != null)
+                  if (_dateErrorMessage != null) const SizedBox(height: 12),
+                  if (_dateErrorMessage != null)
                     TranslucentPanel(
                       child: Text(
-                        _dayErrorMessage!,
+                        _dateErrorMessage!,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                         ),

@@ -33,7 +33,7 @@ func updateFlavorWithOpenAI(
 	systemMessage :=
 		cfg.Prompts.Common + "\n\n" +
 			cfg.Prompts.Areas + areas + "\n\n" +
-			cfg.Prompts.Update
+			cfg.Prompts.UpdateFlavor
 	userMessage :=
 		"FLAVOR: " + string(flavorStr) + "\n\n" +
 			"INPUT: " + input
