@@ -2,33 +2,33 @@ package data
 
 import "context"
 
-func CreatePlayer(playerPubId string) error {
+func CreatePlayer(userID int, playerPubID string) error {
 	_, err := db.Exec(context.Background(), `
-		INSERT INTO players (pub_id, day)
-		SELECT $1, day_counter
+		INSERT INTO players (user_id, pub_id, day)
+		SELECT $1, $2, day_counter
 		FROM state WHERE id = 1
-	`, playerPubId)
+	`, userID, playerPubID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func PlayerId(playerPubId string) (int, error) {
-	var playerId int
+func PlayerID(userID int) (int, error) {
+	var playerID int
 	err := db.QueryRow(context.Background(), `
-		SELECT id FROM players WHERE pub_id = $1
-	`, playerPubId).Scan(&playerId)
+		SELECT id FROM players WHERE user_id = $1
+	`, userID).Scan(&playerID)
 	if err != nil {
 		return 0, err
 	}
-	return playerId, nil
+	return playerID, nil
 }
 
-func ActivatePlayer(playerId int) error {
+func ActivatePlayer(playerID int) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE players SET activated = TRUE WHERE id = $1
-	`, playerId)
+	`, playerID)
 	return err
 }
 
@@ -43,25 +43,25 @@ type Flavor struct {
 
 	// optionals
 	Day        int64
-	ImagePubId *string
+	ImagePubID *string
 	Committed  bool
 }
 
-func AddFlavor(playerId int, flavor Flavor) error {
+func AddFlavor(playerID int, flavor Flavor) error {
 	_, err := db.Exec(context.Background(), `
 		INSERT INTO flavors
 		(player_id, input, name, race, job, description,
 		  area_code, area_name, day)
 		SELECT $1, $2, $3, $4, $5, $6, $7, $8, day_counter
 		FROM state WHERE id = 1
-	`, playerId, flavor.Input, flavor.Name, flavor.Race, flavor.Job, flavor.Description, flavor.AreaCode, flavor.AreaName)
+	`, playerID, flavor.Input, flavor.Name, flavor.Race, flavor.Job, flavor.Description, flavor.AreaCode, flavor.AreaName)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func AddImageToLastFlavor(playerId int, imagePubId string) error {
+func AddImageToLastFlavor(playerID int, imagePubID string) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE flavors
 		SET image_pub_id = $1
@@ -72,11 +72,11 @@ func AddImageToLastFlavor(playerId int, imagePubId string) error {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-	`, imagePubId, playerId)
+	`, imagePubID, playerID)
 	return err
 }
 
-func CommitLastFlavor(playerId int) error {
+func CommitLastFlavor(playerID int) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE flavors
 		SET committed=TRUE
@@ -87,11 +87,11 @@ func CommitLastFlavor(playerId int) error {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-	`, playerId)
+	`, playerID)
 	return err
 }
 
-func LoadLastFlavor(playerId int) (Flavor, error) {
+func LoadLastFlavor(playerID int) (Flavor, error) {
 	var flavor Flavor
 	err := db.QueryRow(context.Background(), `
 		SELECT name, race, job, description,
@@ -104,10 +104,10 @@ func LoadLastFlavor(playerId int) (Flavor, error) {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-	`, playerId).Scan(
+	`, playerID).Scan(
 		&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description,
 		&flavor.AreaCode, &flavor.AreaName, &flavor.Day,
-		&flavor.ImagePubId, &flavor.Committed,
+		&flavor.ImagePubID, &flavor.Committed,
 	)
 	if err != nil {
 		return Flavor{}, err
@@ -115,7 +115,7 @@ func LoadLastFlavor(playerId int) (Flavor, error) {
 	return flavor, nil
 }
 
-func LoadCurrentFlavor(playerId int) (Flavor, error) {
+func LoadCurrentFlavor(playerID int) (Flavor, error) {
 	var flavor Flavor
 	err := db.QueryRow(context.Background(), `
 		SELECT name, race, job, description,
@@ -128,10 +128,10 @@ func LoadCurrentFlavor(playerId int) (Flavor, error) {
 		  ORDER BY id DESC
 		  LIMIT 1
 		)
-	`, playerId).Scan(
+	`, playerID).Scan(
 		&flavor.Name, &flavor.Race, &flavor.Job, &flavor.Description,
 		&flavor.AreaCode, &flavor.AreaName, &flavor.Day,
-		&flavor.ImagePubId, &flavor.Committed,
+		&flavor.ImagePubID, &flavor.Committed,
 	)
 	if err != nil {
 		return Flavor{}, err
@@ -145,12 +145,12 @@ type Action struct {
 
 	// optional
 	Day        int64
-	ImagePubId *string
+	ImagePubID *string
 	Committed  bool
 	Fixed      bool
 }
 
-func AddAction(playerId int, action Action) error {
+func AddAction(playerID int, action Action) error {
 	_, err := db.Exec(context.Background(), `
 		INSERT INTO actions
 		(flavor_id, input, description, day)
@@ -162,14 +162,14 @@ func AddAction(playerId int, action Action) error {
 		  AND s.id = 1
 		ORDER BY f.id DESC
 		LIMIT 1
-	`, playerId, action.Input, action.Description)
+	`, playerID, action.Input, action.Description)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func AddImageToLastAction(playerId int, imagePubId string) error {
+func AddImageToLastAction(playerID int, imagePubID string) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE actions
 		SET image_pub_id = $1
@@ -181,11 +181,11 @@ func AddImageToLastAction(playerId int, imagePubId string) error {
 		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
-	`, imagePubId, playerId)
+	`, imagePubID, playerID)
 	return err
 }
 
-func CommitLastAction(playerId int) error {
+func CommitLastAction(playerID int) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE actions
 		SET committed = TRUE
@@ -197,11 +197,11 @@ func CommitLastAction(playerId int) error {
 		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
-	`, playerId)
+	`, playerID)
 	return err
 }
 
-func LoadLastAction(playerId int) (Action, error) {
+func LoadLastAction(playerID int) (Action, error) {
 	var action Action
 	err := db.QueryRow(context.Background(), `
 		SELECT description, day, image_pub_id, committed, fixed
@@ -214,8 +214,8 @@ func LoadLastAction(playerId int) (Action, error) {
 		  ORDER BY a.id DESC
 		  LIMIT 1
 		)
-	`, playerId).Scan(
-		&action.Description, &action.Day, &action.ImagePubId,
+	`, playerID).Scan(
+		&action.Description, &action.Day, &action.ImagePubID,
 		&action.Committed, &action.Fixed,
 	)
 	if err != nil {

@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/const.dart';
 
-Future<Map<String, dynamic>> apiImageFlavor() async {
+Future<Map<String, dynamic>> apiEnsureSession() async {
   final response = await http.post(
-    Uri.parse('$apiBase/players/flavor/image'),
+    Uri.parse('$apiBase/users/ensure-session'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({}),
   );

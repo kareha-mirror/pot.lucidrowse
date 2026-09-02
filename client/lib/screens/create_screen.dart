@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/commit_flavor.dart';
+import 'package:client/api/ensure_session.dart';
 import 'package:client/api/image_flavor.dart';
+import 'package:client/api/load_flavor.dart';
 import 'package:client/api/new_flavor.dart';
 import 'package:client/api/new_player.dart';
 import 'package:client/api/update_flavor.dart';
@@ -49,6 +51,31 @@ class _CreateScreenState extends State<CreateScreen> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _loadCurrentFlavor();
+  }
+
+  Future<void> _loadCurrentFlavor() async {
+    try {
+      final result = await apiLoadFlavor();
+
+      final flavor = Flavor.fromJson(result['flavor']);
+      flavor.imageId = result['image-id'];
+
+      flavor.input = _inputController.text;
+
+      setState(() {
+        _outputController.text = flavor.formatText();
+        _flavor = flavor;
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+
   bool _disabled() {
     final player = widget.state.player;
     if (player.committed) {
@@ -63,7 +90,7 @@ class _CreateScreenState extends State<CreateScreen> {
       _imageErrorMessage = null;
     });
     try {
-      final result = await apiImageFlavor(widget.state.player.id);
+      final result = await apiImageFlavor();
 
       setState(() {
         _flavor.imageId = result['image-id'];
@@ -83,22 +110,18 @@ class _CreateScreenState extends State<CreateScreen> {
       _flavorErrorMessage = null;
     });
     try {
+      await apiEnsureSession();
+
       final Map<String, dynamic> result;
       if (widget.state.player.flavor.hasDescription) {
-        result = await apiUpdateFlavor(
-          widget.state.player.id,
-          _inputController.text,
-        );
+        result = await apiUpdateFlavor(_inputController.text);
       } else {
         if (widget.state.player.id == '') {
           final created = await apiNewPlayer();
           widget.state.player.id = created['player-id'];
         }
 
-        result = await apiNewFlavor(
-          widget.state.player.id,
-          _inputController.text,
-        );
+        result = await apiNewFlavor(_inputController.text);
       }
       if (result['error'] == '') {
         final flavor = Flavor.fromJson(result);
@@ -124,7 +147,7 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _commit() async {
-    await apiCommitFlavor(widget.state.player.id);
+    await apiCommitFlavor();
 
     setState(() {
       final player = widget.state.player;

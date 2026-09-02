@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/const.dart';
 
-Future<Map<String, dynamic>> apiCommitAction(String playerId) async {
+Future<Map<String, dynamic>> apiCommitAction() async {
   final response = await http.post(
-    Uri.parse('$apiBase/players/$playerId/actions/commit'),
+    Uri.parse('$apiBase/players/actions/commit'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({}),
   );

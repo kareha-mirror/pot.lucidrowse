@@ -34,9 +34,9 @@ type ListActionsResponse struct {
 }
 
 func handleListActions(w http.ResponseWriter, r *http.Request) {
-	playerPubId := r.PathValue("id")
+	playerPubID := r.PathValue("id")
 
-	actions, err := data.ActionList(playerPubId)
+	actions, err := data.ActionList(playerPubID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to list actions", http.StatusInternalServerError)

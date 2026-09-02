@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -21,7 +22,20 @@ type NewActionResponse struct {
 func handleNewAction(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
-	playerPubId := r.PathValue("id")
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	keyHash := sha256.Sum256([]byte(cookie.Value))
+	userID, err := data.UserID(keyHash[:])
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	var req NewActionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -30,14 +44,14 @@ func handleNewAction(
 		return
 	}
 
-	playerId, err := data.PlayerId(playerPubId)
+	playerID, err := data.PlayerID(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	f, err := data.LoadCurrentFlavor(playerId)
+	f, err := data.LoadCurrentFlavor(playerID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "current flavor not found", http.StatusNotFound)
@@ -66,7 +80,7 @@ func handleNewAction(
 			Description: action.Description,
 		}
 
-		if err = data.AddAction(playerId, a); err != nil {
+		if err = data.AddAction(playerID, a); err != nil {
 			log.Println(err)
 			http.Error(
 				w,

@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"log"
@@ -11,10 +12,10 @@ import (
 )
 
 type NewPlayerResponse struct {
-	PlayerId string `json:"player-id"`
+	PlayerID string `json:"player-id"`
 }
 
-func newPubId() (string, error) {
+func newPubID() (string, error) {
 	b := make([]byte, 32)
 
 	if _, err := rand.Read(b); err != nil {
@@ -25,21 +26,36 @@ func newPubId() (string, error) {
 }
 
 func handleNewPlayer(w http.ResponseWriter, r *http.Request) {
-	playerId, err := newPubId()
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	keyHash := sha256.Sum256([]byte(cookie.Value))
+	userID, err := data.UserID(keyHash[:])
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	playerID, err := newPubID()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
 		return
 	}
 
-	if err = data.CreatePlayer(playerId); err != nil {
+	if err = data.CreatePlayer(userID, playerID); err != nil {
 		log.Println(err)
 		http.Error(w, "failed to create player", http.StatusInternalServerError)
 		return
 	}
 
 	res := NewPlayerResponse{
-		PlayerId: playerId,
+		PlayerID: playerID,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

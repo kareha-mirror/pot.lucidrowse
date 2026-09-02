@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/api/commit_action.dart';
 import 'package:client/api/date.dart';
+import 'package:client/api/ensure_session.dart';
 import 'package:client/api/new_action.dart';
 import 'package:client/api/image_action.dart';
 import 'package:client/models/player.dart';
@@ -76,7 +77,7 @@ class _WriteScreenState extends State<WriteScreen> {
       _imageErrorMessage = null;
     });
     try {
-      final result = await apiImageAction(widget.state.player.id);
+      final result = await apiImageAction();
 
       setState(() {
         widget.state.player.action.imageId = result['image-id'];
@@ -96,10 +97,9 @@ class _WriteScreenState extends State<WriteScreen> {
       _actionErrorMessage = null;
     });
     try {
-      final result = await apiNewAction(
-        widget.state.player.id,
-        _inputController.text,
-      );
+      await apiEnsureSession();
+
+      final result = await apiNewAction(_inputController.text);
       if (result['error'] == '') {
         final action = PlayerAction();
 
@@ -126,7 +126,7 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _commit() async {
-    await apiCommitAction(widget.state.player.id);
+    await apiCommitAction();
 
     setState(() {
       final player = widget.state.player;

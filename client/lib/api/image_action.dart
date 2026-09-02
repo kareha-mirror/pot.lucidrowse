@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/const.dart';
 
-Future<Map<String, dynamic>> apiImageAction(String playerId) async {
+Future<Map<String, dynamic>> apiImageAction() async {
   final response = await http.post(
-    Uri.parse('$apiBase/players/$playerId/actions/image'),
+    Uri.parse('$apiBase/players/actions/image'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({}),
   );

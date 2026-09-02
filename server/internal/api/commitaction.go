@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -11,22 +12,35 @@ import (
 type CommitActionResponse struct{}
 
 func handleCommitAction(w http.ResponseWriter, r *http.Request) {
-	playerPubId := r.PathValue("id")
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 
-	playerId, err := data.PlayerId(playerPubId)
+	keyHash := sha256.Sum256([]byte(cookie.Value))
+	userID, err := data.UserID(keyHash[:])
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	playerID, err := data.PlayerID(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	if err = data.CommitLastAction(playerId); err != nil {
+	if err = data.CommitLastAction(playerID); err != nil {
 		log.Println(err)
 		http.Error(w, "last action not found", http.StatusNotFound)
 		return
 	}
 
-	if err = data.ActivatePlayer(playerId); err != nil {
+	if err = data.ActivatePlayer(playerID); err != nil {
 		log.Println(err)
 		http.Error(
 			w,

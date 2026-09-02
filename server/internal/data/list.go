@@ -6,14 +6,14 @@ import (
 )
 
 type PlayerItem struct {
-	PlayerPubId string `json:"player-id"`
+	PlayerPubID string `json:"player-id"`
 	Name        string `json:"name"`
 	Race        string `json:"race"`
 	Job         string `json:"job"`
 	Description string `json:"description"`
 	AreaCode    string `json:"area-code"`
 	AreaName    string `json:"area-name"`
-	ImagePubId  string `json:"image-id"`
+	ImagePubID  string `json:"image-id"`
 }
 
 func PlayerList(regionCode string) ([]PlayerItem, error) {
@@ -44,14 +44,14 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 		var item PlayerItem
 
 		err := rows.Scan(
-			&item.PlayerPubId,
+			&item.PlayerPubID,
 			&item.Name,
 			&item.Race,
 			&item.Job,
 			&item.Description,
 			&item.AreaCode,
 			&item.AreaName,
-			&item.ImagePubId,
+			&item.ImagePubID,
 		)
 		if err != nil {
 			return nil, err
@@ -70,10 +70,10 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 type ActionItem struct {
 	Date        string `json:"date"`
 	Description string `json:"description"`
-	ImagePubId  string `json:"image-id"`
+	ImagePubID  string `json:"image-id"`
 }
 
-func ActionList(playerPubId string) ([]ActionItem, error) {
+func ActionList(playerPubID string) ([]ActionItem, error) {
 	rows, err := db.Query(context.Background(), `
 		SELECT a.day, a.description, a.image_pub_id
 		FROM actions AS a
@@ -81,7 +81,7 @@ func ActionList(playerPubId string) ([]ActionItem, error) {
 		JOIN players AS p ON p.id = f.player_id
 		WHERE p.pub_id = $1 AND a.fixed = TRUE
 		ORDER BY a.id DESC
-	`, playerPubId)
+	`, playerPubID)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func ActionList(playerPubId string) ([]ActionItem, error) {
 		err := rows.Scan(
 			&day,
 			&item.Description,
-			&item.ImagePubId,
+			&item.ImagePubID,
 		)
 		if err != nil {
 			return nil, err

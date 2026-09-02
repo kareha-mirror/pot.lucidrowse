@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/const.dart';
 
-Future<Map<String, dynamic>> apiNewFlavor(String playerId, String input) async {
+Future<Map<String, dynamic>> apiNewFlavor(String input) async {
   final response = await http.post(
-    Uri.parse('$apiBase/players/$playerId/flavor'),
+    Uri.parse('$apiBase/players/flavor'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({'input': input}),
   );

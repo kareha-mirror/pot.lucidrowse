@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -17,7 +18,20 @@ type UpdateFlavorRequest struct {
 func handleUpdateFlavor(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
-	playerPubId := r.PathValue("id")
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	keyHash := sha256.Sum256([]byte(cookie.Value))
+	userID, err := data.UserID(keyHash[:])
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	var req UpdateFlavorRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -26,7 +40,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	id, err := data.PlayerId(playerPubId)
+	id, err := data.PlayerID(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)

@@ -8,9 +8,9 @@ import (
 )
 
 func handleImage(w http.ResponseWriter, r *http.Request) {
-	imagePubId := r.PathValue("id")
+	imagePubID := r.PathValue("id")
 
-	image, err := data.LoadImage(r.Context(), imagePubId)
+	image, err := data.LoadImage(r.Context(), imagePubID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "image not found", http.StatusNotFound)

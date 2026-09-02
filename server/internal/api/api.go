@@ -14,22 +14,25 @@ func Run(cfg *config.Config) error {
 	mux.HandleFunc("GET /api/date", handleDate)
 	mux.HandleFunc("POST /api/next-day", nextDayHandler(cfg))
 
+	mux.HandleFunc("POST /api/users/ensure-session", ensureSessionHandler(cfg))
+
 	mux.HandleFunc("POST /api/players", handleNewPlayer)
 
-	mux.HandleFunc("POST /api/players/{id}/flavor", newFlavorHandler(cfg))
+	mux.HandleFunc("GET /api/players/flavor", handleLoadFlavor)
+	mux.HandleFunc("POST /api/players/flavor", newFlavorHandler(cfg))
 	mux.HandleFunc(
-		"POST /api/players/{id}/flavor/image", imageFlavorHandler(cfg),
+		"POST /api/players/flavor/image", imageFlavorHandler(cfg),
 	)
 	mux.HandleFunc(
-		"POST /api/players/{id}/flavor/update", updateFlavorHandler(cfg),
+		"POST /api/players/flavor/update", updateFlavorHandler(cfg),
 	)
-	mux.HandleFunc("POST /api/players/{id}/flavor/commit", handleCommitFlavor)
+	mux.HandleFunc("POST /api/players/flavor/commit", handleCommitFlavor)
 
-	mux.HandleFunc("POST /api/players/{id}/actions", newActionHandler(cfg))
+	mux.HandleFunc("POST /api/players/actions", newActionHandler(cfg))
 	mux.HandleFunc(
-		"POST /api/players/{id}/actions/image", imageActionHandler(cfg),
+		"POST /api/players/actions/image", imageActionHandler(cfg),
 	)
-	mux.HandleFunc("POST /api/players/{id}/actions/commit", handleCommitAction)
+	mux.HandleFunc("POST /api/players/actions/commit", handleCommitAction)
 
 	mux.HandleFunc("GET /api/images/{id}", handleImage)
 
