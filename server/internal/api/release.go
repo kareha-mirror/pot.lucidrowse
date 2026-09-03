@@ -9,9 +9,9 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type CommitFlavorResponse struct{}
+type ReleasePlayerResponse struct{}
 
-func handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
+func handleReleasePlayer(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -27,30 +27,18 @@ func handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player, err := data.LoadPlayer(userID)
+	err = data.ReleasePlayer(userID)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "player not found", http.StatusNotFound)
-		return
-	}
-
-	if err = data.CommitLastFlavor(player.ID); err != nil {
-		log.Println(err)
-		http.Error(w, "last flavor not found", http.StatusNotFound)
-		return
-	}
-
-	if err = data.ActivatePlayer(player.ID); err != nil {
 		log.Println(err)
 		http.Error(
 			w,
-			"failed to activate player",
+			"failed to release player",
 			http.StatusInternalServerError,
 		)
 		return
 	}
 
-	res := CommitFlavorResponse{}
+	res := ReleasePlayerResponse{}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }

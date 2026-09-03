@@ -67,14 +67,14 @@ func handleListMyActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerPubID, err := data.PlayerPubID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	actions, err := data.ActionList(playerPubID)
+	actions, err := data.ActionList(player.PubID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to list actions", http.StatusInternalServerError)

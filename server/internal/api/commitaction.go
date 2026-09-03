@@ -27,20 +27,20 @@ func handleCommitAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerID, err := data.PlayerID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	if err = data.CommitLastAction(playerID); err != nil {
+	if err = data.CommitLastAction(player.ID); err != nil {
 		log.Println(err)
 		http.Error(w, "last action not found", http.StatusNotFound)
 		return
 	}
 
-	if err = data.ActivatePlayer(playerID); err != nil {
+	if err = data.ActivatePlayer(player.ID); err != nil {
 		log.Println(err)
 		http.Error(
 			w,

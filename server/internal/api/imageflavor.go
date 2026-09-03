@@ -34,14 +34,14 @@ func handleImageFlavor(
 		return
 	}
 
-	playerID, err := data.PlayerID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	f, err := data.LoadLastFlavor(playerID)
+	f, err := data.LoadLastFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "last flavor not found", http.StatusNotFound)
@@ -106,7 +106,7 @@ func handleImageFlavor(
 		return
 	}
 
-	err = data.AddImageToLastFlavor(playerID, imagePubID)
+	err = data.AddImageToLastFlavor(player.ID, imagePubID)
 	if err != nil {
 		log.Println(err)
 		http.Error(

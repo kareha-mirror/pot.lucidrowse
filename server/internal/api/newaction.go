@@ -44,14 +44,14 @@ func handleNewAction(
 		return
 	}
 
-	playerID, err := data.PlayerID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	f, err := data.LoadCurrentFlavor(playerID)
+	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "current flavor not found", http.StatusNotFound)
@@ -80,7 +80,7 @@ func handleNewAction(
 			Description: action.Description,
 		}
 
-		if err = data.AddAction(playerID, a); err != nil {
+		if err = data.AddAction(player.ID, a); err != nil {
 			log.Println(err)
 			http.Error(
 				w,

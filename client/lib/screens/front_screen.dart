@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
+import 'package:client/state.dart';
 
 class FrontScreen extends StatefulWidget {
-  const FrontScreen({super.key});
+  final AppState state;
+
+  const FrontScreen({super.key, required this.state});
 
   @override
   State<FrontScreen> createState() => _FrontScreenState();
@@ -17,6 +20,8 @@ class _FrontScreenState extends State<FrontScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    _sync();
+
     if (_initialized) return;
     _initialized = true;
 
@@ -26,6 +31,12 @@ class _FrontScreenState extends State<FrontScreen> {
     precacheImage(const AssetImage('assets/images/night.webp'), context);
     precacheImage(const AssetImage('assets/images/help.webp'), context);
     precacheImage(const AssetImage('assets/images/debug.webp'), context);
+  }
+
+  Future<void> _sync() async {
+    if (await widget.state.sync()) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadBackground() async {

@@ -40,14 +40,14 @@ func handleUpdateFlavor(
 		return
 	}
 
-	id, err := data.PlayerID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	f, err := data.LoadCurrentFlavor(id)
+	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "current flavor not found", http.StatusNotFound)
@@ -80,7 +80,7 @@ func handleUpdateFlavor(
 		AreaName:    updatedFlavor.AreaName,
 	}
 
-	if err = data.AddFlavor(id, updatedF); err != nil {
+	if err = data.AddFlavor(player.ID, updatedF); err != nil {
 		log.Println(err)
 		http.Error(w, "failed to add flavor", http.StatusInternalServerError)
 		return

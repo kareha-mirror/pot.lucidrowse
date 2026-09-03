@@ -14,26 +14,26 @@ func CreatePlayer(userID int, playerPubID string) error {
 	return nil
 }
 
-func PlayerID(userID int) (int, error) {
-	var playerID int
-	err := db.QueryRow(context.Background(), `
-		SELECT id FROM players WHERE user_id = $1
-	`, userID).Scan(&playerID)
-	if err != nil {
-		return 0, err
-	}
-	return playerID, nil
+type Player struct {
+	ID        int
+	PubID     string
+	Day       int64
+	Activated bool
 }
 
-func PlayerPubID(userID int) (string, error) {
-	var playerPubID string
+func LoadPlayer(userID int) (Player, error) {
+	var player Player
 	err := db.QueryRow(context.Background(), `
-		SELECT pub_id FROM players WHERE user_id = $1
-	`, userID).Scan(&playerPubID)
+		SELECT id, pub_id, day, activated
+		FROM players
+		WHERE user_id = $1
+	`, userID).Scan(
+		&player.ID, &player.PubID, &player.Day, &player.Activated,
+	)
 	if err != nil {
-		return "", err
+		return Player{}, err
 	}
-	return playerPubID, nil
+	return player, nil
 }
 
 func ActivatePlayer(playerID int) error {
@@ -41,6 +41,30 @@ func ActivatePlayer(playerID int) error {
 		UPDATE players SET activated = TRUE WHERE id = $1
 	`, playerID)
 	return err
+}
+
+func ReleasePlayer(userID int) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE players
+		SET user_id = NULL
+		WHERE user_id = $1
+	`, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func OverridePlayer(userID int, playerPubID string) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE players
+		SET user_id = $1
+		WHERE pub_id = $2 AND user_id IS NULL
+	`, userID, playerPubID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type Flavor struct {

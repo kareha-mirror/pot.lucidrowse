@@ -34,21 +34,21 @@ func handleImageAction(
 		return
 	}
 
-	playerID, err := data.PlayerID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	a, err := data.LoadLastAction(playerID)
+	a, err := data.LoadLastAction(player.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "last action not found", http.StatusNotFound)
 		return
 	}
 
-	f, err := data.LoadCurrentFlavor(playerID)
+	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "current flavor not found", http.StatusNotFound)
@@ -89,7 +89,7 @@ func handleImageAction(
 		return
 	}
 
-	err = data.AddImageToLastAction(playerID, imagePubID)
+	err = data.AddImageToLastAction(player.ID, imagePubID)
 	if err != nil {
 		log.Println(err)
 		http.Error(

@@ -33,7 +33,7 @@ class App extends StatelessWidget {
       themeMode: ThemeMode.system,
 
       routes: {
-        '/': (context) => const FrontScreen(),
+        '/': (context) => FrontScreen(state: state),
         '/home': (context) => HomeScreen(state: state),
 
         '/create': (context) => CreateScreen(state: state),

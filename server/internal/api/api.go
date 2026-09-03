@@ -15,8 +15,8 @@ func Run(cfg *config.Config) error {
 	mux.HandleFunc("POST /api/next-day", nextDayHandler(cfg))
 
 	mux.HandleFunc("POST /api/users/ensure-session", ensureSessionHandler(cfg))
+	mux.HandleFunc("GET /api/players", handleLoadPlayer)
 
-	mux.HandleFunc("GET /api/players/flavor", handleLoadFlavor)
 	mux.HandleFunc("POST /api/players/flavor", newFlavorHandler(cfg))
 	mux.HandleFunc(
 		"POST /api/players/flavor/image", imageFlavorHandler(cfg),
@@ -26,7 +26,6 @@ func Run(cfg *config.Config) error {
 	)
 	mux.HandleFunc("POST /api/players/flavor/commit", handleCommitFlavor)
 
-	mux.HandleFunc("GET /api/players/actions/current", handleLoadAction)
 	mux.HandleFunc("POST /api/players/actions", newActionHandler(cfg))
 	mux.HandleFunc(
 		"POST /api/players/actions/image", imageActionHandler(cfg),
@@ -39,6 +38,9 @@ func Run(cfg *config.Config) error {
 	mux.HandleFunc("GET /api/regions/{code}/players", handleListPlayers)
 	mux.HandleFunc("GET /api/players/{id}/actions", handleListActions)
 	mux.HandleFunc("GET /api/regions/{code}/state", handleRegionState)
+
+	mux.HandleFunc("POST /api/players/release", handleReleasePlayer)
+	mux.HandleFunc("POST /api/players/{id}/override", handleOverridePlayer)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	return http.ListenAndServe(cfg.App.Addr, mux)

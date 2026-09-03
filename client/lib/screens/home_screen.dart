@@ -15,6 +15,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _sync();
+  }
+
+  Future<void> _sync() async {
+    if (await widget.state.sync()) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -24,12 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
             height: double.infinity,
             child: Image(
               image: AssetImage(
-                /* TODO night
-                _player.committed
+                widget.state.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
-                */
-                'assets/images/home.webp',
               ),
               fit: BoxFit.cover,
             ),

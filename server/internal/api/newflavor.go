@@ -40,7 +40,7 @@ func handleNewFlavor(
 		return
 	}
 
-	playerID, err := data.PlayerID(userID)
+	player, err := data.LoadPlayer(userID)
 	if err != nil {
 		playerPubID, err := newPubID()
 		if err != nil {
@@ -63,7 +63,7 @@ func handleNewFlavor(
 			return
 		}
 
-		playerID, err = data.PlayerID(userID)
+		player, err = data.LoadPlayer(userID)
 		if err != nil {
 			log.Println(err)
 			http.Error(
@@ -92,7 +92,7 @@ func handleNewFlavor(
 		AreaName:    flavor.AreaName,
 	}
 
-	if err = data.AddFlavor(playerID, f); err != nil {
+	if err = data.AddFlavor(player.ID, f); err != nil {
 		log.Println(err)
 		http.Error(w, "failed to add flavor", http.StatusInternalServerError)
 		return

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_players.dart';
+import 'package:client/api/override_player.dart';
 import 'package:client/api/region_state.dart';
-import 'package:client/models/player.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/state.dart';
@@ -38,6 +38,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
     _stateController.dispose();
 
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _sync();
+  }
+
+  Future<void> _sync() async {
+    if (await widget.state.sync()) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadState() async {
@@ -109,30 +122,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
             diaryButton(context, widget.state, player['player-id']),
 
-            //if (widget.state.override)
-            TranslucentPanel(
-              child: OutlinedButton(
-                onPressed: () {
-                  final flavor = Flavor();
-                  flavor.name = player['name'];
-                  flavor.race = player['race'];
-                  flavor.job = player['job'];
-                  flavor.description = player['description'];
-                  flavor.imageId = player['image-id'];
+            if (widget.state.flavor == null && player['free'])
+              TranslucentPanel(
+                child: OutlinedButton(
+                  onPressed: () async {
+                    await apiOverridePlayer(player['player-id']);
 
-                  /*
-                    _player.inhabitant = true;
-                    _player.id = player['player-id'];
-                    _player.flavor = flavor;
-                    _player.action = PlayerAction();
-                    _player.committed = false;
-                    */
+                    widget.state.clear();
+                    await _sync();
 
-                  Navigator.pushNamed(context, '/home');
-                },
-                child: Text("入り込む"),
+                    if (!mounted) return;
+
+                    Navigator.pushNamed(context, '/home');
+                  },
+                  child: Text("入り込む"),
+                ),
               ),
-            ),
           ],
         ),
       );
@@ -155,12 +160,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
               height: double.infinity,
               child: Image(
                 image: AssetImage(
-                  /* TODO night
-                  _player.committed
+                  widget.state.committed
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
-                  */
-                  'assets/images/home.webp',
                 ),
                 fit: BoxFit.cover,
               ),

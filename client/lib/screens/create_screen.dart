@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:client/api/commit_flavor.dart';
 import 'package:client/api/ensure_session.dart';
 import 'package:client/api/image_flavor.dart';
-import 'package:client/api/load_flavor.dart';
 import 'package:client/api/new_flavor.dart';
 import 'package:client/api/update_flavor.dart';
-import 'package:client/models/player.dart';
+import 'package:client/models/flavor.dart';
 import 'package:client/state.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -24,9 +23,7 @@ class _CreateScreenState extends State<CreateScreen> {
   late TextEditingController _inputController;
   late TextEditingController _outputController;
 
-  Flavor _committedFlavor = Flavor();
-  Flavor _editingFlavor = Flavor();
-
+  Flavor _flavor = Flavor();
   bool _flavorLoading = false;
   bool _imageLoading = false;
   String? _flavorErrorMessage;
@@ -52,23 +49,18 @@ class _CreateScreenState extends State<CreateScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadCommittedFlavor();
+    _sync();
   }
 
-  Future<void> _loadCommittedFlavor() async {
-    try {
-      final result = await apiLoadFlavor();
+  Future<void> _sync() async {
+    if (await widget.state.sync()) {
+      setState(() {});
+    }
 
-      final flavor = Flavor.fromJson(result['flavor']);
-      flavor.imageId = result['image-id'];
-
-      setState(() {
-        _outputController.text = flavor.formatText();
-        _committedFlavor = flavor;
-        _editingFlavor = Flavor.copy(flavor);
-      });
-    } catch (e) {
-      // ignore
+    if (widget.state.flavor != null) {
+      _flavor = Flavor.copy(widget.state.flavor!);
+      _outputController.text = _flavor.formatText();
+      setState(() {});
     }
   }
 
@@ -86,7 +78,7 @@ class _CreateScreenState extends State<CreateScreen> {
       final result = await apiImageFlavor();
 
       setState(() {
-        _editingFlavor.imageId = result['image-id'];
+        _flavor.imageId = result['image-id'];
       });
     } catch (e) {
       setState(() => _imageErrorMessage = e.toString());
@@ -106,7 +98,7 @@ class _CreateScreenState extends State<CreateScreen> {
       await apiEnsureSession();
 
       final Map<String, dynamic> result;
-      if (_committedFlavor.hasDescription) {
+      if (widget.state.inhabitant) {
         result = await apiUpdateFlavor(_inputController.text);
       } else {
         result = await apiNewFlavor(_inputController.text);
@@ -118,7 +110,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
         setState(() {
           _outputController.text = flavor.formatText();
-          _editingFlavor = flavor;
+          _flavor = flavor;
         });
 
         _createImage();
@@ -137,7 +129,8 @@ class _CreateScreenState extends State<CreateScreen> {
   Future<void> _commit() async {
     await apiCommitFlavor();
 
-    _committedFlavor = Flavor.copy(_editingFlavor);
+    widget.state.clear();
+    await _sync();
   }
 
   @override
@@ -149,14 +142,11 @@ class _CreateScreenState extends State<CreateScreen> {
             width: double.infinity,
             height: double.infinity,
             child: Image(
-              /* TODO night
               image: AssetImage(
-                _player.committed
+                widget.state.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
-              */
-              image: AssetImage('assets/images/home.webp'),
               fit: BoxFit.cover,
             ),
           ),
@@ -166,7 +156,7 @@ class _CreateScreenState extends State<CreateScreen> {
             child: Center(
               child: Column(
                 children: [
-                  if (!_committedFlavor.hasDescription) ...[
+                  if (!widget.state.inhabitant) ...[
                     TranslucentPanel(
                       child: Column(
                         children: [
@@ -214,7 +204,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         child: TextField(
                           controller: _inputController,
                           decoration: InputDecoration(
-                            hintText: !_committedFlavor.hasDescription
+                            hintText: !widget.state.inhabitant
                                 ? '(どんな存在になりたいか、ここに念じよう。)'
                                 : '(どんな変化があったか、ここに念じよう。)',
                           ),
@@ -254,7 +244,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
                   if (_flavorLoading)
                     const CircularProgressIndicator()
-                  else if (_editingFlavor.hasDescription) ...[
+                  else if (_flavor.hasDescription) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(
@@ -280,15 +270,13 @@ class _CreateScreenState extends State<CreateScreen> {
                           CircularProgressIndicator(),
                         ],
                       )
-                    else if (_editingFlavor.imageId != null)
+                    else if (_flavor.imageId != null)
                       Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 300),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              imageUrl(_editingFlavor.imageId!),
-                            ),
+                            child: Image.network(imageUrl(_flavor.imageId!)),
                           ),
                         ),
                       ),

@@ -14,12 +14,14 @@ type PlayerItem struct {
 	AreaCode    string `json:"area-code"`
 	AreaName    string `json:"area-name"`
 	ImagePubID  string `json:"image-id"`
+	Free        bool   `json:"free"`
 }
 
 func PlayerList(regionCode string) ([]PlayerItem, error) {
 	rows, err := db.Query(context.Background(), `
 		SELECT p.pub_id, f.name, f.race, f.job, f.description,
-		  f.area_code, f.area_name, f.image_pub_id
+		  f.area_code, f.area_name, f.image_pub_id,
+		  p.user_id IS NULL AS free
 		FROM players AS p
 		JOIN LATERAL (
 		  SELECT name, race, job, description,
@@ -52,6 +54,7 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 			&item.AreaCode,
 			&item.AreaName,
 			&item.ImagePubID,
+			&item.Free,
 		)
 		if err != nil {
 			return nil, err

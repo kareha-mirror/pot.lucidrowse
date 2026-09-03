@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:client/api/day.dart';
 import 'package:client/api/hello.dart';
 import 'package:client/api/next_day.dart';
+import 'package:client/api/release_player.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state.dart';
 import 'package:client/utils/calendar.dart';
@@ -18,9 +18,6 @@ class DebugScreen extends StatefulWidget {
 }
 
 class _DebugScreenState extends State<DebugScreen> {
-  int _day = 0;
-  bool _dayLoaded = false;
-  String? _dayErrorMessage;
   bool _sleeping = false;
   String? _nextDayErrorMessage;
   String? _message;
@@ -30,24 +27,12 @@ class _DebugScreenState extends State<DebugScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadDay();
+    _sync();
   }
 
-  Future<void> _loadDay() async {
-    setState(() => _dayLoaded = false);
-
-    try {
-      final result = await apiDay();
-
-      if (!mounted) return;
-
-      setState(() {
-        _day = result['day'];
-
-        _dayLoaded = true;
-      });
-    } catch (e) {
-      setState(() => _dayErrorMessage = e.toString());
+  Future<void> _sync() async {
+    if (await widget.state.sync()) {
+      setState(() {});
     }
   }
 
@@ -63,14 +48,7 @@ class _DebugScreenState extends State<DebugScreen> {
       if (result['error'] != '') {
         setState(() => _nextDayErrorMessage = result['error']);
       } else {
-        /*
-        setState(() {
-          widget.state.player.committed = false;
-          widget.state.player.action = PlayerAction();
-        });
-      */
-
-        await _loadDay();
+        await _sync();
       }
     } catch (e) {
       setState(() => _nextDayErrorMessage = e.toString());
@@ -79,11 +57,12 @@ class _DebugScreenState extends State<DebugScreen> {
     }
   }
 
-  /*
-  void _clearMyself() {
-    //setState(() => widget.state.player = Player());
+  Future<void> _clearMyself() async {
+    await apiReleasePlayer();
+
+    widget.state.clear();
+    await _sync();
   }
-  */
 
   void _hello() async {
     try {
@@ -116,18 +95,9 @@ class _DebugScreenState extends State<DebugScreen> {
             child: Center(
               child: Column(
                 children: [
-                  if (_dayLoaded)
-                    TranslucentPanel(child: Text(formatDate(_day))),
-
-                  if (_dayErrorMessage != null) const SizedBox(height: 12),
-                  if (_dayErrorMessage != null)
+                  if (widget.state.day != null)
                     TranslucentPanel(
-                      child: Text(
-                        _dayErrorMessage!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
+                      child: Text(formatDate(widget.state.day!)),
                     ),
 
                   const SizedBox(height: 12),
@@ -153,12 +123,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   TranslucentPanel(
                     child: ElevatedButton(
-                      onPressed: null,
-                      /*
-                      onPressed: !widget.state.player.inhabitant
-                          ? null
-                          : () => _clearMyself(),
-                    */
+                      onPressed: !widget.state.inhabitant ? null : _clearMyself,
                       child: const Text('自分を手放す'),
                     ),
                   ),
@@ -198,19 +163,18 @@ class _DebugScreenState extends State<DebugScreen> {
 
                   const SizedBox(height: 512),
 
-                  /*
                   SizedBox(
                     width: 300,
                     child: SwitchListTile(
                       title: TranslucentPanel(
                         child: Center(child: const Text('時空の裂け目')),
                       ),
-                      value: widget.state.override,
+                      value: widget.state.debug,
                       onChanged: (value) =>
-                          setState(() => widget.state.override = value),
+                          setState(() => widget.state.debug = value),
                     ),
                   ),
-*/
+
                   const SizedBox(height: 96),
                 ],
               ),
