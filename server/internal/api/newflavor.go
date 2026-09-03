@@ -42,9 +42,37 @@ func handleNewFlavor(
 
 	playerID, err := data.PlayerID(userID)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "player not found", http.StatusNotFound)
-		return
+		playerPubID, err := newPubID()
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to generate ID",
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		if err = data.CreatePlayer(userID, playerPubID); err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to create player",
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		playerID, err = data.PlayerID(userID)
+		if err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to identify player ID",
+				http.StatusInternalServerError,
+			)
+			return
+		}
 	}
 
 	flavor, err := ai.NewFlavor(cfg, req.Input)

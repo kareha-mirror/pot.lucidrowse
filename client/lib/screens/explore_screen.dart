@@ -109,28 +109,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
             diaryButton(context, widget.state, player['player-id']),
 
-            if (widget.state.override)
-              TranslucentPanel(
-                child: OutlinedButton(
-                  onPressed: () {
-                    final flavor = Flavor();
-                    flavor.name = player['name'];
-                    flavor.race = player['race'];
-                    flavor.job = player['job'];
-                    flavor.description = player['description'];
-                    flavor.imageId = player['image-id'];
+            //if (widget.state.override)
+            TranslucentPanel(
+              child: OutlinedButton(
+                onPressed: () {
+                  final flavor = Flavor();
+                  flavor.name = player['name'];
+                  flavor.race = player['race'];
+                  flavor.job = player['job'];
+                  flavor.description = player['description'];
+                  flavor.imageId = player['image-id'];
 
-                    widget.state.player.inhabitant = true;
-                    widget.state.player.id = player['player-id'];
-                    widget.state.player.flavor = flavor;
-                    widget.state.player.action = PlayerAction();
-                    widget.state.player.committed = false;
+                  /*
+                    _player.inhabitant = true;
+                    _player.id = player['player-id'];
+                    _player.flavor = flavor;
+                    _player.action = PlayerAction();
+                    _player.committed = false;
+                    */
 
-                    Navigator.pushNamed(context, '/home');
-                  },
-                  child: Text("入り込む"),
-                ),
+                  Navigator.pushNamed(context, '/home');
+                },
+                child: Text("入り込む"),
               ),
+            ),
           ],
         ),
       );
@@ -153,9 +155,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
               height: double.infinity,
               child: Image(
                 image: AssetImage(
-                  widget.state.player.committed
+                  /* TODO night
+                  _player.committed
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
+                  */
+                  'assets/images/home.webp',
                 ),
                 fit: BoxFit.cover,
               ),

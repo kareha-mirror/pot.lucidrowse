@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_actions.dart';
+import 'package:client/api/list_my_actions.dart';
 import 'package:client/state.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -8,9 +9,9 @@ import 'package:client/widgets/translucent_panel.dart';
 class ReadScreen extends StatefulWidget {
   final AppState state;
 
-  final String playerId;
+  final String? playerId;
 
-  const ReadScreen({super.key, required this.state, required this.playerId});
+  const ReadScreen({super.key, required this.state, this.playerId});
 
   @override
   State<ReadScreen> createState() => _ReadScreenState();
@@ -33,7 +34,12 @@ class _ReadScreenState extends State<ReadScreen> {
     }
 
     try {
-      final result = await apiListActions(widget.playerId);
+      final Map<String, dynamic> result;
+      if (widget.playerId == null) {
+        result = await apiListMyActions();
+      } else {
+        result = await apiListActions(widget.playerId!);
+      }
 
       if (!mounted) return;
 
@@ -90,11 +96,14 @@ class _ReadScreenState extends State<ReadScreen> {
             width: double.infinity,
             height: double.infinity,
             child: Image(
+              /* TODO night
               image: AssetImage(
-                widget.state.player.committed
+                _player.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
+              */
+              image: AssetImage('assets/images/home.webp'),
               fit: BoxFit.cover,
             ),
           ),
@@ -139,10 +148,7 @@ Widget myDiaryButton(BuildContext context, AppState state) {
   return ElevatedButton(
     onPressed: () => Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) =>
-            ReadScreen(state: state, playerId: state.player.id),
-      ),
+      MaterialPageRoute(builder: (context) => ReadScreen(state: state)),
     ),
     child: const Text('おしゃれな日記帳'),
   );

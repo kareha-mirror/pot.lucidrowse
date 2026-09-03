@@ -12,7 +12,6 @@ import (
 
 type LoadFlavorResponse struct {
 	Flavor     ai.Flavor `json:"flavor"`
-	Day        int64     `json:"day"`
 	ImagePubID *string   `json:"image-id"`
 }
 
@@ -58,7 +57,6 @@ func handleLoadFlavor(w http.ResponseWriter, r *http.Request) {
 
 	res := LoadFlavorResponse{
 		Flavor:     flavor,
-		Day:        f.Day,
 		ImagePubID: f.ImagePubID,
 	}
 

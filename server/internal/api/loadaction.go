@@ -1,31 +1,21 @@
 package api
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"log"
 	"net/http"
 
+	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type NewPlayerResponse struct {
-	PlayerID string `json:"player-id"`
+type LoadActionResponse struct {
+	Action     ai.Action `json:"action"`
+	ImagePubID *string   `json:"image-id"`
 }
 
-func newPubID() (string, error) {
-	b := make([]byte, 32)
-
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-
-	return hex.EncodeToString(b), nil
-}
-
-func handleNewPlayer(w http.ResponseWriter, r *http.Request) {
+func handleLoadAction(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -41,22 +31,30 @@ func handleNewPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerID, err := newPubID()
+	id, err := data.PlayerID(userID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
+		http.Error(w, "player not found", http.StatusNotFound)
 		return
 	}
 
-	if err = data.CreatePlayer(userID, playerID); err != nil {
+	a, err := data.LoadCurrentAction(id)
+	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to create player", http.StatusInternalServerError)
+		http.Error(w, "current action not found", http.StatusNotFound)
 		return
 	}
 
-	res := NewPlayerResponse{
-		PlayerID: playerID,
+	action := ai.Action{
+		Description: a.Description,
+		Error:       "",
 	}
+
+	res := LoadActionResponse{
+		Action:     action,
+		ImagePubID: a.ImagePubID,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }

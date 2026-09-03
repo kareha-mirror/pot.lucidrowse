@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/commit_action.dart';
-import 'package:client/api/date.dart';
+import 'package:client/api/day.dart';
 import 'package:client/api/ensure_session.dart';
+import 'package:client/api/load_action.dart';
+import 'package:client/api/load_flavor.dart';
 import 'package:client/api/new_action.dart';
 import 'package:client/api/image_action.dart';
 import 'package:client/models/player.dart';
 import 'package:client/state.dart';
+import 'package:client/utils/calendar.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -20,9 +23,13 @@ class WriteScreen extends StatefulWidget {
 }
 
 class _WriteScreenState extends State<WriteScreen> {
-  String _date = '';
-  bool _dateLoaded = false;
-  String? _dateErrorMessage;
+  Flavor _committedFlavor = Flavor();
+  PlayerAction _committedAction = PlayerAction();
+  PlayerAction _editingAction = PlayerAction();
+
+  int _day = 0;
+  bool _dayLoaded = false;
+  String? _dayErrorMessage;
   late TextEditingController _inputController;
   String? _actionErrorMessage;
   late TextEditingController _outputController;
@@ -34,9 +41,7 @@ class _WriteScreenState extends State<WriteScreen> {
   void initState() {
     super.initState();
     _inputController = TextEditingController();
-    _inputController.text = widget.state.player.action.input;
     _outputController = TextEditingController();
-    _outputController.text = widget.state.player.action.description;
   }
 
   @override
@@ -50,24 +55,59 @@ class _WriteScreenState extends State<WriteScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _loadDate();
+    _loadCommittedFlavor();
+    _loadCommittedAction();
+    _loadDay();
   }
 
-  Future<void> _loadDate() async {
-    setState(() => _dateLoaded = false);
+  Future<void> _loadCommittedFlavor() async {
+    try {
+      final result = await apiLoadFlavor();
+
+      final flavor = Flavor.fromJson(result['flavor']);
+      flavor.imageId = result['image-id'];
+
+      setState(() {
+        _committedFlavor = flavor;
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<void> _loadCommittedAction() async {
+    try {
+      final result = await apiLoadAction();
+
+      final action = PlayerAction();
+      action.description = result['action']['description'];
+      action.imageId = result['image-id'];
+
+      setState(() {
+        _committedAction = action;
+        _editingAction = action;
+        _outputController.text = action.description;
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<void> _loadDay() async {
+    setState(() => _dayLoaded = false);
 
     try {
-      final result = await apiDate();
+      final result = await apiDay();
 
       if (!mounted) return;
 
       setState(() {
-        _date = result['date'];
+        _day = result['day'];
 
-        _dateLoaded = true;
+        _dayLoaded = true;
       });
     } catch (e) {
-      setState(() => _dateErrorMessage = e.toString());
+      setState(() => _dayErrorMessage = e.toString());
     }
   }
 
@@ -80,7 +120,7 @@ class _WriteScreenState extends State<WriteScreen> {
       final result = await apiImageAction();
 
       setState(() {
-        widget.state.player.action.imageId = result['image-id'];
+        _editingAction.imageId = result['image-id'];
       });
     } catch (e) {
       setState(() => _imageErrorMessage = e.toString());
@@ -109,7 +149,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
         setState(() {
           _outputController.text = action.description;
-          widget.state.player.action = action;
+          _editingAction = action;
         });
 
         _loadImage();
@@ -129,8 +169,7 @@ class _WriteScreenState extends State<WriteScreen> {
     await apiCommitAction();
 
     setState(() {
-      final player = widget.state.player;
-      player.committed = true;
+      _committedAction = _editingAction;
     });
   }
 
@@ -143,11 +182,14 @@ class _WriteScreenState extends State<WriteScreen> {
             width: double.infinity,
             height: double.infinity,
             child: Image(
+              /* TODO night
               image: AssetImage(
-                widget.state.player.committed
+                _player.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
+              */
+              image: AssetImage('assets/images/home.webp'),
               fit: BoxFit.cover,
             ),
           ),
@@ -157,14 +199,15 @@ class _WriteScreenState extends State<WriteScreen> {
             child: Center(
               child: Column(
                 children: [
-                  if (widget.state.player.inhabitant) ...[
-                    if (_dateLoaded) TranslucentPanel(child: Text(_date)),
+                  if (_committedFlavor.hasDescription) ...[
+                    if (_dayLoaded)
+                      TranslucentPanel(child: Text(formatDate(_day))),
 
-                    if (_dateErrorMessage != null) const SizedBox(height: 12),
-                    if (_dateErrorMessage != null)
+                    if (_dayErrorMessage != null) const SizedBox(height: 12),
+                    if (_dayErrorMessage != null)
                       TranslucentPanel(
                         child: Text(
-                          _dateErrorMessage!,
+                          _dayErrorMessage!,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),
@@ -182,7 +225,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
                   const SizedBox(height: 24),
 
-                  if (widget.state.player.inhabitant)
+                  if (_committedFlavor.hasDescription)
                     Padding(
                       padding: EdgeInsets.all(
                         MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
@@ -196,7 +239,10 @@ class _WriteScreenState extends State<WriteScreen> {
                           onChanged: (String value) => setState(() {}),
                           maxLines: null,
                           maxLength: 140,
-                          readOnly: _actionLoading || _imageLoading,
+                          readOnly:
+                              _actionLoading ||
+                              _imageLoading ||
+                              _committedAction.hasDescription,
                         ),
                       ),
                     ),
@@ -209,7 +255,7 @@ class _WriteScreenState extends State<WriteScreen> {
                           (_inputController.text.isEmpty ||
                               _actionLoading ||
                               _imageLoading ||
-                              widget.state.player.committed)
+                              _committedAction.hasDescription)
                           ? null
                           : _loadAction,
                       child: const Text('日記に書く'),
@@ -229,7 +275,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
                   if (_actionLoading)
                     const CircularProgressIndicator()
-                  else if (widget.state.player.action.hasDescription) ...[
+                  else if (_editingAction.hasDescription) ...[
                     const SizedBox(height: 48),
 
                     TranslucentPanel(
@@ -255,14 +301,14 @@ class _WriteScreenState extends State<WriteScreen> {
                           CircularProgressIndicator(),
                         ],
                       )
-                    else if (widget.state.player.action.imageId != null)
+                    else if (_editingAction.imageId != null)
                       Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 300),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
-                              imageUrl(widget.state.player.action.imageId!),
+                              imageUrl(_editingAction.imageId!),
                             ),
                           ),
                         ),
@@ -285,7 +331,7 @@ class _WriteScreenState extends State<WriteScreen> {
                       onPressed:
                           (_actionLoading ||
                               _imageLoading ||
-                              widget.state.player.committed)
+                              _committedAction.hasDescription)
                           ? null
                           : () async {
                               await _commit();

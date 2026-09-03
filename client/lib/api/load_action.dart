@@ -3,11 +3,9 @@ import 'package:http/http.dart' as http;
 
 import 'package:client/const.dart';
 
-Future<Map<String, dynamic>> apiNewPlayer() async {
-  final response = await http.post(
-    Uri.parse('$apiBase/players'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({}),
+Future<Map<String, dynamic>> apiLoadAction() async {
+  final response = await http.get(
+    Uri.parse('$apiBase/players/actions/current'),
   );
 
   if (response.statusCode != 200) {

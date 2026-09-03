@@ -25,6 +25,17 @@ func PlayerID(userID int) (int, error) {
 	return playerID, nil
 }
 
+func PlayerPubID(userID int) (string, error) {
+	var playerPubID string
+	err := db.QueryRow(context.Background(), `
+		SELECT pub_id FROM players WHERE user_id = $1
+	`, userID).Scan(&playerPubID)
+	if err != nil {
+		return "", err
+	}
+	return playerPubID, nil
+}
+
 func ActivatePlayer(playerID int) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE players SET activated = TRUE WHERE id = $1
@@ -199,6 +210,27 @@ func CommitLastAction(playerID int) error {
 		)
 	`, playerID)
 	return err
+}
+
+func LoadCurrentAction(playerID int) (Action, error) {
+	var action Action
+	err := db.QueryRow(context.Background(), `
+		SELECT a.description, a.day, a.image_pub_id, a.committed, a.fixed
+		FROM actions a
+		JOIN flavors f ON a.flavor_id = f.id
+		WHERE f.player_id = $1
+		  AND a.committed = TRUE
+		  AND a.day = (SELECT day_counter FROM state WHERE id = 1)
+		ORDER BY a.id DESC
+		LIMIT 1
+	`, playerID).Scan(
+		&action.Description, &action.Day, &action.ImagePubID,
+		&action.Committed, &action.Fixed,
+	)
+	if err != nil {
+		return Action{}, err
+	}
+	return action, nil
 }
 
 func LoadLastAction(playerID int) (Action, error) {

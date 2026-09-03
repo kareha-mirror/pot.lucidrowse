@@ -10,7 +10,10 @@ class Flavor {
   String areaCode = '';
   String areaName = '';
 
+  int day = 0;
   String? imageId;
+
+  bool committed = false;
 
   Flavor();
 
@@ -37,7 +40,9 @@ class Flavor {
       description = other.description,
       areaCode = other.areaCode,
       areaName = other.areaName,
-      imageId = other.imageId;
+      day = other.day,
+      imageId = other.imageId,
+      committed = other.committed;
 
   String formatText() {
     final buf = StringBuffer();

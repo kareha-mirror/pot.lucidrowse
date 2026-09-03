@@ -8,11 +8,11 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type DateResponse struct {
-	Date string `json:"date"`
+type DayResponse struct {
+	Day int64 `json:"day"`
 }
 
-func handleDate(w http.ResponseWriter, r *http.Request) {
+func handleDay(w http.ResponseWriter, r *http.Request) {
 	day, err := data.Day()
 	if err != nil {
 		log.Println(err)
@@ -20,10 +20,8 @@ func handleDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	date := data.NewDate(day)
-
-	res := DateResponse{
-		Date: date.String(),
+	res := DayResponse{
+		Day: day,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
