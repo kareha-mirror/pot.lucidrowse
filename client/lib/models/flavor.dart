@@ -13,6 +13,8 @@ class Flavor {
   int day = 0;
   String? imageId;
 
+  String error = '';
+
   Flavor();
 
   factory Flavor.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class Flavor {
     flavor.description = json['description'] as String;
     flavor.areaCode = json['area-code'] as String;
     flavor.areaName = json['area-name'] as String;
+    flavor.error = json['error'] as String;
 
     return flavor;
   }
@@ -39,7 +42,8 @@ class Flavor {
       areaCode = other.areaCode,
       areaName = other.areaName,
       day = other.day,
-      imageId = other.imageId;
+      imageId = other.imageId,
+      error = other.error;
 
   String formatText() {
     final buf = StringBuffer();

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_actions.dart';
-import 'package:client/api/list_my_actions.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -18,6 +17,7 @@ class ReadScreen extends StatefulWidget {
 }
 
 class _ReadScreenState extends State<ReadScreen> {
+  bool _initialized = false;
   String? _actionsErrorMessage;
   List<dynamic> _actions = [];
 
@@ -28,15 +28,22 @@ class _ReadScreenState extends State<ReadScreen> {
     _loadActions();
   }
 
-  Future<void> _loadActions() async {
-    if (widget.playerId == '') {
-      return;
+  Future<void> _sync() async {
+    if (await widget.state.sync()) {
+      setState(() {});
     }
+  }
 
+  Future<void> _loadActions() async {
+    await _sync();
+    setState(() => _initialized = false);
     try {
       final Map<String, dynamic> result;
       if (widget.playerId == null) {
-        result = await apiListMyActions();
+        if (widget.state.player == null) {
+          return;
+        }
+        result = await apiListActions(widget.state.player!.id);
       } else {
         result = await apiListActions(widget.playerId!);
       }
@@ -46,11 +53,13 @@ class _ReadScreenState extends State<ReadScreen> {
       setState(() => _actions = result['actions'] ?? []);
     } catch (e) {
       setState(() => _actionsErrorMessage = e.toString());
+    } finally {
+      setState(() => _initialized = true);
     }
   }
 
   List<Widget> _actionList() {
-    if (_actions.isEmpty) {
+    if (_initialized && _actions.isEmpty) {
       return [
         const SizedBox(height: 24),
         TranslucentPanel(child: const Text('まだ何も書かれてない。')),

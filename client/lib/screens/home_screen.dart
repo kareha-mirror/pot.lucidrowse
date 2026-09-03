@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
 import 'package:client/screens/read_screen.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 
 class HomeScreen extends StatefulWidget {
   final AppState state;
@@ -22,8 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _sync() async {
-    if (await widget.state.sync()) {
-      setState(() {});
+    try {
+      if (await widget.state.sync()) {
+        setState(() {});
+      }
+    } catch (e) {
+      // ignore
     }
   }
 

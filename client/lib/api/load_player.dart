@@ -1,19 +1,10 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-import 'package:client/const.dart';
+import 'package:client/api/get.dart';
 import 'package:client/models/action.dart';
 import 'package:client/models/flavor.dart';
 import 'package:client/models/player.dart';
 
 Future<Player?> apiLoadPlayer() async {
-  final response = await http.get(Uri.parse('$apiBase/players'));
-
-  if (response.statusCode != 200) {
-    throw Exception('HTTP error: ${response.statusCode}');
-  }
-
-  final result = jsonDecode(response.body);
+  final result = await apiGet('players');
 
   if (result['id'] == null) {
     return null;

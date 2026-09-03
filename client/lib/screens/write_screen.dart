@@ -5,7 +5,7 @@ import 'package:client/api/ensure_session.dart';
 import 'package:client/api/new_action.dart';
 import 'package:client/api/image_action.dart';
 import 'package:client/models/action.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -71,10 +71,10 @@ class _WriteScreenState extends State<WriteScreen> {
       _imageErrorMessage = null;
     });
     try {
-      final result = await apiImageAction();
+      final imageId = await apiImageAction();
 
       setState(() {
-        _action.imageId = result['image-id'];
+        _action.imageId = imageId;
       });
     } catch (e) {
       setState(() => _imageErrorMessage = e.toString());
@@ -93,13 +93,9 @@ class _WriteScreenState extends State<WriteScreen> {
     try {
       await apiEnsureSession();
 
-      final result = await apiNewAction(_inputController.text);
-      if (result['error'] == '') {
-        final action = PlayerAction();
-
+      final action = await apiNewAction(_inputController.text);
+      if (action.error == '') {
         action.input = _inputController.text;
-
-        action.description = result['description'];
 
         setState(() {
           _outputController.text = action.description;
@@ -109,7 +105,7 @@ class _WriteScreenState extends State<WriteScreen> {
         _loadImage();
       } else {
         setState(() {
-          _outputController.text = 'エラー:\n${result['error']}';
+          _outputController.text = 'エラー:\n${action.error}';
         });
       }
     } catch (e) {
@@ -155,7 +151,14 @@ class _WriteScreenState extends State<WriteScreen> {
                   if (widget.state.inhabitant) ...[
                     if (widget.state.day != null)
                       TranslucentPanel(
-                        child: Text(formatDate(widget.state.day!)),
+                        child: Column(
+                          children: [
+                            Text(formatDate(widget.state.day!)),
+                            Text(
+                              '住み着いて ${widget.state.day! - widget.state.player!.day + 1} 日目',
+                            ),
+                          ],
+                        ),
                       ),
 
                     const SizedBox(height: 24),

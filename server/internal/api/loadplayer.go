@@ -3,7 +3,6 @@ package api
 import (
 	"crypto/sha256"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
@@ -22,16 +21,18 @@ type LoadPlayerResponse struct {
 func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		res := LoadPlayerResponse{}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 
 	keyHash := sha256.Sum256([]byte(cookie.Value))
 	userID, err := data.UserID(keyHash[:])
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		res := LoadPlayerResponse{}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 

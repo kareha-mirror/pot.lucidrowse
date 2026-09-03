@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 
 class FrontScreen extends StatefulWidget {
   final AppState state;
@@ -34,8 +34,12 @@ class _FrontScreenState extends State<FrontScreen> {
   }
 
   Future<void> _sync() async {
-    if (await widget.state.sync()) {
-      setState(() {});
+    try {
+      if (await widget.state.sync()) {
+        setState(() {});
+      }
+    } catch (e) {
+      // ignore
     }
   }
 

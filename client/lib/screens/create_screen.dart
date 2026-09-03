@@ -6,7 +6,7 @@ import 'package:client/api/image_flavor.dart';
 import 'package:client/api/new_flavor.dart';
 import 'package:client/api/update_flavor.dart';
 import 'package:client/models/flavor.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -75,10 +75,10 @@ class _CreateScreenState extends State<CreateScreen> {
       _imageErrorMessage = null;
     });
     try {
-      final result = await apiImageFlavor();
+      final imageId = await apiImageFlavor();
 
       setState(() {
-        _flavor.imageId = result['image-id'];
+        _flavor.imageId = imageId;
       });
     } catch (e) {
       setState(() => _imageErrorMessage = e.toString());
@@ -97,15 +97,13 @@ class _CreateScreenState extends State<CreateScreen> {
     try {
       await apiEnsureSession();
 
-      final Map<String, dynamic> result;
+      final Flavor flavor;
       if (widget.state.inhabitant) {
-        result = await apiUpdateFlavor(_inputController.text);
+        flavor = await apiUpdateFlavor(_inputController.text);
       } else {
-        result = await apiNewFlavor(_inputController.text);
+        flavor = await apiNewFlavor(_inputController.text);
       }
-      if (result['error'] == '') {
-        final flavor = Flavor.fromJson(result);
-
+      if (flavor.error == '') {
         flavor.input = _inputController.text;
 
         setState(() {
@@ -116,7 +114,7 @@ class _CreateScreenState extends State<CreateScreen> {
         _createImage();
       } else {
         setState(() {
-          _outputController.text = 'エラー:\n${result['error']}';
+          _outputController.text = 'エラー:\n${flavor.error}';
         });
       }
     } catch (e) {

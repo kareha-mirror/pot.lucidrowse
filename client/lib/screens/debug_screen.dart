@@ -4,7 +4,7 @@ import 'package:client/api/hello.dart';
 import 'package:client/api/next_day.dart';
 import 'package:client/api/release_player.dart';
 import 'package:client/screens/help_screen.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
@@ -43,10 +43,10 @@ class _DebugScreenState extends State<DebugScreen> {
     });
 
     try {
-      final result = await apiNextDay();
+      final error = await apiNextDay();
 
-      if (result['error'] != '') {
-        setState(() => _nextDayErrorMessage = result['error']);
+      if (error != '') {
+        setState(() => _nextDayErrorMessage = error);
       } else {
         await _sync();
       }
@@ -68,9 +68,9 @@ class _DebugScreenState extends State<DebugScreen> {
     try {
       setState(() => _message = null);
 
-      final result = await apiHello();
+      final message = await apiHello();
 
-      setState(() => _message = result['message']);
+      setState(() => _message = message);
     } catch (e) {
       setState(() => _helloErrorMessage = e.toString());
     }
@@ -97,7 +97,12 @@ class _DebugScreenState extends State<DebugScreen> {
                 children: [
                   if (widget.state.day != null)
                     TranslucentPanel(
-                      child: Text(formatDate(widget.state.day!)),
+                      child: Column(
+                        children: [
+                          Text(formatDate(widget.state.day!)),
+                          Text('夢路が開通して ${widget.state.day! + 1} 日目'),
+                        ],
+                      ),
                     ),
 
                   const SizedBox(height: 12),

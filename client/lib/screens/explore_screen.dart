@@ -5,7 +5,7 @@ import 'package:client/api/override_player.dart';
 import 'package:client/api/region_state.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
-import 'package:client/state.dart';
+import 'package:client/state/app_state.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/region_card.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -20,6 +20,7 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+  bool _initialized = false;
   int regionIndex = -1;
   List<dynamic> _players = [];
   String? _playersErrorMessage;
@@ -61,17 +62,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
       });
 
       final region = regions[regionIndex];
-      final result = await apiRegionState(region.code);
+      final text = await apiRegionState(region.code);
 
       if (!mounted) return;
 
-      setState(() => _stateController.text = result['state'] ?? '');
+      setState(() => _stateController.text = text ?? '');
     } catch (e) {
       setState(() => _stateErrorMessage = e.toString());
     }
   }
 
   Future<void> _loadPlayers() async {
+    setState(() => _initialized = false);
     try {
       setState(() {
         _players = [];
@@ -86,6 +88,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
       setState(() => _players = result['players'] ?? []);
     } catch (e) {
       setState(() => _playersErrorMessage = e.toString());
+    } finally {
+      setState(() => _initialized = true);
     }
   }
 
@@ -246,7 +250,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         ),
                       ),
 
-                    if (_players.isEmpty)
+                    if (_initialized && _players.isEmpty)
                       TranslucentPanel(child: const Text('まだ誰も住んでない。'))
                     else
                       ...playersList(),

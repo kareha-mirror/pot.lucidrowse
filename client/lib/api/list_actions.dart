@@ -1,16 +1,5 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-import 'package:client/const.dart';
+import 'package:client/api/get.dart';
 
 Future<Map<String, dynamic>> apiListActions(String playerId) async {
-  final response = await http.get(
-    Uri.parse('$apiBase/players/$playerId/actions'),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception('HTTP error: ${response.statusCode}');
-  }
-
-  return jsonDecode(response.body);
+  return apiGet('players/$playerId/actions');
 }

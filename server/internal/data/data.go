@@ -15,13 +15,17 @@ const createTablesSQL = `
 CREATE TABLE IF NOT EXISTS state (
 	id INT PRIMARY KEY DEFAULT 1,
 	boot_counter BIGINT NOT NULL DEFAULT 0,
-	day_counter BIGINT NOT NULL DEFAULT 0
+	day_counter BIGINT NOT NULL DEFAULT 0,
+	created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE,
-	pass_hash BYTEA
+	pass_hash BYTEA,
+	count INT NOT NULL DEFAULT 0,
+	point INT NOT NULL DEFAULT 0,
+	created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

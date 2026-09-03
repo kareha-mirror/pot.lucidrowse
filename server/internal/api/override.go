@@ -44,6 +44,17 @@ func handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = data.ReleasePlayer(userID)
+	if err != nil {
+		log.Println(err)
+		http.Error(
+			w,
+			"failed to release player",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
 	player, err := data.LoadPlayer(userID)
 	if err == nil && player.Activated {
 		log.Println("player found")

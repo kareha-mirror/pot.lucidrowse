@@ -51,7 +51,7 @@ func nextDay(cfg *config.Config) error {
 	}
 
 	regionStates := map[string]string{}
-	for regionCode, _ := range data.RegionNames {
+	for regionCode := range data.RegionNames {
 		_, ok := updatedRegions[regionCode]
 		if !ok {
 			continue
@@ -93,7 +93,7 @@ func nextDay(cfg *config.Config) error {
 		}
 	}
 
-	for regionCode, _ := range data.RegionNames {
+	for regionCode := range data.RegionNames {
 		regionState, ok := regionStates[regionCode]
 		if !ok {
 			continue

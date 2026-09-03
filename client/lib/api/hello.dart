@@ -1,14 +1,6 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:client/api/get.dart';
 
-import 'package:client/const.dart';
-
-Future<Map<String, dynamic>> apiHello() async {
-  final response = await http.get(Uri.parse('$apiBase/hello'));
-
-  if (response.statusCode != 200) {
-    throw Exception('HTTP error: ${response.statusCode}');
-  }
-
-  return jsonDecode(response.body);
+Future<String> apiHello() async {
+  final result = await apiGet('hello');
+  return result['message'];
 }

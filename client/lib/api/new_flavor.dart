@@ -1,18 +1,7 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:client/api/post.dart';
+import 'package:client/models/flavor.dart';
 
-import 'package:client/const.dart';
-
-Future<Map<String, dynamic>> apiNewFlavor(String input) async {
-  final response = await http.post(
-    Uri.parse('$apiBase/players/flavor'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'input': input}),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception('HTTP error: ${response.statusCode}');
-  }
-
-  return jsonDecode(response.body);
+Future<Flavor> apiNewFlavor(String input) async {
+  final result = await apiPost('players/flavor', {'input': input});
+  return Flavor.fromJson(result);
 }
