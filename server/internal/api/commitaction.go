@@ -20,14 +20,14 @@ func handleCommitAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyHash := sha256.Sum256([]byte(cookie.Value))
-	userID, err := data.UserID(keyHash[:])
+	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	player, err := data.LoadPlayer(userID)
+	player, err := data.LoadPlayer(user.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)

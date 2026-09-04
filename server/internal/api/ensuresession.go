@@ -87,7 +87,7 @@ func handleEnsureSession(
 
 	sessionKey := cookie.Value
 	keyHash := sha256.Sum256([]byte(sessionKey))
-	_, err = data.UserID(keyHash[:])
+	_, err = data.LoadUser(keyHash[:])
 	if err != nil {
 		keyHash, err := newSession(cfg, w)
 		if err != nil {

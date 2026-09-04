@@ -14,6 +14,7 @@ func Run(cfg *config.Config) error {
 	mux.HandleFunc("GET /api/day", handleDay)
 	mux.HandleFunc("POST /api/next-day", nextDayHandler(cfg))
 
+	mux.HandleFunc("GET /api/users", handleLoadUser)
 	mux.HandleFunc("POST /api/users/ensure-session", ensureSessionHandler(cfg))
 	mux.HandleFunc("GET /api/players", handleLoadPlayer)
 

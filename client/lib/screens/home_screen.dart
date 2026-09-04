@@ -96,6 +96,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+
+          Positioned(
+            bottom: 24,
+            left: 8,
+            right: 8,
+            child: Row(
+              children: [
+                for (int i = 0; i < widget.state.restAiCalls; i++)
+                  Image(image: AssetImage('assets/images/fruit.webp')),
+              ],
+            ),
+          ),
         ],
       ),
     );

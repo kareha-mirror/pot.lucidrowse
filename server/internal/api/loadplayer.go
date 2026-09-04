@@ -28,7 +28,7 @@ func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyHash := sha256.Sum256([]byte(cookie.Value))
-	userID, err := data.UserID(keyHash[:])
+	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
 		res := LoadPlayerResponse{}
 		w.Header().Set("Content-Type", "application/json")
@@ -36,7 +36,7 @@ func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player, err := data.LoadPlayer(userID)
+	player, err := data.LoadPlayer(user.ID)
 	if err != nil {
 		res := LoadPlayerResponse{}
 		w.Header().Set("Content-Type", "application/json")

@@ -70,11 +70,16 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _createImage() async {
+    if (widget.state.restAiCalls < 1) {
+      return;
+    }
     setState(() {
       _imageLoading = true;
       _imageErrorMessage = null;
     });
     try {
+      widget.state.incrementAiCalls();
+      setState(() {});
       final imageId = await apiImageFlavor();
 
       setState(() {
@@ -90,6 +95,9 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _createFlavor() async {
+    if (widget.state.restAiCalls < 1) {
+      return;
+    }
     setState(() {
       _flavorLoading = true;
       _flavorErrorMessage = null;
@@ -97,6 +105,8 @@ class _CreateScreenState extends State<CreateScreen> {
     try {
       await apiEnsureSession();
 
+      widget.state.incrementAiCalls();
+      setState(() {});
       final Flavor flavor;
       if (widget.state.inhabitant) {
         flavor = await apiUpdateFlavor(_inputController.text);
@@ -301,7 +311,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
                               if (!context.mounted) return;
 
-                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/home');
                             },
                       child: const Text('これでよし'),
                     ),
@@ -312,13 +322,25 @@ class _CreateScreenState extends State<CreateScreen> {
                   ElevatedButton(
                     onPressed: (_flavorLoading || _imageLoading)
                         ? null
-                        : () => Navigator.pop(context),
+                        : () => Navigator.pushNamed(context, '/home'),
                     child: Text('目をそらす'),
                   ),
 
                   const SizedBox(height: 96),
                 ],
               ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 24,
+            left: 8,
+            right: 8,
+            child: Row(
+              children: [
+                for (int i = 0; i < widget.state.restAiCalls; i++)
+                  Image(image: AssetImage('assets/images/fruit.webp')),
+              ],
             ),
           ),
         ],

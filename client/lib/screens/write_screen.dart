@@ -66,11 +66,16 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _loadImage() async {
+    if (widget.state.restAiCalls < 1) {
+      return;
+    }
     setState(() {
       _imageLoading = true;
       _imageErrorMessage = null;
     });
     try {
+      widget.state.incrementAiCalls();
+      setState(() {});
       final imageId = await apiImageAction();
 
       setState(() {
@@ -86,6 +91,9 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _loadAction() async {
+    if (widget.state.restAiCalls < 1) {
+      return;
+    }
     setState(() {
       _actionLoading = true;
       _actionErrorMessage = null;
@@ -93,6 +101,8 @@ class _WriteScreenState extends State<WriteScreen> {
     try {
       await apiEnsureSession();
 
+      widget.state.incrementAiCalls();
+      setState(() {});
       final action = await apiNewAction(_inputController.text);
       if (action.error == '') {
         action.input = _inputController.text;
@@ -294,13 +304,25 @@ class _WriteScreenState extends State<WriteScreen> {
                   ElevatedButton(
                     onPressed: (_actionLoading || _imageLoading)
                         ? null
-                        : () => Navigator.pop(context),
+                        : () => Navigator.pushNamed(context, '/home'),
                     child: const Text('ペンを置く'),
                   ),
 
                   const SizedBox(height: 96),
                 ],
               ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 24,
+            left: 8,
+            right: 8,
+            child: Row(
+              children: [
+                for (int i = 0; i < widget.state.restAiCalls; i++)
+                  Image(image: AssetImage('assets/images/fruit.webp')),
+              ],
             ),
           ),
         ],

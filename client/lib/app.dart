@@ -11,12 +11,16 @@ import 'package:client/state/api_state.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
-Widget apiStatusIcon() {
+IconData? apiStatusIconData() {
   switch (apiState.value) {
     case ApiState.disconnected:
-      return Icon(Icons.cloud_off, size: 24);
+      return Icons.cloud_off;
+    case ApiState.unauthorized:
+      return Icons.lock_outline;
+    case ApiState.serverError:
+      return Icons.error_outline;
     default:
-      return SizedBox.shrink();
+      return null;
   }
 }
 
@@ -71,7 +75,9 @@ class App extends StatelessWidget {
                 return Positioned(
                   top: 16,
                   right: 16,
-                  child: TranslucentPanel(child: apiStatusIcon()),
+                  child: TranslucentPanel(
+                    child: Icon(apiStatusIconData(), size: 24),
+                  ),
                 );
               },
             ),

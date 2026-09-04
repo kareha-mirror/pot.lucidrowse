@@ -33,6 +33,14 @@ func NextDay() (int64, error) {
 		return 0, err
 	}
 
+	_, err = tx.Exec(ctx, `
+		UPDATE users
+		SET ai_calls = 0
+	`)
+	if err != nil {
+		return 0, err
+	}
+
 	var day int64
 	err = tx.QueryRow(ctx, `
 		UPDATE state

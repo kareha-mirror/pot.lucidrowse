@@ -19,6 +19,11 @@ Future<Map<String, dynamic>> apiGet<T>(String path) async {
     throw Exception('HTTP error: ${response.statusCode}');
   }
 
+  if (response.statusCode == 401) {
+    apiState.value = ApiState.unauthorized;
+    throw Exception('HTTP error: ${response.statusCode}');
+  }
+
   if (response.statusCode != 200) {
     apiState.value = ApiState.serverError;
     throw Exception('HTTP error: ${response.statusCode}');

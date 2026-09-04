@@ -39,6 +39,10 @@ type Config struct {
 
 	Prompts *Prompts
 	World   *World
+
+	Game struct {
+		AICalls int `yaml:"ai-calls"`
+	} `yaml:"game"`
 }
 
 func Load(path string) (*Config, error) {

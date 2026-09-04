@@ -23,3 +23,6 @@ ai:
 
 prompts-path: "./prompts.yaml"
 world-path: "./world.yaml"
+
+game:
+  ai-calls: 10

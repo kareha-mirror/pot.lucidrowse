@@ -37,14 +37,14 @@ func handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyHash := sha256.Sum256([]byte(cookie.Value))
-	userID, err := data.UserID(keyHash[:])
+	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	err = data.ReleasePlayer(userID)
+	err = data.ReleasePlayer(user.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(
@@ -55,14 +55,14 @@ func handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player, err := data.LoadPlayer(userID)
+	player, err := data.LoadPlayer(user.ID)
 	if err == nil && player.Activated {
 		log.Println("player found")
 		http.Error(w, "player found", http.StatusBadRequest)
 		return
 	}
 
-	err = data.OverridePlayer(userID, playerPubID)
+	err = data.OverridePlayer(user.ID, playerPubID)
 	if err != nil {
 		log.Println("override")
 		log.Println(err)

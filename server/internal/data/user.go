@@ -25,13 +25,31 @@ func AddSession(userID int, keyHash []byte) error {
 	return nil
 }
 
-func UserID(keyHash []byte) (int, error) {
-	var userID int
+type User struct {
+	ID      int
+	Name    *string
+	AICalls int
+}
+
+func LoadUser(keyHash []byte) (User, error) {
+	var user User
 	err := db.QueryRow(context.Background(), `
-		SELECT user_id FROM sessions WHERE key_hash = $1
-	`, keyHash).Scan(&userID)
+		SELECT s.user_id, u.name, u.ai_calls
+		FROM sessions AS s
+		JOIN users AS u ON u.id = s.user_id
+		WHERE s.key_hash = $1
+	`, keyHash).Scan(&user.ID, &user.Name, &user.AICalls)
 	if err != nil {
-		return 0, err
+		return User{}, err
 	}
-	return userID, nil
+	return user, nil
+}
+
+func IncrementAICalls(userID int) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE users
+		SET ai_calls = ai_calls + 1
+		WHERE id = $1
+	`, userID)
+	return err
 }

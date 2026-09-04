@@ -26,10 +26,24 @@ func handleUpdateFlavor(
 	}
 
 	keyHash := sha256.Sum256([]byte(cookie.Value))
-	userID, err := data.UserID(keyHash[:])
+	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.AICalls >= cfg.Game.AICalls {
+		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		return
+	}
+	if err = data.IncrementAICalls(user.ID); err != nil {
+		log.Println(err)
+		http.Error(
+			w,
+			"failed to increment AI calls",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
@@ -40,7 +54,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	player, err := data.LoadPlayer(userID)
+	player, err := data.LoadPlayer(user.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "player not found", http.StatusNotFound)

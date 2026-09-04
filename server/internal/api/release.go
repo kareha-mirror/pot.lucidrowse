@@ -20,14 +20,14 @@ func handleReleasePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyHash := sha256.Sum256([]byte(cookie.Value))
-	userID, err := data.UserID(keyHash[:])
+	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	err = data.ReleasePlayer(userID)
+	err = data.ReleasePlayer(user.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(
