@@ -33,7 +33,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	if user.AICalls >= cfg.Game.AICalls {
+	if user.AICalls >= cfg.Game.MaxAICalls {
 		http.Error(w, "too many requests", http.StatusTooManyRequests)
 		return
 	}

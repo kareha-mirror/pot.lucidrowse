@@ -11,10 +11,10 @@ func Run(cfg *config.Config) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/hello", handleHello)
-	mux.HandleFunc("GET /api/day", handleDay)
+	mux.HandleFunc("GET /api/state", stateHandler(cfg))
 	mux.HandleFunc("POST /api/next-day", nextDayHandler(cfg))
 
-	mux.HandleFunc("GET /api/users", handleLoadUser)
+	mux.HandleFunc("GET /api/users", loadUserHandler(cfg))
 	mux.HandleFunc("POST /api/users/ensure-session", ensureSessionHandler(cfg))
 	mux.HandleFunc("GET /api/players", handleLoadPlayer)
 

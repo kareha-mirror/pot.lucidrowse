@@ -25,4 +25,5 @@ prompts-path: "./prompts.yaml"
 world-path: "./world.yaml"
 
 game:
-  ai-calls: 10
+  max-ai-calls: 8
+  day-duration: "6h"

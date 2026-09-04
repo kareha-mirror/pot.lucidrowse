@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -12,12 +13,18 @@ import (
 )
 
 var nextDayMu sync.Mutex
+var nextDayApiMu sync.Mutex
 
 type NextDayResponse struct {
 	Error string `json:"error"`
 }
 
-func nextDay(cfg *config.Config) error {
+func NextDay(cfg *config.Config) error {
+	if !nextDayMu.TryLock() {
+		return fmt.Errorf("failed to lock")
+	}
+	defer nextDayMu.Unlock()
+
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
@@ -119,7 +126,7 @@ func nextDay(cfg *config.Config) error {
 func handleNextDay(
 	cfg *config.Config, w http.ResponseWriter, r *http.Request,
 ) {
-	if !nextDayMu.TryLock() {
+	if !nextDayApiMu.TryLock() {
 		res := NextDayResponse{
 			Error: "excluded",
 		}
@@ -127,9 +134,9 @@ func handleNextDay(
 		json.NewEncoder(w).Encode(res)
 		return
 	}
-	defer nextDayMu.Unlock()
+	defer nextDayApiMu.Unlock()
 
-	if err := nextDay(cfg); err != nil {
+	if err := NextDay(cfg); err != nil {
 		log.Println(err)
 		http.Error(w, "failed to go next day", http.StatusInternalServerError)
 		return

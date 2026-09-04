@@ -4,47 +4,34 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 
+	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type RegionStateResponse struct {
-	State string `json:"state"`
+type StateResponse struct {
+	Mode string `json:"mode"`
+	Day  int64  `json:"day"`
 }
 
-func handleRegionState(w http.ResponseWriter, r *http.Request) {
-	regionCode := r.PathValue("code")
-
-	areas, err := data.AreaList()
+func handleState(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
+	day, err := data.Day()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to list areas", http.StatusInternalServerError)
+		http.Error(w, "failed to identify day", http.StatusInternalServerError)
 		return
 	}
 
-	b := strings.Builder{}
-	for _, area := range areas {
-		if area.RegionCode != regionCode {
-			continue
-		}
-
-		b.WriteString("== " + area.Name + " ==\n\n")
-
-		state, err := data.AreaState(area.RegionCode + "-" + area.AreaCode)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "area state not found", http.StatusNotFound)
-			return
-		}
-		b.WriteString(state)
-
-		b.WriteString("\n\n")
-	}
-
-	res := RegionStateResponse{
-		State: b.String(),
+	res := StateResponse{
+		Mode: cfg.App.Mode,
+		Day:  day,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
+}
+
+func stateHandler(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handleState(cfg, w, r)
+	}
 }

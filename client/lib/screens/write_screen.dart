@@ -141,14 +141,11 @@ class _WriteScreenState extends State<WriteScreen> {
             width: double.infinity,
             height: double.infinity,
             child: Image(
-              /* TODO night
               image: AssetImage(
-                _player.committed
+                widget.state.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
-              */
-              image: AssetImage('assets/images/home.webp'),
               fit: BoxFit.cover,
             ),
           ),

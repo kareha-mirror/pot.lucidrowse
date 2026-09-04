@@ -105,11 +105,12 @@ class _DebugScreenState extends State<DebugScreen> {
                       ),
                     ),
 
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: _sleeping ? null : _nextDay,
-                    child: const Text('明日まで寝る'),
-                  ),
+                  if (widget.state.devel) const SizedBox(height: 12),
+                  if (widget.state.devel)
+                    ElevatedButton(
+                      onPressed: _sleeping ? null : _nextDay,
+                      child: const Text('明日まで寝る'),
+                    ),
 
                   if (_sleeping) const CircularProgressIndicator(),
 
@@ -166,19 +167,20 @@ class _DebugScreenState extends State<DebugScreen> {
                     child: const Text('ふたを閉じる'),
                   ),
 
-                  const SizedBox(height: 512),
+                  if (widget.state.devel) const SizedBox(height: 512),
 
-                  SizedBox(
-                    width: 300,
-                    child: SwitchListTile(
-                      title: TranslucentPanel(
-                        child: Center(child: const Text('時空の裂け目')),
+                  if (widget.state.devel)
+                    SizedBox(
+                      width: 300,
+                      child: SwitchListTile(
+                        title: TranslucentPanel(
+                          child: Center(child: const Text('時空の裂け目')),
+                        ),
+                        value: widget.state.debug,
+                        onChanged: (value) =>
+                            setState(() => widget.state.debug = value),
                       ),
-                      value: widget.state.debug,
-                      onChanged: (value) =>
-                          setState(() => widget.state.debug = value),
                     ),
-                  ),
 
                   const SizedBox(height: 96),
                 ],

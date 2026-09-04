@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -12,12 +13,19 @@ type LoadUserResponse struct {
 	Authorized bool    `json:"authorized"`
 	Name       *string `json:"name"`
 	AICalls    int     `json:"ai-calls"`
+	MaxAICalls int     `json:"max-ai-calls"`
 }
 
-func handleLoadUser(w http.ResponseWriter, r *http.Request) {
+func handleLoadUser(
+	cfg *config.Config,
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		res := LoadUserResponse{Authorized: false}
+		res := LoadUserResponse{
+			MaxAICalls: cfg.Game.MaxAICalls,
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -26,7 +34,9 @@ func handleLoadUser(w http.ResponseWriter, r *http.Request) {
 	keyHash := sha256.Sum256([]byte(cookie.Value))
 	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
-		res := LoadUserResponse{Authorized: false}
+		res := LoadUserResponse{
+			MaxAICalls: cfg.Game.MaxAICalls,
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -36,8 +46,15 @@ func handleLoadUser(w http.ResponseWriter, r *http.Request) {
 		Authorized: true,
 		Name:       user.Name,
 		AICalls:    user.AICalls,
+		MaxAICalls: cfg.Game.MaxAICalls,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
+}
+
+func loadUserHandler(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handleLoadUser(cfg, w, r)
+	}
 }
