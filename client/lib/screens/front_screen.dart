@@ -80,7 +80,7 @@ class _FrontScreenState extends State<FrontScreen> {
                   MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
                 ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
+                  constraints: const BoxConstraints(maxWidth: 480),
                   child: Column(
                     children: [
                       Image(image: AssetImage('assets/images/logo.webp')),
