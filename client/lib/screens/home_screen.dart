@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:client/screens/help_screen.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/state/app_state.dart';
+import 'package:client/widgets/translucent_panel.dart';
 
 class HomeScreen extends StatefulWidget {
   final AppState state;
@@ -14,6 +16,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Timer? _syncTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+  }
+
+  @override
+  void dispose() {
+    _syncTimer?.cancel();
+
+    super.dispose();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -24,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _sync() async {
     try {
       if (await widget.state.sync()) {
+        if (!mounted) return;
+
         setState(() {});
       }
     } catch (e) {
@@ -61,6 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () => Navigator.pushNamed(context, '/create'),
                     child: const Text('まどろみの水晶球'),
                   ),
+
+                  if (widget.state.committed) const SizedBox(height: 48),
+                  if (widget.state.committed)
+                    TranslucentPanel(child: const Text('また明日。')),
 
                   const SizedBox(height: 48),
 

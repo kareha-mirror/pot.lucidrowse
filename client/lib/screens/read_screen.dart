@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_actions.dart';
@@ -17,9 +18,25 @@ class ReadScreen extends StatefulWidget {
 }
 
 class _ReadScreenState extends State<ReadScreen> {
+  Timer? _syncTimer;
+
   bool _initialized = false;
   String? _actionsErrorMessage;
   List<dynamic> _actions = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+  }
+
+  @override
+  void dispose() {
+    _syncTimer?.cancel();
+
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -30,6 +47,8 @@ class _ReadScreenState extends State<ReadScreen> {
 
   Future<void> _sync() async {
     if (await widget.state.sync()) {
+      if (!mounted) return;
+
       setState(() {});
     }
   }
@@ -105,14 +124,11 @@ class _ReadScreenState extends State<ReadScreen> {
             width: double.infinity,
             height: double.infinity,
             child: Image(
-              /* TODO night
               image: AssetImage(
-                _player.committed
+                widget.state.committed
                     ? 'assets/images/night.webp'
                     : 'assets/images/home.webp',
               ),
-              */
-              image: AssetImage('assets/images/home.webp'),
               fit: BoxFit.cover,
             ),
           ),

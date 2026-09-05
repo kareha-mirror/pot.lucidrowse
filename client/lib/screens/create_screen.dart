@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:client/api/commit_flavor.dart';
@@ -20,6 +21,8 @@ class CreateScreen extends StatefulWidget {
 }
 
 class _CreateScreenState extends State<CreateScreen> {
+  Timer? _syncTimer;
+
   late TextEditingController _inputController;
   late TextEditingController _outputController;
 
@@ -35,10 +38,14 @@ class _CreateScreenState extends State<CreateScreen> {
 
     _inputController = TextEditingController();
     _outputController = TextEditingController();
+
+    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
   }
 
   @override
   void dispose() {
+    _syncTimer?.cancel();
+
     _inputController.dispose();
     _outputController.dispose();
 
@@ -54,6 +61,8 @@ class _CreateScreenState extends State<CreateScreen> {
 
   Future<void> _sync() async {
     if (await widget.state.sync()) {
+      if (!mounted) return;
+
       setState(() {});
     }
 

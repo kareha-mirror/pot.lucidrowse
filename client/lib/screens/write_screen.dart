@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:client/api/commit_action.dart';
@@ -20,6 +21,8 @@ class WriteScreen extends StatefulWidget {
 }
 
 class _WriteScreenState extends State<WriteScreen> {
+  Timer? _syncTimer;
+
   PlayerAction _action = PlayerAction();
 
   late TextEditingController _inputController;
@@ -32,14 +35,20 @@ class _WriteScreenState extends State<WriteScreen> {
   @override
   void initState() {
     super.initState();
+
     _inputController = TextEditingController();
     _outputController = TextEditingController();
+
+    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
   }
 
   @override
   void dispose() {
+    _syncTimer?.cancel();
+
     _inputController.dispose();
     _outputController.dispose();
+
     super.dispose();
   }
 
@@ -52,6 +61,8 @@ class _WriteScreenState extends State<WriteScreen> {
 
   Future<void> _sync() async {
     if (await widget.state.sync()) {
+      if (!mounted) return;
+
       setState(() {});
     }
 

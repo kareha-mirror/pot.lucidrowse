@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:client/api/list_players.dart';
@@ -20,6 +21,8 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+  Timer? _syncTimer;
+
   bool _initialized = false;
   int regionIndex = -1;
   List<dynamic> _players = [];
@@ -32,10 +35,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.initState();
 
     _stateController = TextEditingController();
+
+    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
   }
 
   @override
   void dispose() {
+    _syncTimer?.cancel();
+
     _stateController.dispose();
 
     super.dispose();
@@ -50,6 +57,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Future<void> _sync() async {
     if (await widget.state.sync()) {
+      if (!mounted) return;
+
       setState(() {});
     }
   }
