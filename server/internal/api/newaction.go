@@ -103,6 +103,16 @@ func handleNewAction(
 			)
 			return
 		}
+
+		if err = data.IncrementPlayerPoints(player.ID); err != nil {
+			log.Println(err)
+			http.Error(
+				w,
+				"failed to increment player points",
+				http.StatusInternalServerError,
+			)
+			return
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -48,4 +48,7 @@ class AppState {
   void incrementAiCalls() {
     user.aiCalls++;
   }
+
+  bool get updatable =>
+      (player?.points ?? 0) >= (player?.pointsToUpdate ?? 65536);
 }

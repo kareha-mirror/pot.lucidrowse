@@ -61,6 +61,21 @@ func handleUpdateFlavor(
 		return
 	}
 
+	if player.Points < cfg.Game.PointsToUpdate {
+		log.Println("not enough points")
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	if err = data.ResetPlayerPoints(player.ID); err != nil {
+		log.Println(err)
+		http.Error(
+			w,
+			"failed to reset player points",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)

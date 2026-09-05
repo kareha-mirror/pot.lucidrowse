@@ -73,11 +73,6 @@ class _CreateScreenState extends State<CreateScreen> {
     }
   }
 
-  bool _disabled() {
-    // TODO disabled
-    return false;
-  }
-
   Future<void> _createImage() async {
     if (widget.state.restAiCalls < 1) {
       return;
@@ -193,7 +188,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         ],
                       ),
                     ),
-                  ] else if (!_disabled()) ...[
+                  ] else if (widget.state.updatable) ...[
                     TranslucentPanel(
                       child: Column(
                         children: [
@@ -210,9 +205,10 @@ class _CreateScreenState extends State<CreateScreen> {
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  if (!widget.state.inhabitant || widget.state.updatable)
+                    const SizedBox(height: 24),
 
-                  if (!_disabled())
+                  if (!widget.state.inhabitant || widget.state.updatable)
                     Padding(
                       padding: EdgeInsets.all(
                         MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
@@ -233,9 +229,10 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
 
-                  if (!_disabled()) const SizedBox(height: 24),
+                  if (!widget.state.inhabitant || widget.state.updatable)
+                    const SizedBox(height: 24),
 
-                  if (!_disabled())
+                  if (!widget.state.inhabitant || widget.state.updatable)
                     TranslucentPanel(
                       child: ElevatedButton(
                         onPressed:
@@ -312,8 +309,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     const SizedBox(height: 48),
 
                     ElevatedButton(
-                      onPressed:
-                          (_flavorLoading || _imageLoading || _disabled())
+                      onPressed: (_flavorLoading || _imageLoading)
                           ? null
                           : () async {
                               await _commit();

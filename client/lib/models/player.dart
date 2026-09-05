@@ -6,6 +6,8 @@ class Player {
   final int day;
   Flavor? flavor;
   PlayerAction? action;
+  int points = 0;
+  int pointsToUpdate = 65536;
 
   Player({required this.id, required this.day});
 }

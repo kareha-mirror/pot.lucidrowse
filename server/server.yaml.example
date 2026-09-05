@@ -27,3 +27,4 @@ world-path: "./world.yaml"
 game:
   max-ai-calls: 8
   day-duration: "6h"
+  points-to-update: 4

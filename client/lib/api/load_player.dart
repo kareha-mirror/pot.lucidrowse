@@ -11,6 +11,8 @@ Future<Player?> apiLoadPlayer() async {
   }
 
   final player = Player(id: result['id'], day: result['day']);
+  player.points = result['points'];
+  player.pointsToUpdate = result['points-to-update'];
 
   if (result['flavor'] != null) {
     final flavor = Flavor.fromJson(result['flavor']);

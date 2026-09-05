@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
+	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -16,12 +17,16 @@ type LoadPlayerResponse struct {
 	FlavorImagePubID *string    `json:"flavor-image-id"`
 	Action           *ai.Action `json:"action"`
 	ActionImagePubID *string    `json:"action-image-id"`
+	Points           int64      `json:"points"`
+	PointsToUpdate   int64      `json:"points-to-update"`
 }
 
-func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
+func handleLoadPlayer(
+	cfg *config.Config, w http.ResponseWriter, r *http.Request,
+) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		res := LoadPlayerResponse{}
+		res := LoadPlayerResponse{PointsToUpdate: cfg.Game.PointsToUpdate}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -30,7 +35,7 @@ func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 	keyHash := sha256.Sum256([]byte(cookie.Value))
 	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
-		res := LoadPlayerResponse{}
+		res := LoadPlayerResponse{PointsToUpdate: cfg.Game.PointsToUpdate}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -38,7 +43,7 @@ func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 
 	player, err := data.LoadPlayer(user.ID)
 	if err != nil {
-		res := LoadPlayerResponse{}
+		res := LoadPlayerResponse{PointsToUpdate: cfg.Game.PointsToUpdate}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -47,6 +52,8 @@ func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 	var res LoadPlayerResponse
 	res.PubID = &player.PubID
 	res.Day = &player.Day
+	res.Points = player.Points
+	res.PointsToUpdate = cfg.Game.PointsToUpdate
 
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err == nil {
@@ -75,4 +82,10 @@ func handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
+}
+
+func loadPlayerHandler(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handleLoadPlayer(cfg, w, r)
+	}
 }

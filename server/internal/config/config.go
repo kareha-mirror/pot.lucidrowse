@@ -41,8 +41,9 @@ type Config struct {
 	World   *World
 
 	Game struct {
-		MaxAICalls  int    `yaml:"max-ai-calls"`
-		DayDuration string `yaml:"day-duration"`
+		MaxAICalls     int    `yaml:"max-ai-calls"`
+		DayDuration    string `yaml:"day-duration"`
+		PointsToUpdate int64  `yaml:"points-to-update"`
 	} `yaml:"game"`
 }
 

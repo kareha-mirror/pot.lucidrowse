@@ -19,16 +19,18 @@ type Player struct {
 	PubID     string
 	Day       int64
 	Activated bool
+	Points    int64
 }
 
 func LoadPlayer(userID int) (Player, error) {
 	var player Player
 	err := db.QueryRow(context.Background(), `
-		SELECT id, pub_id, day, activated
+		SELECT id, pub_id, day, activated, points
 		FROM players
 		WHERE user_id = $1
 	`, userID).Scan(
-		&player.ID, &player.PubID, &player.Day, &player.Activated,
+		&player.ID, &player.PubID, &player.Day,
+		&player.Activated, &player.Points,
 	)
 	if err != nil {
 		return Player{}, err
@@ -65,6 +67,24 @@ func OverridePlayer(userID int, playerPubID string) error {
 		return err
 	}
 	return nil
+}
+
+func IncrementPlayerPoints(playerID int) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE players
+		SET points = points + 1
+		WHERE id = $1
+	`, playerID)
+	return err
+}
+
+func ResetPlayerPoints(playerID int) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE players
+		SET points = 0
+		WHERE id = $1
+	`, playerID)
+	return err
 }
 
 type Flavor struct {

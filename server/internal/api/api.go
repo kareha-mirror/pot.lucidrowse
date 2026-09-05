@@ -16,7 +16,7 @@ func Run(cfg *config.Config) error {
 
 	mux.HandleFunc("GET /api/users", loadUserHandler(cfg))
 	mux.HandleFunc("POST /api/users/ensure-session", ensureSessionHandler(cfg))
-	mux.HandleFunc("GET /api/players", handleLoadPlayer)
+	mux.HandleFunc("GET /api/players", loadPlayerHandler(cfg))
 
 	mux.HandleFunc("POST /api/players/flavor", newFlavorHandler(cfg))
 	mux.HandleFunc(

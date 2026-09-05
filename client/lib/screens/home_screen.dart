@@ -77,6 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: .center,
                 children: [
+                  if (!widget.state.committed && widget.state.updatable)
+                    const SizedBox(height: 24),
+                  if (!widget.state.committed && widget.state.updatable)
+                    TranslucentPanel(child: const Text('何か変化はありましたか？')),
+                  if (!widget.state.committed && widget.state.updatable)
+                    const SizedBox(height: 24),
+
                   ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/create'),
                     child: const Text('まどろみの水晶球'),
