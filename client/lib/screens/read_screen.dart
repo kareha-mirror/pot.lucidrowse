@@ -117,53 +117,62 @@ class _ReadScreenState extends State<ReadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image(
-              image: AssetImage(
-                widget.state.committed
-                    ? 'assets/images/night.webp'
-                    : 'assets/images/home.webp',
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image(
+                image: AssetImage(
+                  widget.state.committed
+                      ? 'assets/images/night.webp'
+                      : 'assets/images/home.webp',
+                ),
+                fit: BoxFit.cover,
               ),
-              fit: BoxFit.cover,
             ),
-          ),
 
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Center(
-              child: Column(
-                children: [
-                  if (_actionsErrorMessage != null) const SizedBox(height: 12),
-                  if (_actionsErrorMessage != null)
-                    TranslucentPanel(
-                      child: Text(
-                        _actionsErrorMessage!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Center(
+                child: Column(
+                  children: [
+                    if (_actionsErrorMessage != null)
+                      const SizedBox(height: 12),
+                    if (_actionsErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _actionsErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
                       ),
+
+                    ..._actionList(),
+
+                    SizedBox(height: 96),
+
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('閉じる'),
                     ),
 
-                  ..._actionList(),
-
-                  SizedBox(height: 96),
-
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('閉じる'),
-                  ),
-
-                  SizedBox(height: 96),
-                ],
+                    SizedBox(height: 96),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

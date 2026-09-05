@@ -78,116 +78,127 @@ class _DebugScreenState extends State<DebugScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: const Image(
-              image: AssetImage('assets/images/debug.webp'),
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: Column(
-                children: [
-                  if (widget.state.day != null)
-                    TranslucentPanel(
-                      child: Column(
-                        children: [
-                          Text(formatDate(widget.state.day!)),
-                          Text('夢路が開通して ${widget.state.day! + 1} 日目'),
-                        ],
-                      ),
-                    ),
-
-                  if (widget.state.devel) const SizedBox(height: 12),
-                  if (widget.state.devel)
-                    ElevatedButton(
-                      onPressed: _sleeping ? null : _nextDay,
-                      child: const Text('明日まで寝る'),
-                    ),
-
-                  if (_sleeping) const CircularProgressIndicator(),
-
-                  if (_nextDayErrorMessage != null) const SizedBox(height: 12),
-                  if (_nextDayErrorMessage != null)
-                    TranslucentPanel(
-                      child: Text(
-                        _nextDayErrorMessage!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 48),
-
-                  TranslucentPanel(
-                    child: ElevatedButton(
-                      onPressed: !widget.state.inhabitant ? null : _clearMyself,
-                      child: const Text('自分を手放す'),
-                    ),
-                  ),
-
-                  const SizedBox(height: 48),
-
-                  ElevatedButton(
-                    onPressed: _hello,
-                    child: const Text('夢の世界に呼びかける'),
-                  ),
-
-                  if (_message != null) const SizedBox(height: 12),
-                  if (_message != null)
-                    TranslucentPanel(child: Text(_message!)),
-
-                  if (_helloErrorMessage != null) const SizedBox(height: 12),
-                  if (_helloErrorMessage != null)
-                    TranslucentPanel(
-                      child: Text(
-                        _helloErrorMessage!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 48),
-
-                  helpButton(context, HelpPage.debug),
-
-                  const SizedBox(height: 96),
-
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/'),
-                    child: const Text('ふたを閉じる'),
-                  ),
-
-                  if (widget.state.devel) const SizedBox(height: 512),
-
-                  if (widget.state.devel)
-                    SizedBox(
-                      width: 300,
-                      child: SwitchListTile(
-                        title: TranslucentPanel(
-                          child: Center(child: const Text('時空の裂け目')),
-                        ),
-                        value: widget.state.debug,
-                        onChanged: (value) =>
-                            setState(() => widget.state.debug = value),
-                      ),
-                    ),
-
-                  const SizedBox(height: 96),
-                ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: const Image(
+                image: AssetImage('assets/images/debug.webp'),
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-        ],
+
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: Column(
+                  children: [
+                    if (widget.state.day != null)
+                      TranslucentPanel(
+                        child: Column(
+                          children: [
+                            Text(formatDate(widget.state.day!)),
+                            Text('夢路が開通して ${widget.state.day! + 1} 日目'),
+                          ],
+                        ),
+                      ),
+
+                    if (widget.state.devel) const SizedBox(height: 12),
+                    if (widget.state.devel)
+                      ElevatedButton(
+                        onPressed: _sleeping ? null : _nextDay,
+                        child: const Text('明日まで寝る'),
+                      ),
+
+                    if (_sleeping) const CircularProgressIndicator(),
+
+                    if (_nextDayErrorMessage != null)
+                      const SizedBox(height: 12),
+                    if (_nextDayErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _nextDayErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 48),
+
+                    TranslucentPanel(
+                      child: ElevatedButton(
+                        onPressed: !widget.state.inhabitant
+                            ? null
+                            : _clearMyself,
+                        child: const Text('自分を手放す'),
+                      ),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    ElevatedButton(
+                      onPressed: _hello,
+                      child: const Text('夢の世界に呼びかける'),
+                    ),
+
+                    if (_message != null) const SizedBox(height: 12),
+                    if (_message != null)
+                      TranslucentPanel(child: Text(_message!)),
+
+                    if (_helloErrorMessage != null) const SizedBox(height: 12),
+                    if (_helloErrorMessage != null)
+                      TranslucentPanel(
+                        child: Text(
+                          _helloErrorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 48),
+
+                    helpButton(context, HelpPage.debug),
+
+                    const SizedBox(height: 96),
+
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('ふたを閉じる'),
+                    ),
+
+                    if (widget.state.devel) const SizedBox(height: 512),
+
+                    if (widget.state.devel)
+                      SizedBox(
+                        width: 300,
+                        child: SwitchListTile(
+                          title: TranslucentPanel(
+                            child: Center(child: const Text('時空の裂け目')),
+                          ),
+                          value: widget.state.debug,
+                          onChanged: (value) =>
+                              setState(() => widget.state.debug = value),
+                        ),
+                      ),
+
+                    const SizedBox(height: 96),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

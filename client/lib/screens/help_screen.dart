@@ -157,41 +157,49 @@ class _HelpScreenState extends State<HelpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: const Image(
-              image: AssetImage('assets/images/help.webp'),
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          SingleChildScrollView(
-            padding: EdgeInsets.all(
-              MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: .center,
-                children: [
-                  ..._helpWidgets(widget.page),
-
-                  const SizedBox(height: 96),
-
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('納得した'),
-                  ),
-
-                  const SizedBox(height: 96),
-                ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: const Image(
+                image: AssetImage('assets/images/help.webp'),
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-        ],
+
+            SingleChildScrollView(
+              padding: EdgeInsets.all(
+                MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: .center,
+                  children: [
+                    ..._helpWidgets(widget.page),
+
+                    const SizedBox(height: 96),
+
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('納得した'),
+                    ),
+
+                    const SizedBox(height: 96),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

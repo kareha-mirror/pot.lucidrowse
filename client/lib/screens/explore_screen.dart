@@ -146,7 +146,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
                     if (!mounted) return;
 
-                    Navigator.pushNamed(context, '/home');
+                    Navigator.pushReplacementNamed(context, '/home');
                   },
                   child: Text("入り込む"),
                 ),
@@ -164,144 +164,160 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (regionIndex == -1)
-            SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Image(
-                image: AssetImage(
-                  widget.state.committed
-                      ? 'assets/images/night.webp'
-                      : 'assets/images/home.webp',
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            if (regionIndex == -1)
+              SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: Image(
+                  image: AssetImage(
+                    widget.state.committed
+                        ? 'assets/images/night.webp'
+                        : 'assets/images/home.webp',
+                  ),
+                  fit: BoxFit.cover,
                 ),
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Image(
-                image: AssetImage(regions[regionIndex].imagePath),
-                fit: BoxFit.cover,
-              ),
-            ),
-
-          if (regionIndex == -1)
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: Center(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 48),
-
-                    TranslucentPanel(child: const Text('夢の世界の地域たち')),
-
-                    const SizedBox(height: 12),
-
-                    for (int index = 0; index < regions.length; index++)
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.sizeOf(context).width < 600
-                              ? 6
-                              : 48,
-                          vertical: MediaQuery.sizeOf(context).width < 600
-                              ? 3
-                              : 24,
-                        ),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 600),
-                          child: RegionCard(
-                            region: regions[index],
-                            onTap: () {
-                              setState(() => regionIndex = index);
-                              _loadState();
-                              _loadPlayers();
-                            },
-                          ),
-                        ),
-                      ),
-
-                    ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/home'),
-                      child: const Text('ふたを閉じる'),
-                    ),
-
-                    const SizedBox(height: 96),
-                  ],
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: Image(
+                  image: AssetImage(regions[regionIndex].imagePath),
+                  fit: BoxFit.cover,
                 ),
               ),
-            )
-          else
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Center(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 48),
 
-                    TranslucentPanel(child: const Text('夢の世界の住人たち')),
+            if (regionIndex == -1)
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 16,
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 48),
 
-                    const SizedBox(height: 24),
+                      TranslucentPanel(child: const Text('夢の世界の地域たち')),
 
-                    if (_playersErrorMessage != null)
                       const SizedBox(height: 12),
-                    if (_playersErrorMessage != null)
-                      TranslucentPanel(
-                        child: Text(
-                          _playersErrorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+
+                      for (int index = 0; index < regions.length; index++)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.sizeOf(context).width < 600
+                                ? 6
+                                : 48,
+                            vertical: MediaQuery.sizeOf(context).width < 600
+                                ? 3
+                                : 24,
                           ),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 600),
+                            child: RegionCard(
+                              region: regions[index],
+                              onTap: () {
+                                setState(() => regionIndex = index);
+                                _loadState();
+                                _loadPlayers();
+                              },
+                            ),
+                          ),
+                        ),
+
+                      ElevatedButton(
+                        onPressed: () =>
+                            Navigator.pushReplacementNamed(context, '/home'),
+                        child: const Text('ふたを閉じる'),
+                      ),
+
+                      const SizedBox(height: 96),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 48),
+
+                      TranslucentPanel(child: const Text('夢の世界の住人たち')),
+
+                      const SizedBox(height: 24),
+
+                      if (_playersErrorMessage != null)
+                        const SizedBox(height: 12),
+                      if (_playersErrorMessage != null)
+                        TranslucentPanel(
+                          child: Text(
+                            _playersErrorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+
+                      if (_initialized && _players.isEmpty)
+                        TranslucentPanel(child: const Text('まだ誰も住んでない。'))
+                      else
+                        ...playersList(),
+
+                      const SizedBox(height: 48),
+
+                      TranslucentPanel(child: const Text('地域の様子')),
+
+                      const SizedBox(height: 12),
+
+                      TranslucentPanel(
+                        child: TextField(
+                          controller: _stateController,
+                          maxLines: null,
+                          readOnly: true,
                         ),
                       ),
 
-                    if (_initialized && _players.isEmpty)
-                      TranslucentPanel(child: const Text('まだ誰も住んでない。'))
-                    else
-                      ...playersList(),
-
-                    const SizedBox(height: 48),
-
-                    TranslucentPanel(child: const Text('地域の様子')),
-
-                    const SizedBox(height: 12),
-
-                    TranslucentPanel(
-                      child: TextField(
-                        controller: _stateController,
-                        maxLines: null,
-                        readOnly: true,
-                      ),
-                    ),
-
-                    if (_stateErrorMessage != null) const SizedBox(height: 12),
-                    if (_stateErrorMessage != null)
-                      TranslucentPanel(
-                        child: Text(
-                          _stateErrorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+                      if (_stateErrorMessage != null)
+                        const SizedBox(height: 12),
+                      if (_stateErrorMessage != null)
+                        TranslucentPanel(
+                          child: Text(
+                            _stateErrorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                           ),
                         ),
+
+                      const SizedBox(height: 96),
+
+                      ElevatedButton(
+                        onPressed: () => setState(() => regionIndex = -1),
+                        child: const Text('中を見直す'),
                       ),
 
-                    const SizedBox(height: 96),
-
-                    ElevatedButton(
-                      onPressed: () => setState(() => regionIndex = -1),
-                      child: const Text('中を見直す'),
-                    ),
-
-                    const SizedBox(height: 96),
-                  ],
+                      const SizedBox(height: 96),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

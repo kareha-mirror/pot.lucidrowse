@@ -60,62 +60,65 @@ class _FrontScreenState extends State<FrontScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: const Image(
-              image: AssetImage('assets/images/front.webp'),
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(
-                MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: const Image(
+                image: AssetImage('assets/images/front.webp'),
+                fit: BoxFit.cover,
               ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
-                child: Column(
-                  children: [
-                    Image(image: AssetImage('assets/images/logo.webp')),
-                  ],
+            ),
+
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(
+                  MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: Column(
+                    children: [
+                      Image(image: AssetImage('assets/images/logo.webp')),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          Center(
-            child: Column(
-              mainAxisAlignment: .center,
-              children: [
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/home'),
-                  child: const Text('古びた宿'),
-                ),
+            Center(
+              child: Column(
+                mainAxisAlignment: .center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/home'),
+                    child: const Text('古びた宿'),
+                  ),
 
-                const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                helpButton(context, HelpPage.front),
-              ],
-            ),
-          ),
-
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: MediaQuery.paddingOf(context).bottom + 24,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, '/debug'),
-                child: const Text('汚れた道具箱'),
+                  helpButton(context, HelpPage.front),
+                ],
               ),
             ),
-          ),
-        ],
+
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: MediaQuery.paddingOf(context).bottom + 24,
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/debug'),
+                  child: const Text('汚れた道具箱'),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

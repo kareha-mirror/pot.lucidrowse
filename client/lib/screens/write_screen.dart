@@ -145,195 +145,210 @@ class _WriteScreenState extends State<WriteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image(
-              image: AssetImage(
-                widget.state.committed
-                    ? 'assets/images/night.webp'
-                    : 'assets/images/home.webp',
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image(
+                image: AssetImage(
+                  widget.state.committed
+                      ? 'assets/images/night.webp'
+                      : 'assets/images/home.webp',
+                ),
+                fit: BoxFit.cover,
               ),
-              fit: BoxFit.cover,
             ),
-          ),
 
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: Column(
-                children: [
-                  if (widget.state.inhabitant) ...[
-                    if (widget.state.day != null)
-                      TranslucentPanel(
-                        child: Column(
-                          children: [
-                            Text(formatDate(widget.state.day!)),
-                            Text(
-                              '住み着いて ${widget.state.day! - widget.state.player!.day + 1} 日目',
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: Column(
+                  children: [
+                    if (widget.state.inhabitant) ...[
+                      if (widget.state.day != null)
+                        TranslucentPanel(
+                          child: Column(
+                            children: [
+                              Text(formatDate(widget.state.day!)),
+                              Text(
+                                '住み着いて ${widget.state.day! - widget.state.player!.day + 1} 日目',
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      const SizedBox(height: 24),
+
+                      TranslucentPanel(child: const Text('日記に書いてみよう。')),
+
+                      const SizedBox(height: 24),
+
+                      TranslucentPanel(child: const Text('今日は何をして過ごしましたか？')),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    if (widget.state.inhabitant)
+                      Padding(
+                        padding: EdgeInsets.all(
+                          MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
+                        ),
+                        child: TranslucentPanel(
+                          child: TextField(
+                            controller: _inputController,
+                            decoration: const InputDecoration(
+                              hintText: '(今日、何をしたか書いてみよう。)',
                             ),
-                          ],
-                        ),
-                      ),
-
-                    const SizedBox(height: 24),
-
-                    TranslucentPanel(child: const Text('日記に書いてみよう。')),
-
-                    const SizedBox(height: 24),
-
-                    TranslucentPanel(child: const Text('今日は何をして過ごしましたか？')),
-                  ],
-
-                  const SizedBox(height: 24),
-
-                  if (widget.state.inhabitant)
-                    Padding(
-                      padding: EdgeInsets.all(
-                        MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
-                      ),
-                      child: TranslucentPanel(
-                        child: TextField(
-                          controller: _inputController,
-                          decoration: const InputDecoration(
-                            hintText: '(今日、何をしたか書いてみよう。)',
-                          ),
-                          onChanged: (String value) => setState(() {}),
-                          maxLines: null,
-                          maxLength: 140,
-                          readOnly:
-                              _actionLoading ||
-                              _imageLoading ||
-                              widget.state.committed,
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 24),
-
-                  TranslucentPanel(
-                    child: ElevatedButton(
-                      onPressed:
-                          (_inputController.text.isEmpty ||
-                              _actionLoading ||
-                              _imageLoading ||
-                              widget.state.committed)
-                          ? null
-                          : _loadAction,
-                      child: const Text('日記に書く'),
-                    ),
-                  ),
-
-                  if (_actionErrorMessage != null) const SizedBox(height: 12),
-                  if (_actionErrorMessage != null)
-                    TranslucentPanel(
-                      child: Text(
-                        _actionErrorMessage!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-
-                  if (_actionLoading)
-                    const CircularProgressIndicator()
-                  else if (_action.hasDescription) ...[
-                    const SizedBox(height: 48),
-
-                    TranslucentPanel(
-                      child: const Text('あなたの言葉は夢に映され、こうなりました。'),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    TranslucentPanel(
-                      child: TextField(
-                        controller: _outputController,
-                        maxLines: null,
-                        readOnly: true,
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    if (_imageLoading)
-                      const Column(
-                        children: [
-                          TranslucentPanel(child: Text('情景を映し出しています…')),
-                          CircularProgressIndicator(),
-                        ],
-                      )
-                    else if (_action.imageId != null)
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 300),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(imageUrl(_action.imageId!)),
+                            onChanged: (String value) => setState(() {}),
+                            maxLines: null,
+                            maxLength: 140,
+                            readOnly:
+                                _actionLoading ||
+                                _imageLoading ||
+                                widget.state.committed,
                           ),
                         ),
                       ),
 
-                    if (_imageErrorMessage != null) const SizedBox(height: 12),
-                    if (_imageErrorMessage != null)
+                    const SizedBox(height: 24),
+
+                    TranslucentPanel(
+                      child: ElevatedButton(
+                        onPressed:
+                            (_inputController.text.isEmpty ||
+                                _actionLoading ||
+                                _imageLoading ||
+                                widget.state.committed)
+                            ? null
+                            : _loadAction,
+                        child: const Text('日記に書く'),
+                      ),
+                    ),
+
+                    if (_actionErrorMessage != null) const SizedBox(height: 12),
+                    if (_actionErrorMessage != null)
                       TranslucentPanel(
                         child: Text(
-                          _imageErrorMessage!,
+                          _actionErrorMessage!,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),
                       ),
 
-                    const SizedBox(height: 48),
+                    if (_actionLoading)
+                      const CircularProgressIndicator()
+                    else if (_action.hasDescription) ...[
+                      const SizedBox(height: 48),
+
+                      TranslucentPanel(
+                        child: const Text('あなたの言葉は夢に映され、こうなりました。'),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      TranslucentPanel(
+                        child: TextField(
+                          controller: _outputController,
+                          maxLines: null,
+                          readOnly: true,
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      if (_imageLoading)
+                        const Column(
+                          children: [
+                            TranslucentPanel(child: Text('情景を映し出しています…')),
+                            CircularProgressIndicator(),
+                          ],
+                        )
+                      else if (_action.imageId != null)
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 300),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(imageUrl(_action.imageId!)),
+                            ),
+                          ),
+                        ),
+
+                      if (_imageErrorMessage != null)
+                        const SizedBox(height: 12),
+                      if (_imageErrorMessage != null)
+                        TranslucentPanel(
+                          child: Text(
+                            _imageErrorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 48),
+
+                      ElevatedButton(
+                        onPressed:
+                            (_actionLoading ||
+                                _imageLoading ||
+                                widget.state.committed)
+                            ? null
+                            : () async {
+                                await _commit();
+
+                                if (!context.mounted) return;
+
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/home',
+                                );
+                              },
+                        child: const Text('これでよし'),
+                      ),
+                    ],
+
+                    const SizedBox(height: 96),
 
                     ElevatedButton(
-                      onPressed:
-                          (_actionLoading ||
-                              _imageLoading ||
-                              widget.state.committed)
+                      onPressed: (_actionLoading || _imageLoading)
                           ? null
-                          : () async {
-                              await _commit();
-
-                              if (!context.mounted) return;
-
-                              Navigator.pushNamed(context, '/home');
-                            },
-                      child: const Text('これでよし'),
+                          : () => Navigator.pushReplacementNamed(
+                              context,
+                              '/home',
+                            ),
+                      child: const Text('ペンを置く'),
                     ),
+
+                    const SizedBox(height: 96),
                   ],
+                ),
+              ),
+            ),
 
-                  const SizedBox(height: 96),
-
-                  ElevatedButton(
-                    onPressed: (_actionLoading || _imageLoading)
-                        ? null
-                        : () => Navigator.pushNamed(context, '/home'),
-                    child: const Text('ペンを置く'),
-                  ),
-
-                  const SizedBox(height: 96),
+            Positioned(
+              bottom: 24,
+              left: 8,
+              right: 8,
+              child: Row(
+                children: [
+                  for (int i = 0; i < widget.state.restAiCalls; i++)
+                    Image(image: AssetImage('assets/images/fruit.webp')),
                 ],
               ),
             ),
-          ),
-
-          Positioned(
-            bottom: 24,
-            left: 8,
-            right: 8,
-            child: Row(
-              children: [
-                for (int i = 0; i < widget.state.restAiCalls; i++)
-                  Image(image: AssetImage('assets/images/fruit.webp')),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
