@@ -11,7 +11,7 @@ import (
 
 type CommitActionResponse struct{}
 
-func handleCommitAction(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleCommitAction(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)

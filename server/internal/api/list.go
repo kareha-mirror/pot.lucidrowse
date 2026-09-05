@@ -12,7 +12,7 @@ type ListPlayersResponse struct {
 	Players []data.PlayerItem `json:"players"`
 }
 
-func handleListPlayers(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleListPlayers(w http.ResponseWriter, r *http.Request) {
 	regionCode := r.PathValue("code")
 
 	players, err := data.PlayerList(regionCode)
@@ -33,7 +33,7 @@ type ListActionsResponse struct {
 	Actions []data.ActionItem `json:"actions"`
 }
 
-func handleListActions(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleListActions(w http.ResponseWriter, r *http.Request) {
 	playerPubID := r.PathValue("id")
 
 	actions, err := data.ActionList(playerPubID)

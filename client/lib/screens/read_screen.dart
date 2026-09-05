@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import 'package:client/api/list_actions.dart';
+import 'package:client/api/api.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/image_url.dart';
 import 'package:client/widgets/translucent_panel.dart';
@@ -62,9 +62,9 @@ class _ReadScreenState extends State<ReadScreen> {
         if (widget.state.player == null) {
           return;
         }
-        result = await apiListActions(widget.state.player!.id);
+        result = await api.listActions(widget.state.player!.id);
       } else {
-        result = await apiListActions(widget.playerId!);
+        result = await api.listActions(widget.playerId!);
       }
 
       if (!mounted) return;

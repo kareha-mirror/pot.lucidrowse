@@ -11,7 +11,7 @@ import (
 
 type CommitFlavorResponse struct{}
 
-func handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)

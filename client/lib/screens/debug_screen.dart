@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:client/api/hello.dart';
-import 'package:client/api/next_day.dart';
-import 'package:client/api/release_player.dart';
+import 'package:client/api/api.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
@@ -43,7 +41,7 @@ class _DebugScreenState extends State<DebugScreen> {
     });
 
     try {
-      final error = await apiNextDay();
+      final error = await api.nextDay();
 
       if (error != '') {
         setState(() => _nextDayErrorMessage = error);
@@ -58,7 +56,7 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   Future<void> _clearMyself() async {
-    await apiReleasePlayer();
+    await api.releasePlayer();
 
     widget.state.clear();
     await _sync();
@@ -68,7 +66,7 @@ class _DebugScreenState extends State<DebugScreen> {
     try {
       setState(() => _message = null);
 
-      final message = await apiHello();
+      final message = await api.hello();
 
       setState(() => _message = message);
     } catch (e) {

@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -15,9 +14,7 @@ type NewFlavorRequest struct {
 	Input string `json:"input"`
 }
 
-func handleNewFlavor(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -33,7 +30,7 @@ func handleNewFlavor(
 		return
 	}
 
-	if user.AICalls >= cfg.Game.MaxAICalls {
+	if user.AICalls >= api.cfg.Game.MaxAICalls {
 		http.Error(w, "too many requests", http.StatusTooManyRequests)
 		return
 	}
@@ -89,7 +86,7 @@ func handleNewFlavor(
 		}
 	}
 
-	flavor, err := ai.NewFlavor(cfg, req.Input)
+	flavor, err := ai.NewFlavor(api.cfg, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to create flavor", http.StatusInternalServerError)
@@ -114,10 +111,4 @@ func handleNewFlavor(
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(flavor)
-}
-
-func newFlavorHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleNewFlavor(cfg, w, r)
-	}
 }

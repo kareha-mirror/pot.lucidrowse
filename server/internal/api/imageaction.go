@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -16,9 +15,7 @@ type ImageActionResponse struct {
 	ImageID string `json:"image-id"`
 }
 
-func handleImageAction(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleImageAction(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -34,7 +31,7 @@ func handleImageAction(
 		return
 	}
 
-	if user.AICalls >= cfg.Game.MaxAICalls {
+	if user.AICalls >= api.cfg.Game.MaxAICalls {
 		http.Error(w, "too many requests", http.StatusTooManyRequests)
 		return
 	}
@@ -82,7 +79,7 @@ func handleImageAction(
 	}
 
 	action := ai.Action{Description: a.Description}
-	newImage, err := ai.NewActionImage(cfg, image, action)
+	newImage, err := ai.NewActionImage(api.cfg, image, action)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to create image", http.StatusInternalServerError)
@@ -119,10 +116,4 @@ func handleImageAction(
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func imageActionHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleImageAction(cfg, w, r)
-	}
 }

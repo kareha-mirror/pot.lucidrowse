@@ -123,9 +123,7 @@ func NextDay(cfg *config.Config) error {
 	return nil
 }
 
-func handleNextDay(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleNextDay(w http.ResponseWriter, r *http.Request) {
 	if !nextDayApiMu.TryLock() {
 		res := NextDayResponse{
 			Error: "excluded",
@@ -136,7 +134,7 @@ func handleNextDay(
 	}
 	defer nextDayApiMu.Unlock()
 
-	if err := NextDay(cfg); err != nil {
+	if err := NextDay(api.cfg); err != nil {
 		log.Println(err)
 		http.Error(w, "failed to go next day", http.StatusInternalServerError)
 		return
@@ -147,10 +145,4 @@ func handleNextDay(
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func nextDayHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleNextDay(cfg, w, r)
-	}
 }

@@ -7,40 +7,40 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 )
 
+type API struct {
+	cfg *config.Config
+}
+
 func Run(cfg *config.Config) error {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /api/hello", handleHello)
-	mux.HandleFunc("GET /api/state", stateHandler(cfg))
-	mux.HandleFunc("POST /api/next-day", nextDayHandler(cfg))
+	api := &API{cfg: cfg}
 
-	mux.HandleFunc("GET /api/users", loadUserHandler(cfg))
-	mux.HandleFunc("POST /api/users/ensure-session", ensureSessionHandler(cfg))
-	mux.HandleFunc("GET /api/players", loadPlayerHandler(cfg))
+	mux.HandleFunc("GET /api/hello", api.handleHello)
+	mux.HandleFunc("GET /api/state", api.handleState)
+	mux.HandleFunc("POST /api/next-day", api.handleNextDay)
 
-	mux.HandleFunc("POST /api/players/flavor", newFlavorHandler(cfg))
-	mux.HandleFunc(
-		"POST /api/players/flavor/image", imageFlavorHandler(cfg),
-	)
-	mux.HandleFunc(
-		"POST /api/players/flavor/update", updateFlavorHandler(cfg),
-	)
-	mux.HandleFunc("POST /api/players/flavor/commit", handleCommitFlavor)
+	mux.HandleFunc("GET /api/users", api.handleLoadUser)
+	mux.HandleFunc("POST /api/users/ensure-session", api.handleEnsureSession)
+	mux.HandleFunc("GET /api/players", api.handleLoadPlayer)
 
-	mux.HandleFunc("POST /api/players/actions", newActionHandler(cfg))
-	mux.HandleFunc(
-		"POST /api/players/actions/image", imageActionHandler(cfg),
-	)
-	mux.HandleFunc("POST /api/players/actions/commit", handleCommitAction)
+	mux.HandleFunc("POST /api/players/flavor", api.handleNewFlavor)
+	mux.HandleFunc("POST /api/players/flavor/image", api.handleImageFlavor)
+	mux.HandleFunc("POST /api/players/flavor/update", api.handleUpdateFlavor)
+	mux.HandleFunc("POST /api/players/flavor/commit", api.handleCommitFlavor)
 
-	mux.HandleFunc("GET /api/images/{id}", handleImage)
+	mux.HandleFunc("POST /api/players/actions", api.handleNewAction)
+	mux.HandleFunc("POST /api/players/actions/image", api.handleImageAction)
+	mux.HandleFunc("POST /api/players/actions/commit", api.handleCommitAction)
 
-	mux.HandleFunc("GET /api/regions/{code}/players", handleListPlayers)
-	mux.HandleFunc("GET /api/players/{id}/actions", handleListActions)
-	mux.HandleFunc("GET /api/regions/{code}/state", handleRegionState)
+	mux.HandleFunc("GET /api/images/{id}", api.handleImage)
 
-	mux.HandleFunc("POST /api/players/release", handleReleasePlayer)
-	mux.HandleFunc("POST /api/players/{id}/override", handleOverridePlayer)
+	mux.HandleFunc("GET /api/regions/{code}/players", api.handleListPlayers)
+	mux.HandleFunc("GET /api/players/{id}/actions", api.handleListActions)
+	mux.HandleFunc("GET /api/regions/{code}/state", api.handleRegionState)
+
+	mux.HandleFunc("POST /api/players/release", api.handleReleasePlayer)
+	mux.HandleFunc("POST /api/players/{id}/override", api.handleOverridePlayer)
 
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	return http.ListenAndServe(cfg.App.Addr, mux)

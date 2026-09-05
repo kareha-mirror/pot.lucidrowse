@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -16,9 +15,7 @@ type ImageFlavorResponse struct {
 	ImageID string `json:"image-id"`
 }
 
-func handleImageFlavor(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -34,7 +31,7 @@ func handleImageFlavor(
 		return
 	}
 
-	if user.AICalls >= cfg.Game.MaxAICalls {
+	if user.AICalls >= api.cfg.Game.MaxAICalls {
 		http.Error(w, "too many requests", http.StatusTooManyRequests)
 		return
 	}
@@ -72,7 +69,7 @@ func handleImageFlavor(
 
 	var newImage data.Image
 	if f.ImagePubID == nil {
-		newImage, err = ai.NewFlavorImage(cfg, flavor)
+		newImage, err = ai.NewFlavorImage(api.cfg, flavor)
 		if err != nil {
 			log.Println(err)
 			http.Error(
@@ -93,7 +90,7 @@ func handleImageFlavor(
 			)
 			return
 		}
-		newImage, err = ai.UpdateFlavorImage(cfg, image, flavor)
+		newImage, err = ai.UpdateFlavorImage(api.cfg, image, flavor)
 		if err != nil {
 			log.Println(err)
 			http.Error(
@@ -135,10 +132,4 @@ func handleImageFlavor(
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func imageFlavorHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleImageFlavor(cfg, w, r)
-	}
 }

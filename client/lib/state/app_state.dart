@@ -1,6 +1,4 @@
-import 'package:client/api/load_player.dart';
-import 'package:client/api/load_state.dart';
-import 'package:client/api/load_user.dart';
+import 'package:client/api/api.dart';
 import 'package:client/models/action.dart';
 import 'package:client/models/flavor.dart';
 import 'package:client/models/player.dart';
@@ -20,7 +18,7 @@ class AppState {
   }
 
   Future<bool> sync() async {
-    final result = await apiLoadState();
+    final result = await api.loadState();
     final newDay = result['day'];
     if (newDay == day) {
       return false;
@@ -29,8 +27,8 @@ class AppState {
 
     mode = result['mode'];
 
-    user = await apiLoadUser();
-    player = await apiLoadPlayer();
+    user = await api.loadUser();
+    player = await api.loadPlayer();
 
     return true;
   }

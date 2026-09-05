@@ -16,7 +16,7 @@ type OverridePlayerResponse struct {
 	Error string `json:"error"`
 }
 
-func handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 	if !overridePlayerMu.TryLock() {
 		res := OverridePlayerResponse{
 			Error: "excluded",

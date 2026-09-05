@@ -1,11 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import 'package:client/api/commit_flavor.dart';
-import 'package:client/api/ensure_session.dart';
-import 'package:client/api/image_flavor.dart';
-import 'package:client/api/new_flavor.dart';
-import 'package:client/api/update_flavor.dart';
+import 'package:client/api/api.dart';
 import 'package:client/models/flavor.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/image_url.dart';
@@ -84,7 +80,7 @@ class _CreateScreenState extends State<CreateScreen> {
     try {
       widget.state.incrementAiCalls();
       setState(() {});
-      final imageId = await apiImageFlavor();
+      final imageId = await api.imageFlavor();
 
       setState(() {
         _flavor.imageId = imageId;
@@ -107,15 +103,15 @@ class _CreateScreenState extends State<CreateScreen> {
       _flavorErrorMessage = null;
     });
     try {
-      await apiEnsureSession();
+      await api.ensureSession();
 
       widget.state.incrementAiCalls();
       setState(() {});
       final Flavor flavor;
       if (widget.state.inhabitant) {
-        flavor = await apiUpdateFlavor(_inputController.text);
+        flavor = await api.updateFlavor(_inputController.text);
       } else {
-        flavor = await apiNewFlavor(_inputController.text);
+        flavor = await api.newFlavor(_inputController.text);
       }
       if (flavor.error == '') {
         flavor.input = _inputController.text;
@@ -139,7 +135,7 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _commit() async {
-    await apiCommitFlavor();
+    await api.commitFlavor();
 
     widget.state.clear();
     await _sync();

@@ -13,7 +13,7 @@ type RegionStateResponse struct {
 	State string `json:"state"`
 }
 
-func handleRegionState(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleRegionState(w http.ResponseWriter, r *http.Request) {
 	regionCode := r.PathValue("code")
 
 	areas, err := data.AreaList()

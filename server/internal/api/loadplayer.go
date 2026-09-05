@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -21,12 +20,10 @@ type LoadPlayerResponse struct {
 	PointsToUpdate   int64      `json:"points-to-update"`
 }
 
-func handleLoadPlayer(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		res := LoadPlayerResponse{PointsToUpdate: cfg.Game.PointsToUpdate}
+		res := LoadPlayerResponse{PointsToUpdate: api.cfg.Game.PointsToUpdate}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -35,7 +32,7 @@ func handleLoadPlayer(
 	keyHash := sha256.Sum256([]byte(cookie.Value))
 	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
-		res := LoadPlayerResponse{PointsToUpdate: cfg.Game.PointsToUpdate}
+		res := LoadPlayerResponse{PointsToUpdate: api.cfg.Game.PointsToUpdate}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -43,7 +40,7 @@ func handleLoadPlayer(
 
 	player, err := data.LoadPlayer(user.ID)
 	if err != nil {
-		res := LoadPlayerResponse{PointsToUpdate: cfg.Game.PointsToUpdate}
+		res := LoadPlayerResponse{PointsToUpdate: api.cfg.Game.PointsToUpdate}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -53,7 +50,7 @@ func handleLoadPlayer(
 	res.PubID = &player.PubID
 	res.Day = &player.Day
 	res.Points = player.Points
-	res.PointsToUpdate = cfg.Game.PointsToUpdate
+	res.PointsToUpdate = api.cfg.Game.PointsToUpdate
 
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err == nil {
@@ -82,10 +79,4 @@ func handleLoadPlayer(
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func loadPlayerHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleLoadPlayer(cfg, w, r)
-	}
 }

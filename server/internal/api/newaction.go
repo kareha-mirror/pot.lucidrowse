@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -19,9 +18,7 @@ type NewActionResponse struct {
 	Description string `json:"description"`
 }
 
-func handleNewAction(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleNewAction(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -37,7 +34,7 @@ func handleNewAction(
 		return
 	}
 
-	if user.AICalls >= cfg.Game.MaxAICalls {
+	if user.AICalls >= api.cfg.Game.MaxAICalls {
 		http.Error(w, "too many requests", http.StatusTooManyRequests)
 		return
 	}
@@ -81,7 +78,7 @@ func handleNewAction(
 		AreaName:    f.AreaName,
 	}
 
-	action, err := ai.NewAction(cfg, flavor, req.Input)
+	action, err := ai.NewAction(api.cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to create action", http.StatusInternalServerError)
@@ -117,10 +114,4 @@ func handleNewAction(
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(action)
-}
-
-func newActionHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleNewAction(cfg, w, r)
-	}
 }

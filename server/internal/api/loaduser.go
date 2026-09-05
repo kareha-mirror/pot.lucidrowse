@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -16,15 +15,11 @@ type LoadUserResponse struct {
 	MaxAICalls int     `json:"max-ai-calls"`
 }
 
-func handleLoadUser(
-	cfg *config.Config,
-	w http.ResponseWriter,
-	r *http.Request,
-) {
+func (api *API) handleLoadUser(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		res := LoadUserResponse{
-			MaxAICalls: cfg.Game.MaxAICalls,
+			MaxAICalls: api.cfg.Game.MaxAICalls,
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
@@ -35,7 +30,7 @@ func handleLoadUser(
 	user, err := data.LoadUser(keyHash[:])
 	if err != nil {
 		res := LoadUserResponse{
-			MaxAICalls: cfg.Game.MaxAICalls,
+			MaxAICalls: api.cfg.Game.MaxAICalls,
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
@@ -46,15 +41,9 @@ func handleLoadUser(
 		Authorized: true,
 		Name:       user.Name,
 		AICalls:    user.AICalls,
-		MaxAICalls: cfg.Game.MaxAICalls,
+		MaxAICalls: api.cfg.Game.MaxAICalls,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func loadUserHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleLoadUser(cfg, w, r)
-	}
 }

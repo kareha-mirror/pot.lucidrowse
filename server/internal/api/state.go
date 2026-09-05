@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -14,7 +13,7 @@ type StateResponse struct {
 	Day  int64  `json:"day"`
 }
 
-func handleState(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
+func (api *API) handleState(w http.ResponseWriter, r *http.Request) {
 	day, err := data.Day()
 	if err != nil {
 		log.Println(err)
@@ -23,15 +22,9 @@ func handleState(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := StateResponse{
-		Mode: cfg.App.Mode,
+		Mode: api.cfg.App.Mode,
 		Day:  day,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func stateHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleState(cfg, w, r)
-	}
 }

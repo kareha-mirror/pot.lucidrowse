@@ -37,13 +37,11 @@ func newSession(cfg *config.Config, w http.ResponseWriter) ([]byte, error) {
 	return keyHash[:], nil
 }
 
-func handleEnsureSession(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleEnsureSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
-			keyHash, err := newSession(cfg, w)
+			keyHash, err := newSession(api.cfg, w)
 			if err != nil {
 				log.Println(err)
 				http.Error(
@@ -89,7 +87,7 @@ func handleEnsureSession(
 	keyHash := sha256.Sum256([]byte(sessionKey))
 	_, err = data.LoadUser(keyHash[:])
 	if err != nil {
-		keyHash, err := newSession(cfg, w)
+		keyHash, err := newSession(api.cfg, w)
 		if err != nil {
 			log.Println(err)
 			http.Error(
@@ -129,10 +127,4 @@ func handleEnsureSession(
 	var res EnsureSessionResponse
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
-}
-
-func ensureSessionHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleEnsureSession(cfg, w, r)
-	}
 }

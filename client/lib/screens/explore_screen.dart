@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import 'package:client/api/list_players.dart';
-import 'package:client/api/override_player.dart';
-import 'package:client/api/region_state.dart';
+import 'package:client/api/api.dart';
 import 'package:client/models/region.dart';
 import 'package:client/screens/read_screen.dart';
 import 'package:client/state/app_state.dart';
@@ -71,7 +69,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       });
 
       final region = regions[regionIndex];
-      final text = await apiRegionState(region.code);
+      final text = await api.regionState(region.code);
 
       if (!mounted) return;
 
@@ -90,7 +88,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       });
 
       final region = regions[regionIndex];
-      final result = await apiListPlayers(region.code);
+      final result = await api.listPlayers(region.code);
 
       if (!mounted) return;
 
@@ -139,7 +137,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               TranslucentPanel(
                 child: OutlinedButton(
                   onPressed: () async {
-                    await apiOverridePlayer(player['player-id']);
+                    await api.overridePlayer(player['player-id']);
 
                     widget.state.clear();
                     await _sync();

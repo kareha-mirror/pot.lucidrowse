@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import 'package:client/api/commit_action.dart';
-import 'package:client/api/ensure_session.dart';
-import 'package:client/api/new_action.dart';
-import 'package:client/api/image_action.dart';
+import 'package:client/api/api.dart';
 import 'package:client/models/action.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/utils/calendar.dart';
@@ -87,7 +84,7 @@ class _WriteScreenState extends State<WriteScreen> {
     try {
       widget.state.incrementAiCalls();
       setState(() {});
-      final imageId = await apiImageAction();
+      final imageId = await api.imageAction();
 
       setState(() {
         _action.imageId = imageId;
@@ -110,11 +107,11 @@ class _WriteScreenState extends State<WriteScreen> {
       _actionErrorMessage = null;
     });
     try {
-      await apiEnsureSession();
+      await api.ensureSession();
 
       widget.state.incrementAiCalls();
       setState(() {});
-      final action = await apiNewAction(_inputController.text);
+      final action = await api.newAction(_inputController.text);
       if (action.error == '') {
         action.input = _inputController.text;
 
@@ -137,7 +134,7 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _commit() async {
-    await apiCommitAction();
+    await api.commitAction();
 
     widget.state.clear();
     await _sync();

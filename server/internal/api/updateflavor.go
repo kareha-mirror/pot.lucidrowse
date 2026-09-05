@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
-	"tea.kareha.org/pot/lucidrowse/server/internal/config"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
@@ -15,9 +14,7 @@ type UpdateFlavorRequest struct {
 	Input string `json:"input"`
 }
 
-func handleUpdateFlavor(
-	cfg *config.Config, w http.ResponseWriter, r *http.Request,
-) {
+func (api *API) handleUpdateFlavor(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -33,7 +30,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	if user.AICalls >= cfg.Game.MaxAICalls {
+	if user.AICalls >= api.cfg.Game.MaxAICalls {
 		http.Error(w, "too many requests", http.StatusTooManyRequests)
 		return
 	}
@@ -61,7 +58,7 @@ func handleUpdateFlavor(
 		return
 	}
 
-	if player.Points < cfg.Game.PointsToUpdate {
+	if player.Points < api.cfg.Game.PointsToUpdate {
 		log.Println("not enough points")
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
@@ -92,7 +89,7 @@ func handleUpdateFlavor(
 		AreaName:    f.AreaName,
 	}
 
-	updatedFlavor, err := ai.UpdateFlavor(cfg, flavor, req.Input)
+	updatedFlavor, err := ai.UpdateFlavor(api.cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to update flavor", http.StatusInternalServerError)
@@ -117,10 +114,4 @@ func handleUpdateFlavor(
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(updatedFlavor)
-}
-
-func updateFlavorHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handleUpdateFlavor(cfg, w, r)
-	}
 }
