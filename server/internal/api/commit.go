@@ -24,6 +24,16 @@ func (api *API) commitFlavor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = data.ResetPlayerPoints(player.ID); err != nil {
+		log.Println(err)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"書いた回数を戻せません。",
+		)
+		return
+	}
+
 	if err = data.ActivatePlayer(player.ID); err != nil {
 		log.Println(err)
 		writeError(

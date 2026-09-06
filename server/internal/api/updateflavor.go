@@ -57,15 +57,6 @@ func (api *API) updateFlavor(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	if err = data.ResetPlayerPoints(player.ID); err != nil {
-		log.Println(err)
-		writeError(
-			w,
-			http.StatusInternalServerError,
-			"書いた回数を戻せません。",
-		)
-		return
-	}
 
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
