@@ -13,10 +13,6 @@ type NewActionRequest struct {
 	Input string `json:"input"`
 }
 
-type NewActionResponse struct {
-	Description string `json:"description"`
-}
-
 func (api *API) handleNewAction(w http.ResponseWriter, r *http.Request) {
 	user, player, err := authPlayer(w, r)
 	if err != nil {

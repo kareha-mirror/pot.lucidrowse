@@ -49,7 +49,7 @@ func authPlayer(
 		writeError(
 			w,
 			http.StatusNotFound,
-			"まだこの世界に住んでません。",
+			"あなたはまだこの世界に住んでません。",
 		)
 		return data.User{}, data.Player{}, err
 	}

@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 )
 
-func newPubID() (string, error) {
+func randKey() (string, error) {
 	b := make([]byte, 32)
 
 	if _, err := rand.Read(b); err != nil {

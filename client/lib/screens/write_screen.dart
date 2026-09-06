@@ -123,7 +123,7 @@ class _WriteScreenState extends State<WriteScreen> {
         _loadImage();
       } else {
         setState(() {
-          _outputController.text = 'エラー:\n${action.error}';
+          _outputController.text = 'うまく行きません。\n${action.error}';
         });
       }
     } catch (e) {
@@ -250,9 +250,11 @@ class _WriteScreenState extends State<WriteScreen> {
                       TranslucentPanel(
                         child: const Text('あなたの言葉は夢に映され、こうなりました。'),
                       ),
+                    ],
 
-                      const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
+                    if (_outputController.text != '')
                       TranslucentPanel(
                         child: TextField(
                           controller: _outputController,
@@ -261,6 +263,7 @@ class _WriteScreenState extends State<WriteScreen> {
                         ),
                       ),
 
+                    if (_action.hasDescription) ...[
                       const SizedBox(height: 24),
 
                       if (_imageLoading)

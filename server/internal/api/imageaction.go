@@ -68,7 +68,7 @@ func (api *API) handleImageAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imagePubID, err := newPubID()
+	imagePubID, err := randKey()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to generate ID", http.StatusInternalServerError)

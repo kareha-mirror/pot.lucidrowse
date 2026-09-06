@@ -42,7 +42,7 @@ func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 
 	player, err := data.LoadPlayer(user.ID)
 	if err != nil {
-		playerPubID, err := newPubID()
+		playerPubID, err := randKey()
 		if err != nil {
 			log.Println(err)
 			http.Error(

@@ -1,9 +1,7 @@
 package api
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"log"
@@ -13,15 +11,11 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type EnsureSessionResponse struct{}
-
 func newSession(cfg *config.Config, w http.ResponseWriter) ([]byte, error) {
-	key := make([]byte, 32)
-	if _, err := rand.Read(key); err != nil {
+	sessionKey, err := randKey()
+	if err != nil {
 		return []byte{}, err
 	}
-
-	sessionKey := base64.RawURLEncoding.EncodeToString(key)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",
@@ -72,9 +66,8 @@ func (api *API) handleEnsureSession(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			var res EnsureSessionResponse
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(res)
+			json.NewEncoder(w).Encode(struct{}{})
 			return
 		}
 
@@ -118,13 +111,11 @@ func (api *API) handleEnsureSession(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var res EnsureSessionResponse
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		json.NewEncoder(w).Encode(struct{}{})
 		return
 	}
 
-	var res EnsureSessionResponse
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(struct{}{})
 }

@@ -19,7 +19,7 @@ func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusNotFound,
-			"まだ分身を作ってません。",
+			"あなたはまだ分身を作ってません。",
 		)
 		return
 	}
@@ -29,7 +29,7 @@ func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusInternalServerError,
-			"うまく活動できません。",
+			"あなたはうまく活動できません。",
 		)
 		return
 	}
@@ -49,7 +49,7 @@ func (api *API) handleCommitAction(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusNotFound,
-			"まだ何をしたか書いてません。",
+			"あなたはまだ何をしたか書いてません。",
 		)
 		return
 	}
@@ -59,7 +59,7 @@ func (api *API) handleCommitAction(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusInternalServerError,
-			"うまく活動できません。",
+			"あなたはうまく活動できません。",
 		)
 		return
 	}

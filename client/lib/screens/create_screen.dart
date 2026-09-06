@@ -124,7 +124,7 @@ class _CreateScreenState extends State<CreateScreen> {
         _createImage();
       } else {
         setState(() {
-          _outputController.text = 'エラー:\n${flavor.error}';
+          _outputController.text = 'うまく行きません。\n${flavor.error}';
         });
       }
     } catch (e) {
@@ -267,9 +267,11 @@ class _CreateScreenState extends State<CreateScreen> {
                       TranslucentPanel(
                         child: const Text('あなたの言葉は夢に映され、こうなりました。'),
                       ),
+                    ],
 
-                      const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
+                    if (_outputController.text != '')
                       TranslucentPanel(
                         child: TextField(
                           controller: _outputController,
@@ -278,6 +280,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         ),
                       ),
 
+                    if (_flavor.hasDescription) ...[
                       const SizedBox(height: 24),
 
                       if (_imageLoading)

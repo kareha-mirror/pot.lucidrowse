@@ -85,7 +85,7 @@ func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	imagePubID, err := newPubID()
+	imagePubID, err := randKey()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
