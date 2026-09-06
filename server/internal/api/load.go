@@ -1,13 +1,34 @@
 package api
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
+
+type LoadUserResponse struct {
+	Authorized bool    `json:"authorized"`
+	Name       *string `json:"name"`
+	AICalls    int     `json:"ai-calls"`
+}
+
+func (api *API) handleLoadUser(w http.ResponseWriter, r *http.Request) {
+	user, err := auth(w, r)
+	if err != nil {
+		return
+	}
+
+	res := LoadUserResponse{
+		Authorized: true,
+		Name:       user.Name,
+		AICalls:    user.AICalls,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
 
 type LoadPlayerResponse struct {
 	PubID            *string    `json:"id"`
@@ -17,32 +38,11 @@ type LoadPlayerResponse struct {
 	Action           *ai.Action `json:"action"`
 	ActionImagePubID *string    `json:"action-image-id"`
 	Points           int64      `json:"points"`
-	PointsToUpdate   int64      `json:"points-to-update"`
 }
 
 func (api *API) handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session")
+	_, player, err := authPlayer(w, r)
 	if err != nil {
-		res := LoadPlayerResponse{PointsToUpdate: api.cfg.Game.PointsToUpdate}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
-		return
-	}
-
-	keyHash := sha256.Sum256([]byte(cookie.Value))
-	user, err := data.LoadUser(keyHash[:])
-	if err != nil {
-		res := LoadPlayerResponse{PointsToUpdate: api.cfg.Game.PointsToUpdate}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
-		return
-	}
-
-	player, err := data.LoadPlayer(user.ID)
-	if err != nil {
-		res := LoadPlayerResponse{PointsToUpdate: api.cfg.Game.PointsToUpdate}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
 		return
 	}
 
@@ -50,7 +50,6 @@ func (api *API) handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
 	res.PubID = &player.PubID
 	res.Day = &player.Day
 	res.Points = player.Points
-	res.PointsToUpdate = api.cfg.Game.PointsToUpdate
 
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err == nil {

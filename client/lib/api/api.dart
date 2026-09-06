@@ -8,6 +8,16 @@ import 'package:client/models/player.dart';
 import 'package:client/models/user.dart';
 import 'package:client/state/api_state.dart';
 
+class ApiException implements Exception {
+  final int statusCode;
+  final String message;
+
+  ApiException(this.statusCode, this.message);
+
+  @override
+  String toString() => message;
+}
+
 class Api {
   Future<Map<String, dynamic>> get(String path) async {
     late http.Response response;
@@ -21,21 +31,25 @@ class Api {
 
     if (response.statusCode == 502) {
       apiState.value = ApiState.disconnected;
-      throw Exception('HTTP error: ${response.statusCode}');
+    } else if (response.statusCode == 401) {
+      apiState.value = ApiState.unauthorized;
+    } else if (response.statusCode != 200) {
+      apiState.value = ApiState.serverError;
     }
 
-    if (response.statusCode == 401) {
-      apiState.value = ApiState.unauthorized;
-      throw Exception('HTTP error: ${response.statusCode}');
+    final Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body);
+    } catch (e) {
+      throw ApiException(response.statusCode, '何かおかしいです。');
     }
 
     if (response.statusCode != 200) {
-      apiState.value = ApiState.serverError;
-      throw Exception('HTTP error: ${response.statusCode}');
+      throw ApiException(response.statusCode, body['error'] ?? '何かおかしいです。');
     }
 
     apiState.value = ApiState.connected;
-    return jsonDecode(response.body);
+    return body;
   }
 
   Future<Map<String, dynamic>> post(
@@ -57,21 +71,25 @@ class Api {
 
     if (response.statusCode == 502) {
       apiState.value = ApiState.disconnected;
-      throw Exception('HTTP error: ${response.statusCode}');
+    } else if (response.statusCode == 401) {
+      apiState.value = ApiState.unauthorized;
+    } else if (response.statusCode != 200) {
+      apiState.value = ApiState.serverError;
     }
 
-    if (response.statusCode == 401) {
-      apiState.value = ApiState.unauthorized;
-      throw Exception('HTTP error: ${response.statusCode}');
+    final Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body);
+    } catch (e) {
+      throw ApiException(response.statusCode, '何かおかしいです。');
     }
 
     if (response.statusCode != 200) {
-      apiState.value = ApiState.serverError;
-      throw Exception('HTTP error: ${response.statusCode}');
+      throw ApiException(response.statusCode, body['error'] ?? '何かおかしいです。');
     }
 
     apiState.value = ApiState.connected;
-    return jsonDecode(response.body);
+    return body;
   }
 
   Future<String> hello() async {
@@ -106,7 +124,6 @@ class Api {
 
     final player = Player(id: result['id'], day: result['day']);
     player.points = result['points'];
-    player.pointsToUpdate = result['points-to-update'];
 
     if (result['flavor'] != null) {
       final flavor = Flavor.fromJson(result['flavor']);

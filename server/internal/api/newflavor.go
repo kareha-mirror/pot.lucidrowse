@@ -1,7 +1,6 @@
 package api
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -15,18 +14,8 @@ type NewFlavorRequest struct {
 }
 
 func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session")
+	user, err := auth(w, r)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	keyHash := sha256.Sum256([]byte(cookie.Value))
-	user, err := data.LoadUser(keyHash[:])
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 

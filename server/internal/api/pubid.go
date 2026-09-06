@@ -2,7 +2,7 @@ package api
 
 import (
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base64"
 )
 
 func newPubID() (string, error) {
@@ -12,5 +12,5 @@ func newPubID() (string, error) {
 		return "", err
 	}
 
-	return hex.EncodeToString(b), nil
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }

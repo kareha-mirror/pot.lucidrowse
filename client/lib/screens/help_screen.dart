@@ -37,7 +37,7 @@ List<Widget> _helpFront = [
         const Text('そして毎日一度だけ、その日に何をしたかを日記に書く。'),
         const Text('するとそれが夢の真実になる。'),
         const Text('書いたことがそのまま夢の現実になるとは限らないけれど、ある程度は自由に振る舞える。'),
-        const Text('次の日、目を覚ましたときに何が本当の夢になったか確認できるから、楽しみに待とうね。'),
+        const Text('次の日、目を覚ましたときに、みんなの夢が共有されるから、楽しみに待とうね。'),
       ],
     ),
   ),
@@ -113,20 +113,9 @@ List<Widget> _helpDebug = [
   TranslucentPanel(
     child: Column(
       children: [
-        const Text('ここで「明日まで寝る」と夢の世界の暦が1日進むんだ。'),
-        const Text('そうすると前の日に書いた日記が確定されることになる。'),
-        const Text('ここは意外と寝心地が良いから、いくらでも寝れるよ。'),
-      ],
-    ),
-  ),
-
-  const SizedBox(height: 48),
-
-  TranslucentPanel(
-    child: Column(
-      children: [
         const Text('「自分を手放す」で夢の世界の分身を解放すれば、分身を作り直せる。'),
         const Text('それでも解放された分身は夢の世界の住人として残るんだ。'),
+        const Text('解放された分身には他の人が入り込んで、また夢を見ることもあるよ。'),
       ],
     ),
   ),

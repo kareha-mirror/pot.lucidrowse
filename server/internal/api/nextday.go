@@ -124,6 +124,12 @@ func NextDay(cfg *config.Config) error {
 }
 
 func (api *API) handleNextDay(w http.ResponseWriter, r *http.Request) {
+	if api.cfg.App.Mode != "devel" {
+		log.Println("next day not allowed")
+		http.Error(w, "next day not allowed", http.StatusBadRequest)
+		return
+	}
+
 	if !nextDayApiMu.TryLock() {
 		res := NextDayResponse{
 			Error: "excluded",

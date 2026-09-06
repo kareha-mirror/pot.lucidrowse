@@ -1,7 +1,6 @@
 package api
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -29,18 +28,8 @@ func (api *API) handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 
 	playerPubID := r.PathValue("id")
 
-	cookie, err := r.Cookie("session")
+	user, err := auth(w, r)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	keyHash := sha256.Sum256([]byte(cookie.Value))
-	user, err := data.LoadUser(keyHash[:])
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -52,13 +41,6 @@ func (api *API) handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 			"failed to release player",
 			http.StatusInternalServerError,
 		)
-		return
-	}
-
-	player, err := data.LoadPlayer(user.ID)
-	if err == nil && player.Activated {
-		log.Println("player found")
-		http.Error(w, "player found", http.StatusBadRequest)
 		return
 	}
 

@@ -11,7 +11,7 @@ import 'package:client/state/api_state.dart';
 import 'package:client/state/app_state.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
-IconData? apiStatusIconData() {
+IconData? apiStateIconData() {
   switch (apiState.value) {
     case ApiState.disconnected:
       return Icons.cloud_off;
@@ -76,7 +76,7 @@ class App extends StatelessWidget {
                   top: 16,
                   right: 16,
                   child: TranslucentPanel(
-                    child: Icon(apiStatusIconData(), size: 24),
+                    child: Icon(apiStateIconData(), size: 24),
                   ),
                 );
               },

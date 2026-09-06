@@ -13,7 +13,6 @@ type API struct {
 
 func Run(cfg *config.Config) error {
 	mux := http.NewServeMux()
-
 	api := &API{cfg: cfg}
 
 	mux.HandleFunc("GET /api/hello", api.handleHello)

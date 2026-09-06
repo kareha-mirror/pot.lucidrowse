@@ -64,7 +64,10 @@ class _DebugScreenState extends State<DebugScreen> {
 
   void _hello() async {
     try {
-      setState(() => _message = null);
+      setState(() {
+        _message = null;
+        _helloErrorMessage = null;
+      });
 
       final message = await api.hello();
 
