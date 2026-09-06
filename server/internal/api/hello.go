@@ -17,7 +17,7 @@ var messages = []string{
 
 var messageIndex = 0
 
-func (api *API) handleHello(w http.ResponseWriter, r *http.Request) {
+func (api *API) hello(w http.ResponseWriter, r *http.Request) {
 	res := HelloResponse{
 		Message: messages[messageIndex%len(messages)],
 	}

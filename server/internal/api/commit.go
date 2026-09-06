@@ -8,7 +8,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
+func (api *API) commitFlavor(w http.ResponseWriter, r *http.Request) {
 	_, player, err := authPlayer(w, r)
 	if err != nil {
 		return
@@ -19,7 +19,7 @@ func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusNotFound,
-			"あなたはまだ分身を作ってません。",
+			"あなたはまだ何者なのか決まってません。",
 		)
 		return
 	}
@@ -29,7 +29,7 @@ func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusInternalServerError,
-			"あなたはうまく活動できません。",
+			"あなたはうまく活動を始められませんでした。",
 		)
 		return
 	}
@@ -38,7 +38,7 @@ func (api *API) handleCommitFlavor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(struct{}{})
 }
 
-func (api *API) handleCommitAction(w http.ResponseWriter, r *http.Request) {
+func (api *API) commitAction(w http.ResponseWriter, r *http.Request) {
 	_, player, err := authPlayer(w, r)
 	if err != nil {
 		return
@@ -59,7 +59,7 @@ func (api *API) handleCommitAction(w http.ResponseWriter, r *http.Request) {
 		writeError(
 			w,
 			http.StatusInternalServerError,
-			"あなたはうまく活動できません。",
+			"あなたはうまく活動を始められませんでした。",
 		)
 		return
 	}

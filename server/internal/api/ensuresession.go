@@ -11,7 +11,9 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-func newSession(cfg *config.Config, w http.ResponseWriter) ([]byte, error) {
+func newSessionKeyHash(
+	cfg *config.Config, w http.ResponseWriter,
+) ([]byte, error) {
 	sessionKey, err := randKey()
 	if err != nil {
 		return []byte{}, err
@@ -31,48 +33,56 @@ func newSession(cfg *config.Config, w http.ResponseWriter) ([]byte, error) {
 	return keyHash[:], nil
 }
 
-func (api *API) handleEnsureSession(w http.ResponseWriter, r *http.Request) {
+func newSession(cfg *config.Config, w http.ResponseWriter) {
+	keyHash, err := newSessionKeyHash(cfg, w)
+	if err != nil {
+		log.Println(err)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"セッションキーを作れません。",
+		)
+		return
+	}
+
+	userID, err := data.CreateUser()
+	if err != nil {
+		log.Println(err)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"ユーザを作れません。",
+		)
+		return
+	}
+	if err = data.AddSession(userID, keyHash); err != nil {
+		log.Println(err)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"セッションを作れません。",
+		)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(struct{}{})
+}
+
+func (api *API) ensureSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
-			keyHash, err := newSession(api.cfg, w)
-			if err != nil {
-				log.Println(err)
-				http.Error(
-					w,
-					"failed to generate session key",
-					http.StatusInternalServerError,
-				)
-				return
-			}
-
-			userID, err := data.CreateUser()
-			if err != nil {
-				log.Println(err)
-				http.Error(
-					w,
-					"failed to create user",
-					http.StatusInternalServerError,
-				)
-				return
-			}
-			if err = data.AddSession(userID, keyHash); err != nil {
-				log.Println(err)
-				http.Error(
-					w,
-					"failed to create session",
-					http.StatusInternalServerError,
-				)
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(struct{}{})
+			newSession(api.cfg, w)
 			return
 		}
 
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"変な要求です。",
+		)
 		return
 	}
 
@@ -80,39 +90,7 @@ func (api *API) handleEnsureSession(w http.ResponseWriter, r *http.Request) {
 	keyHash := sha256.Sum256([]byte(sessionKey))
 	_, err = data.LoadUser(keyHash[:])
 	if err != nil {
-		keyHash, err := newSession(api.cfg, w)
-		if err != nil {
-			log.Println(err)
-			http.Error(
-				w,
-				"failed to generate session key",
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		userID, err := data.CreateUser()
-		if err != nil {
-			log.Println(err)
-			http.Error(
-				w,
-				"failed to create user",
-				http.StatusInternalServerError,
-			)
-			return
-		}
-		if err = data.AddSession(userID, keyHash); err != nil {
-			log.Println(err)
-			http.Error(
-				w,
-				"failed to create session",
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(struct{}{})
+		newSession(api.cfg, w)
 		return
 	}
 

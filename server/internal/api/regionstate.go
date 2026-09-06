@@ -13,13 +13,17 @@ type RegionStateResponse struct {
 	State string `json:"state"`
 }
 
-func (api *API) handleRegionState(w http.ResponseWriter, r *http.Request) {
+func (api *API) regionState(w http.ResponseWriter, r *http.Request) {
 	regionCode := r.PathValue("code")
 
 	areas, err := data.AreaList()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to list areas", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"地域を眺められません。",
+		)
 		return
 	}
 
@@ -34,7 +38,11 @@ func (api *API) handleRegionState(w http.ResponseWriter, r *http.Request) {
 		state, err := data.AreaState(area.RegionCode + "-" + area.AreaCode)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "area state not found", http.StatusNotFound)
+			writeError(
+				w,
+				http.StatusNotFound,
+				"地域の状態が分かりません。",
+			)
 			return
 		}
 		b.WriteString(state)

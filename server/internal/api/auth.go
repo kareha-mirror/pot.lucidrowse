@@ -15,7 +15,7 @@ func auth(w http.ResponseWriter, r *http.Request) (data.User, error) {
 		writeError(
 			w,
 			http.StatusUnauthorized,
-			"あなたが誰なのか分かりません。",
+			"初めてお会いしますね。",
 		)
 		return data.User{}, err
 	}
@@ -27,7 +27,7 @@ func auth(w http.ResponseWriter, r *http.Request) (data.User, error) {
 		writeError(
 			w,
 			http.StatusUnauthorized,
-			"あなたが誰なのか覚えてません。",
+			"あなたのことはよく覚えてません。",
 		)
 		return data.User{}, err
 	}
@@ -49,7 +49,7 @@ func authPlayer(
 		writeError(
 			w,
 			http.StatusNotFound,
-			"あなたはまだこの世界に住んでません。",
+			"まだこの世界の住人ではありませんね。",
 		)
 		return data.User{}, data.Player{}, err
 	}

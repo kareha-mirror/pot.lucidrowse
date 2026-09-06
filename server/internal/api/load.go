@@ -2,11 +2,41 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/ai"
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
+
+type LoadStateResponse struct {
+	Mode           string `json:"mode"`
+	MaxAICalls     int    `json:"max-ai-calls"`
+	PointsToUpdate int64  `json:"points-to-update"`
+	Day            int64  `json:"day"`
+}
+
+func (api *API) loadState(w http.ResponseWriter, r *http.Request) {
+	day, err := data.Day()
+	if err != nil {
+		log.Println(err)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"今日が何日なのか分かりません。",
+		)
+		return
+	}
+
+	res := LoadStateResponse{
+		Mode:           api.cfg.App.Mode,
+		MaxAICalls:     api.cfg.Game.MaxAICalls,
+		PointsToUpdate: api.cfg.Game.PointsToUpdate,
+		Day:            day,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
 
 type LoadUserResponse struct {
 	Authorized bool    `json:"authorized"`
@@ -14,7 +44,7 @@ type LoadUserResponse struct {
 	AICalls    int     `json:"ai-calls"`
 }
 
-func (api *API) handleLoadUser(w http.ResponseWriter, r *http.Request) {
+func (api *API) loadUser(w http.ResponseWriter, r *http.Request) {
 	user, err := auth(w, r)
 	if err != nil {
 		return
@@ -40,7 +70,7 @@ type LoadPlayerResponse struct {
 	Points           int64      `json:"points"`
 }
 
-func (api *API) handleLoadPlayer(w http.ResponseWriter, r *http.Request) {
+func (api *API) loadPlayer(w http.ResponseWriter, r *http.Request) {
 	_, player, err := authPlayer(w, r)
 	if err != nil {
 		return

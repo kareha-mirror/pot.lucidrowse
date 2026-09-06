@@ -12,13 +12,17 @@ type ListPlayersResponse struct {
 	Players []data.PlayerItem `json:"players"`
 }
 
-func (api *API) handleListPlayers(w http.ResponseWriter, r *http.Request) {
+func (api *API) listPlayers(w http.ResponseWriter, r *http.Request) {
 	regionCode := r.PathValue("code")
 
 	players, err := data.PlayerList(regionCode)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to list players", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"住人たちを眺められません。",
+		)
 		return
 	}
 
@@ -33,13 +37,17 @@ type ListActionsResponse struct {
 	Actions []data.ActionItem `json:"actions"`
 }
 
-func (api *API) handleListActions(w http.ResponseWriter, r *http.Request) {
+func (api *API) listActions(w http.ResponseWriter, r *http.Request) {
 	playerPubID := r.PathValue("id")
 
 	actions, err := data.ActionList(playerPubID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to list actions", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"日記を眺められません。",
+		)
 		return
 	}
 

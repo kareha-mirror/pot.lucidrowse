@@ -13,22 +13,26 @@ type UpdateFlavorRequest struct {
 	Input string `json:"input"`
 }
 
-func (api *API) handleUpdateFlavor(w http.ResponseWriter, r *http.Request) {
+func (api *API) updateFlavor(w http.ResponseWriter, r *http.Request) {
 	user, player, err := authPlayer(w, r)
 	if err != nil {
 		return
 	}
 
 	if user.AICalls >= api.cfg.Game.MaxAICalls {
-		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		writeError(
+			w,
+			http.StatusTooManyRequests,
+			"夢の果実がありません。",
+		)
 		return
 	}
 	if err = data.IncrementAICalls(user.ID); err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to increment AI calls",
 			http.StatusInternalServerError,
+			"夢の果実をかじれません。",
 		)
 		return
 	}
@@ -36,21 +40,29 @@ func (api *API) handleUpdateFlavor(w http.ResponseWriter, r *http.Request) {
 	var req UpdateFlavorRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"変な要求です。",
+		)
 		return
 	}
 
 	if player.Points < api.cfg.Game.PointsToUpdate {
 		log.Println("not enough points")
-		http.Error(w, "bad request", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"書いた回数が足りません。",
+		)
 		return
 	}
 	if err = data.ResetPlayerPoints(player.ID); err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to reset player points",
 			http.StatusInternalServerError,
+			"書いた回数を戻せません。",
 		)
 		return
 	}
@@ -58,7 +70,11 @@ func (api *API) handleUpdateFlavor(w http.ResponseWriter, r *http.Request) {
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "current flavor not found", http.StatusNotFound)
+		writeError(
+			w,
+			http.StatusNotFound,
+			"あなたはまだ何者なのか決まってません。",
+		)
 		return
 	}
 
@@ -74,7 +90,11 @@ func (api *API) handleUpdateFlavor(w http.ResponseWriter, r *http.Request) {
 	updatedFlavor, err := ai.UpdateFlavor(api.cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to update flavor", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"あなたが何者なのかを改めることができません。",
+		)
 		return
 	}
 
@@ -90,7 +110,11 @@ func (api *API) handleUpdateFlavor(w http.ResponseWriter, r *http.Request) {
 
 	if err = data.AddFlavor(player.ID, updatedF); err != nil {
 		log.Println(err)
-		http.Error(w, "failed to add flavor", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"あなたが何者なのか覚えられません。",
+		)
 		return
 	}
 

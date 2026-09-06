@@ -13,22 +13,26 @@ type NewActionRequest struct {
 	Input string `json:"input"`
 }
 
-func (api *API) handleNewAction(w http.ResponseWriter, r *http.Request) {
+func (api *API) newAction(w http.ResponseWriter, r *http.Request) {
 	user, player, err := authPlayer(w, r)
 	if err != nil {
 		return
 	}
 
 	if user.AICalls >= api.cfg.Game.MaxAICalls {
-		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		writeError(
+			w,
+			http.StatusTooManyRequests,
+			"夢の果実がありません。",
+		)
 		return
 	}
 	if err = data.IncrementAICalls(user.ID); err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to increment AI calls",
 			http.StatusInternalServerError,
+			"夢の果実をかじれません。",
 		)
 		return
 	}
@@ -36,14 +40,22 @@ func (api *API) handleNewAction(w http.ResponseWriter, r *http.Request) {
 	var req NewActionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"変な要求です。",
+		)
 		return
 	}
 
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "current flavor not found", http.StatusNotFound)
+		writeError(
+			w,
+			http.StatusNotFound,
+			"あなたはまだ何者なのか決まってません。",
+		)
 		return
 	}
 
@@ -59,7 +71,11 @@ func (api *API) handleNewAction(w http.ResponseWriter, r *http.Request) {
 	action, err := ai.NewAction(api.cfg, flavor, req.Input)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to create action", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"何を書くか決められません。",
+		)
 		return
 	}
 
@@ -71,20 +87,20 @@ func (api *API) handleNewAction(w http.ResponseWriter, r *http.Request) {
 
 		if err = data.AddAction(player.ID, a); err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to add action",
 				http.StatusInternalServerError,
+				"日記に書けません。",
 			)
 			return
 		}
 
 		if err = data.IncrementPlayerPoints(player.ID); err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to increment player points",
 				http.StatusInternalServerError,
+				"書いた数を数えられません。",
 			)
 			return
 		}

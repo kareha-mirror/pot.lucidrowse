@@ -97,22 +97,18 @@ class Api {
     return result['message'];
   }
 
-  Future<Map<String, dynamic>> loadState() async {
-    return get('state');
-  }
-
   Future<String> nextDay() async {
     final result = await post('next-day', {});
-    return result['error'];
+    return result['error'] ?? '';
+  }
+
+  Future<Map<String, dynamic>> loadState() async {
+    return get('state');
   }
 
   Future<User> loadUser() async {
     final result = await get('users');
     return User.fromJson(result);
-  }
-
-  Future<void> ensureSession() async {
-    await post('users/ensure-session', {});
   }
 
   Future<Player?> loadPlayer() async {
@@ -141,6 +137,10 @@ class Api {
     return player;
   }
 
+  Future<void> ensureSession() async {
+    await post('users/ensure-session', {});
+  }
+
   Future<Flavor> newFlavor(String input) async {
     final result = await post('players/flavor', {'input': input});
     return Flavor.fromJson(result);
@@ -151,13 +151,13 @@ class Api {
     return result['image-id'];
   }
 
+  Future<void> commitFlavor() async {
+    await post('players/flavor/commit', {});
+  }
+
   Future<Flavor> updateFlavor(String input) async {
     final result = await post('players/flavor/update', {'input': input});
     return Flavor.fromJson(result);
-  }
-
-  Future<void> commitFlavor() async {
-    await post('players/flavor/commit', {});
   }
 
   Future<PlayerAction> newAction(String input) async {

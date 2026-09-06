@@ -11,17 +11,13 @@ import (
 
 var overridePlayerMu sync.Mutex
 
-type OverridePlayerResponse struct {
-	Error string `json:"error"`
-}
-
-func (api *API) handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
+func (api *API) overridePlayer(w http.ResponseWriter, r *http.Request) {
 	if !overridePlayerMu.TryLock() {
-		res := OverridePlayerResponse{
-			Error: "excluded",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"別の誰かの順番です。",
+		)
 		return
 	}
 	defer overridePlayerMu.Unlock()
@@ -36,23 +32,25 @@ func (api *API) handleOverridePlayer(w http.ResponseWriter, r *http.Request) {
 	err = data.ReleasePlayer(user.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to release player",
 			http.StatusInternalServerError,
+			"自分を手放せません。",
 		)
 		return
 	}
 
 	err = data.OverridePlayer(user.ID, playerPubID)
 	if err != nil {
-		log.Println("override")
 		log.Println(err)
-		http.Error(w, "failed to override player", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"入り込めません。",
+		)
 		return
 	}
 
-	var res OverridePlayerResponse
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(struct{}{})
 }

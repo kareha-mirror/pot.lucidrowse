@@ -7,7 +7,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-func (api *API) handleImage(w http.ResponseWriter, r *http.Request) {
+func (api *API) image(w http.ResponseWriter, r *http.Request) {
 	imagePubID := r.PathValue("id")
 
 	image, err := data.LoadImage(r.Context(), imagePubID)

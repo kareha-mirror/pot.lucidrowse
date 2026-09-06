@@ -8,9 +8,7 @@ import (
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
 )
 
-type ReleasePlayerResponse struct{}
-
-func (api *API) handleReleasePlayer(w http.ResponseWriter, r *http.Request) {
+func (api *API) releasePlayer(w http.ResponseWriter, r *http.Request) {
 	user, err := auth(w, r)
 	if err != nil {
 		return
@@ -19,15 +17,14 @@ func (api *API) handleReleasePlayer(w http.ResponseWriter, r *http.Request) {
 	err = data.ReleasePlayer(user.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to release player",
 			http.StatusInternalServerError,
+			"自分を手放せません。",
 		)
 		return
 	}
 
-	res := ReleasePlayerResponse{}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(struct{}{})
 }

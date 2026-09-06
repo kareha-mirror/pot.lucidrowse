@@ -14,22 +14,26 @@ type ImageActionResponse struct {
 	ImageID string `json:"image-id"`
 }
 
-func (api *API) handleImageAction(w http.ResponseWriter, r *http.Request) {
+func (api *API) imageAction(w http.ResponseWriter, r *http.Request) {
 	user, player, err := authPlayer(w, r)
 	if err != nil {
 		return
 	}
 
 	if user.AICalls >= api.cfg.Game.MaxAICalls {
-		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"夢の果実がありません。",
+		)
 		return
 	}
 	if err = data.IncrementAICalls(user.ID); err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to increment AI calls",
 			http.StatusInternalServerError,
+			"夢の果実をかじれません。",
 		)
 		return
 	}
@@ -37,26 +41,42 @@ func (api *API) handleImageAction(w http.ResponseWriter, r *http.Request) {
 	a, err := data.LoadLastAction(player.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "last action not found", http.StatusNotFound)
+		writeError(
+			w,
+			http.StatusNotFound,
+			"あなたはまだ何をしたか書いてません。",
+		)
 		return
 	}
 
 	f, err := data.LoadCurrentFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "current flavor not found", http.StatusNotFound)
+		writeError(
+			w,
+			http.StatusNotFound,
+			"あなたはまだ何者なのか決まってません。",
+		)
 		return
 	}
 
 	if f.ImagePubID == nil {
 		log.Println("image not found")
-		http.Error(w, "image not found", http.StatusNotFound)
+		writeError(
+			w,
+			http.StatusNotFound,
+			"あなたは姿がありません。",
+		)
 		return
 	}
 	image, err := data.LoadImage(context.Background(), *f.ImagePubID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to load image", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"あなたは姿が見えません。",
+		)
 		return
 	}
 
@@ -64,31 +84,43 @@ func (api *API) handleImageAction(w http.ResponseWriter, r *http.Request) {
 	newImage, err := ai.NewActionImage(api.cfg, image, action)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to create image", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"情景を描けません。",
+		)
 		return
 	}
 
 	imagePubID, err := randKey()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"約束を決められません。",
+		)
 		return
 	}
 
 	err = data.SaveImage(context.Background(), imagePubID, newImage)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to save image", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"情景を覚えられません。",
+		)
 		return
 	}
 
 	err = data.AddImageToLastAction(player.ID, imagePubID)
 	if err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to add image to last action",
 			http.StatusInternalServerError,
+			"情景を日記に描けません。",
 		)
 		return
 	}

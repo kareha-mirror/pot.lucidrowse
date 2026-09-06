@@ -14,22 +14,26 @@ type ImageFlavorResponse struct {
 	ImageID string `json:"image-id"`
 }
 
-func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
+func (api *API) imageFlavor(w http.ResponseWriter, r *http.Request) {
 	user, player, err := authPlayer(w, r)
 	if err != nil {
 		return
 	}
 
 	if user.AICalls >= api.cfg.Game.MaxAICalls {
-		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"夢の果実がありません。",
+		)
 		return
 	}
 	if err = data.IncrementAICalls(user.ID); err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to increment AI calls",
 			http.StatusInternalServerError,
+			"夢の果実をかじれません。",
 		)
 		return
 	}
@@ -37,7 +41,11 @@ func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
 	f, err := data.LoadLastFlavor(player.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "last flavor not found", http.StatusNotFound)
+		writeError(
+			w,
+			http.StatusNotFound,
+			"あなたはまだ何者なのか決まってません。",
+		)
 		return
 	}
 
@@ -55,10 +63,10 @@ func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
 		newImage, err = ai.NewFlavorImage(api.cfg, flavor)
 		if err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to create image",
 				http.StatusInternalServerError,
+				"あなたの姿を描けません。",
 			)
 			return
 		}
@@ -66,20 +74,20 @@ func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
 		image, err := data.LoadImage(context.Background(), *f.ImagePubID)
 		if err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to load image",
 				http.StatusInternalServerError,
+				"あなたの姿を思い出せません。",
 			)
 			return
 		}
 		newImage, err = ai.UpdateFlavorImage(api.cfg, image, flavor)
 		if err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to update image",
 				http.StatusInternalServerError,
+				"あなたの姿を改められません。",
 			)
 			return
 		}
@@ -88,24 +96,32 @@ func (api *API) handleImageFlavor(w http.ResponseWriter, r *http.Request) {
 	imagePubID, err := randKey()
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to generate ID", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"約束を決められません。",
+		)
 		return
 	}
 
 	err = data.SaveImage(context.Background(), imagePubID, newImage)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to save image", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"あなたの姿を覚えられません。",
+		)
 		return
 	}
 
 	err = data.AddImageToLastFlavor(player.ID, imagePubID)
 	if err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to add image to last flavor",
 			http.StatusInternalServerError,
+			"あなたの姿を決められません。",
 		)
 		return
 	}

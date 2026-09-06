@@ -15,10 +15,6 @@ import (
 var nextDayMu sync.Mutex
 var nextDayApiMu sync.Mutex
 
-type NextDayResponse struct {
-	Error string `json:"error"`
-}
-
 func NextDay(cfg *config.Config) error {
 	if !nextDayMu.TryLock() {
 		return fmt.Errorf("failed to lock")
@@ -123,32 +119,37 @@ func NextDay(cfg *config.Config) error {
 	return nil
 }
 
-func (api *API) handleNextDay(w http.ResponseWriter, r *http.Request) {
+func (api *API) nextDay(w http.ResponseWriter, r *http.Request) {
 	if api.cfg.App.Mode != "devel" {
 		log.Println("next day not allowed")
-		http.Error(w, "next day not allowed", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"次の日まで眠れません。",
+		)
 		return
 	}
 
 	if !nextDayApiMu.TryLock() {
-		res := NextDayResponse{
-			Error: "excluded",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"誰かが眠ってます。",
+		)
 		return
 	}
 	defer nextDayApiMu.Unlock()
 
 	if err := NextDay(api.cfg); err != nil {
 		log.Println(err)
-		http.Error(w, "failed to go next day", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"次の日になりませんでした。",
+		)
 		return
 	}
 
-	res := NextDayResponse{
-		Error: "",
-	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(struct{}{})
 }

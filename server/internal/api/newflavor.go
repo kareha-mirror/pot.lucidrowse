@@ -13,22 +13,26 @@ type NewFlavorRequest struct {
 	Input string `json:"input"`
 }
 
-func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
+func (api *API) newFlavor(w http.ResponseWriter, r *http.Request) {
 	user, err := auth(w, r)
 	if err != nil {
 		return
 	}
 
 	if user.AICalls >= api.cfg.Game.MaxAICalls {
-		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		writeError(
+			w,
+			http.StatusTooManyRequests,
+			"夢の果実がありません。",
+		)
 		return
 	}
 	if err = data.IncrementAICalls(user.ID); err != nil {
 		log.Println(err)
-		http.Error(
+		writeError(
 			w,
-			"failed to increment AI calls",
 			http.StatusInternalServerError,
+			"夢の果実をかじれません。",
 		)
 		return
 	}
@@ -36,7 +40,11 @@ func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 	var req NewFlavorRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Println(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"変な要求です。",
+		)
 		return
 	}
 
@@ -45,20 +53,20 @@ func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 		playerPubID, err := randKey()
 		if err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to generate ID",
 				http.StatusInternalServerError,
+				"約束を決められません。",
 			)
 			return
 		}
 
 		if err = data.CreatePlayer(user.ID, playerPubID); err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to create player",
 				http.StatusInternalServerError,
+				"あなたの分身を作れません。",
 			)
 			return
 		}
@@ -66,10 +74,10 @@ func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 		player, err = data.LoadPlayer(user.ID)
 		if err != nil {
 			log.Println(err)
-			http.Error(
+			writeError(
 				w,
-				"failed to identify player ID",
 				http.StatusInternalServerError,
+				"あなたは分身がいません。",
 			)
 			return
 		}
@@ -78,7 +86,11 @@ func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 	flavor, err := ai.NewFlavor(api.cfg, req.Input)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "failed to create flavor", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"あなたが何者なのか決められません。",
+		)
 		return
 	}
 
@@ -94,7 +106,11 @@ func (api *API) handleNewFlavor(w http.ResponseWriter, r *http.Request) {
 
 	if err = data.AddFlavor(player.ID, f); err != nil {
 		log.Println(err)
-		http.Error(w, "failed to add flavor", http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			"あなたが何者なのか覚えられません。",
+		)
 		return
 	}
 
