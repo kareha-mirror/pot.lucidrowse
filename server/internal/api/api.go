@@ -42,6 +42,7 @@ func Run(cfg *config.Config) error {
 	mux.HandleFunc("GET /api/images/{id}", api.image)
 
 	// List / Information
+	mux.HandleFunc("GET /api/regions", api.regions)
 	mux.HandleFunc("GET /api/regions/{code}/players", api.listPlayers)
 	mux.HandleFunc("GET /api/players/{id}/actions", api.listActions)
 	mux.HandleFunc("GET /api/regions/{code}/state", api.regionState)

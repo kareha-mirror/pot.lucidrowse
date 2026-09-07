@@ -21,6 +21,9 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   Timer? _syncTimer;
 
+  Map<String, dynamic> _playerCounts = {};
+  Map<String, dynamic> _topics = {};
+
   bool _initialized = false;
   int regionIndex = -1;
   List<dynamic> _players = [];
@@ -51,6 +54,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.didChangeDependencies();
 
     _sync();
+
+    _loadRegions();
   }
 
   Future<void> _sync() async {
@@ -59,6 +64,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
       setState(() {});
     }
+  }
+
+  Future<void> _loadRegions() async {
+    final result = await api.regions();
+
+    if (!mounted) return;
+
+    setState(() {
+      _playerCounts = result['player-counts'];
+      _topics = result['topics'];
+    });
   }
 
   Future<void> _loadState() async {
@@ -224,6 +240,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             constraints: const BoxConstraints(maxWidth: 600),
                             child: RegionCard(
                               region: regions[index],
+                              playerCount: _playerCounts[regions[index].code],
+                              topic: _topics[regions[index].code],
                               onTap: () {
                                 setState(() => regionIndex = index);
                                 _loadState();

@@ -117,3 +117,77 @@ func ActionList(playerPubID string) ([]ActionItem, error) {
 
 	return list, nil
 }
+
+func PlayerCounts() (map[string]int, error) {
+	rows, err := db.Query(context.Background(), `
+		SELECT
+		  split_part(f.area_code, '-', 1) AS region_code,
+		  COUNT(*) AS player_count
+		FROM players AS p
+		JOIN LATERAL (
+		  SELECT area_code
+		  FROM flavors
+		  WHERE player_id = p.id
+		    AND committed = TRUE
+		  ORDER BY id DESC
+		  LIMIT 1
+		) AS f ON TRUE
+		WHERE p.activated = TRUE
+		GROUP BY region_code
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	counts := make(map[string]int)
+
+	for rows.Next() {
+		var regionCode string
+		var count int
+
+		if err := rows.Scan(&regionCode, &count); err != nil {
+			return nil, err
+		}
+
+		counts[regionCode] = count
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return counts, nil
+}
+
+func RegionStates() (map[string]string, error) {
+	rows, err := db.Query(context.Background(), `
+		SELECT DISTINCT ON (region_code)
+		  region_code, state
+		FROM region_states
+		ORDER BY region_code, day DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	states := make(map[string]string)
+
+	for rows.Next() {
+		var regionCode string
+		var state string
+
+		if err := rows.Scan(&regionCode, &state); err != nil {
+			return nil, err
+		}
+
+		states[regionCode] = state
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return states, nil
+}

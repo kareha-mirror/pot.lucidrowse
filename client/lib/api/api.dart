@@ -198,6 +198,10 @@ class Api {
   // List / Information
   //
 
+  Future<Map<String, dynamic>> regions() async {
+    return get('regions');
+  }
+
   Future<Map<String, dynamic>> listPlayers(String regionCode) async {
     return get('regions/$regionCode/players');
   }
