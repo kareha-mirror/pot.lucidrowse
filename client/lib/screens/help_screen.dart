@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:client/widgets/translucent_panel.dart';
 
-enum HelpPage { front, home, debug }
+enum HelpPage { front, home, key, debug }
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key, required this.page});
@@ -109,6 +109,18 @@ List<Widget> _helpHome = [
   ),
 ];
 
+List<Widget> _helpKey = [
+  TranslucentPanel(
+    child: Column(
+      children: [
+        const Text('「秘密の鍵」を作っておけば、別の入口からでも同じ夢に入れるよ。'),
+        const Text('秘密の鍵が無ければ、別の入口から入ると別な夢になってしまうし、1年経つと入れなくなってしまうんだ。'),
+        const Text('今見ている夢とずっと一緒にいたいなら、秘密の鍵は作っておくと良いね。'),
+      ],
+    ),
+  ),
+];
+
 List<Widget> _helpDebug = [
   TranslucentPanel(
     child: Column(
@@ -139,6 +151,8 @@ class _HelpScreenState extends State<HelpScreen> {
         return _helpFront;
       case HelpPage.home:
         return _helpHome;
+      case HelpPage.key:
+        return _helpKey;
       case HelpPage.debug:
         return _helpDebug;
     }

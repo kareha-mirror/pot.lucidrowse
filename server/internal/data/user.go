@@ -37,7 +37,7 @@ func LoadUser(keyHash []byte) (User, error) {
 		SELECT s.user_id, u.name, u.ai_calls
 		FROM sessions AS s
 		JOIN users AS u ON u.id = s.user_id
-		WHERE s.key_hash = $1
+		WHERE s.key_hash = $1 AND s.revoked_at IS NULL
 	`, keyHash).Scan(&user.ID, &user.Name, &user.AICalls)
 	if err != nil {
 		return User{}, err
@@ -51,5 +51,46 @@ func IncrementAICalls(userID int) error {
 		SET ai_calls = ai_calls + 1
 		WHERE id = $1
 	`, userID)
+	return err
+}
+
+func CreateKey(userID int, username string, passwordHash string) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE users
+		SET name = $2, pass_hash = $3
+		WHERE id = $1 AND name IS NULL
+	`, userID, username, passwordHash)
+	return err
+}
+
+func LoadUserByName(username string) (User, string, error) {
+	var user User
+	var passwordHash string
+	err := db.QueryRow(context.Background(), `
+		SELECT id, name, pass_hash, ai_calls
+		FROM users
+		WHERE name = $1
+	`, username).Scan(&user.ID, &user.Name, &passwordHash, &user.AICalls)
+	if err != nil {
+		return User{}, "", err
+	}
+	return user, passwordHash, nil
+}
+
+func ChangePassword(userID int, passwordHash string) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE users
+		SET pass_hash = $2
+		WHERE id = $1
+	`, userID, passwordHash)
+	return err
+}
+
+func RevokeSession(keyHash []byte) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE sessions
+		SET revoked_at = now()
+		WHERE key_hash = $1
+	`, keyHash)
 	return err
 }

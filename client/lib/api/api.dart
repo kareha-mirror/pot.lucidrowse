@@ -194,6 +194,25 @@ class Api {
   Future<void> overridePlayer(String playerId) async {
     await post('players/$playerId/override', {});
   }
+
+  Future<void> login(String username, String password) async {
+    await post('key/login', {'username': username, 'password': password});
+  }
+
+  Future<void> createKey(String username, String password) async {
+    await post('key/create', {'username': username, 'password': password});
+  }
+
+  Future<void> changePassword(String password, String newPassword) async {
+    await post('key/change', {
+      'password': password,
+      'new-password': newPassword,
+    });
+  }
+
+  Future<void> logout() async {
+    await post('key/logout', {});
+  }
 }
 
 final api = Api();

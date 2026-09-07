@@ -101,6 +101,13 @@ class _FrontScreenState extends State<FrontScreen> {
 
                   const SizedBox(height: 32),
 
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/key'),
+                    child: const Text('秘密の鍵'),
+                  ),
+
+                  const SizedBox(height: 32),
+
                   helpButton(context, HelpPage.front),
                 ],
               ),

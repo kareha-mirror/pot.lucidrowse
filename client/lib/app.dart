@@ -6,6 +6,7 @@ import 'package:client/screens/debug_screen.dart';
 import 'package:client/screens/explore_screen.dart';
 import 'package:client/screens/front_screen.dart';
 import 'package:client/screens/home_screen.dart';
+import 'package:client/screens/key_screen.dart';
 import 'package:client/screens/write_screen.dart';
 import 'package:client/state/api_state.dart';
 import 'package:client/state/app_state.dart';
@@ -51,6 +52,7 @@ class App extends StatelessWidget {
       routes: {
         '/': (context) => FrontScreen(state: state),
         '/home': (context) => HomeScreen(state: state),
+        '/key': (context) => KeyScreen(state: state),
 
         '/create': (context) => CreateScreen(state: state),
         '/write': (context) => WriteScreen(state: state),

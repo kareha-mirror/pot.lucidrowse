@@ -42,6 +42,11 @@ func Run(cfg *config.Config) error {
 	mux.HandleFunc("POST /api/players/release", api.releasePlayer)
 	mux.HandleFunc("POST /api/players/{id}/override", api.overridePlayer)
 
+	mux.HandleFunc("POST /api/key/login", api.login)
+	mux.HandleFunc("POST /api/key/create", api.createKey)
+	mux.HandleFunc("POST /api/key/change", api.changePassword)
+	mux.HandleFunc("POST /api/key/logout", api.logout)
+
 	log.Println("Lucidrowse server: " + cfg.App.Addr)
 	return http.ListenAndServe(cfg.App.Addr, mux)
 }
