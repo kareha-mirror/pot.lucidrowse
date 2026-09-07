@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:client/api/api.dart';
 import 'package:client/screens/help_screen.dart';
 import 'package:client/state/app_state.dart';
+import 'package:client/widgets/password_field.dart';
 import 'package:client/widgets/translucent_panel.dart';
 
 class KeyScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class KeyScreen extends StatefulWidget {
   State<KeyScreen> createState() => _KeyScreenState();
 }
 
-enum Menu { top, login, createKey, changePassword, logout }
+enum Menu { top, login, createKey, changePassword }
 
 class _KeyScreenState extends State<KeyScreen> {
   Menu _menu = Menu.top;
@@ -115,13 +116,10 @@ class _KeyScreenState extends State<KeyScreen> {
       return;
     }
     try {
-      await api.ensureSession();
       await api.changePassword(
         _passwordController.text,
         _newPasswordController.text,
       );
-      widget.state.clear();
-      await _sync();
 
       if (!mounted) return;
 
@@ -163,12 +161,10 @@ class _KeyScreenState extends State<KeyScreen> {
       Menu.login => _buildLogin(),
       Menu.createKey => _buildCreateKey(),
       Menu.changePassword => _buildChangePassword(),
-      Menu.logout => _buildLogout(),
     };
   }
 
   Widget _buildTop() {
-    //widget.state.user.name = 'Test Name'; // debug
     if (widget.state.user.name == null) {
       return Center(
         child: Column(
@@ -208,7 +204,9 @@ class _KeyScreenState extends State<KeyScreen> {
           children: [
             const SizedBox(height: 48),
 
-            TranslucentPanel(child: Text('鍵の名前: ${widget.state.user.name}')),
+            TranslucentPanel(
+              child: Text('鍵の名前: ${widget.state.user.name ?? ''}'),
+            ),
 
             const SizedBox(height: 48),
 
@@ -219,10 +217,7 @@ class _KeyScreenState extends State<KeyScreen> {
 
             const SizedBox(height: 48),
 
-            ElevatedButton(
-              onPressed: () => setState(() => _menu = Menu.logout),
-              child: const Text('夢から覚める'),
-            ),
+            ElevatedButton(onPressed: _doLogout, child: const Text('夢から覚める')),
 
             const SizedBox(height: 48),
 
@@ -256,7 +251,6 @@ class _KeyScreenState extends State<KeyScreen> {
             child: TextField(
               controller: _usernameController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -267,10 +261,9 @@ class _KeyScreenState extends State<KeyScreen> {
           const SizedBox(height: 12),
 
           TranslucentPanel(
-            child: TextField(
+            child: PasswordField(
               controller: _passwordController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -318,7 +311,6 @@ class _KeyScreenState extends State<KeyScreen> {
             child: TextField(
               controller: _usernameController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -329,10 +321,9 @@ class _KeyScreenState extends State<KeyScreen> {
           const SizedBox(height: 12),
 
           TranslucentPanel(
-            child: TextField(
+            child: PasswordField(
               controller: _newPasswordController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -343,10 +334,9 @@ class _KeyScreenState extends State<KeyScreen> {
           const SizedBox(height: 12),
 
           TranslucentPanel(
-            child: TextField(
+            child: PasswordField(
               controller: _confirmController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
           const SizedBox(height: 48),
@@ -395,10 +385,9 @@ class _KeyScreenState extends State<KeyScreen> {
           const SizedBox(height: 12),
 
           TranslucentPanel(
-            child: TextField(
+            child: PasswordField(
               controller: _passwordController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -409,10 +398,9 @@ class _KeyScreenState extends State<KeyScreen> {
           const SizedBox(height: 12),
 
           TranslucentPanel(
-            child: TextField(
+            child: PasswordField(
               controller: _newPasswordController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -423,10 +411,9 @@ class _KeyScreenState extends State<KeyScreen> {
           const SizedBox(height: 12),
 
           TranslucentPanel(
-            child: TextField(
+            child: PasswordField(
               controller: _confirmController,
               onChanged: (String value) => setState(() {}),
-              maxLength: 140,
             ),
           ),
 
@@ -443,35 +430,6 @@ class _KeyScreenState extends State<KeyScreen> {
               child: const Text('合い言葉を変える'),
             ),
           ),
-
-          const SizedBox(height: 48),
-
-          helpButton(context, HelpPage.key),
-
-          const SizedBox(height: 96),
-
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('鍵を置く'),
-          ),
-
-          const SizedBox(height: 96),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogout() {
-    return Center(
-      child: Column(
-        children: [
-          const SizedBox(height: 48),
-
-          TranslucentPanel(child: Text('鍵の名前: ${widget.state.user.name}')),
-
-          const SizedBox(height: 48),
-
-          ElevatedButton(onPressed: _doLogout, child: const Text('夢から覚める')),
 
           const SizedBox(height: 48),
 

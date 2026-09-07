@@ -77,12 +77,11 @@ func (api *API) login(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	//log.Printf("username=" + req.Username + ", password=" + req.Password)
 
 	username := norm.NFC.String(req.Username)
 	password := norm.NFC.String(req.Password)
 
-	user, hash, err := data.LoadUserByName(username)
+	user, err := data.LoadUserByName(username)
 	if err != nil {
 		writeError(
 			w,
@@ -92,7 +91,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !CheckPassword(hash, password) {
+	if !CheckPassword(*user.PassHash, password) {
 		writeError(
 			w,
 			http.StatusUnauthorized,
@@ -125,7 +124,6 @@ func (api *API) createKey(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	//log.Printf("username=" + req.Username + ", password=" + req.Password)
 
 	username := norm.NFC.String(req.Username)
 	password := norm.NFC.String(req.Password)
@@ -175,7 +173,6 @@ func (api *API) changePassword(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	//log.Printf("password=" + req.Password + ", new-password=" + req.NewPassword)
 
 	if user.Name == nil {
 		writeError(
@@ -190,7 +187,7 @@ func (api *API) changePassword(w http.ResponseWriter, r *http.Request) {
 	password := norm.NFC.String(req.Password)
 	newPassword := norm.NFC.String(req.NewPassword)
 
-	user, hash, err := data.LoadUserByName(username)
+	user, err = data.LoadUserByName(username)
 	if err != nil {
 		writeError(
 			w,
@@ -200,7 +197,7 @@ func (api *API) changePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !CheckPassword(hash, password) {
+	if !CheckPassword(*user.PassHash, password) {
 		writeError(
 			w,
 			http.StatusUnauthorized,

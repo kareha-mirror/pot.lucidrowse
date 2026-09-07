@@ -92,6 +92,10 @@ class Api {
     return body;
   }
 
+  //
+  // Experiment
+  //
+
   Future<String> hello() async {
     final result = await get('hello');
     return result['message'];
@@ -101,6 +105,10 @@ class Api {
     final result = await post('next-day', {});
     return result['error'] ?? '';
   }
+
+  //
+  // Load state
+  //
 
   Future<Map<String, dynamic>> loadState() async {
     return get('state');
@@ -137,9 +145,17 @@ class Api {
     return player;
   }
 
+  //
+  // Session
+  //
+
   Future<void> ensureSession() async {
     await post('users/ensure-session', {});
   }
+
+  //
+  // Flavor
+  //
 
   Future<Flavor> newFlavor(String input) async {
     final result = await post('players/flavor', {'input': input});
@@ -160,6 +176,10 @@ class Api {
     return Flavor.fromJson(result);
   }
 
+  //
+  // Action
+  //
+
   Future<PlayerAction> newAction(String input) async {
     final result = await post('players/actions', {'input': input});
     return PlayerAction.fromJson(result);
@@ -174,6 +194,10 @@ class Api {
     await post('players/actions/commit', {});
   }
 
+  //
+  // List / Information
+  //
+
   Future<Map<String, dynamic>> listPlayers(String regionCode) async {
     return get('regions/$regionCode/players');
   }
@@ -187,6 +211,10 @@ class Api {
     return result['state'];
   }
 
+  //
+  // Release / Override
+  //
+
   Future<void> releasePlayer() async {
     await post('players/release', {});
   }
@@ -194,6 +222,10 @@ class Api {
   Future<void> overridePlayer(String playerId) async {
     await post('players/$playerId/override', {});
   }
+
+  //
+  // Key
+  //
 
   Future<void> login(String username, String password) async {
     await post('key/login', {'username': username, 'password': password});

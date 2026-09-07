@@ -26,19 +26,20 @@ func AddSession(userID int, keyHash []byte) error {
 }
 
 type User struct {
-	ID      int
-	Name    *string
-	AICalls int
+	ID       int
+	Name     *string
+	PassHash *string
+	AICalls  int
 }
 
 func LoadUser(keyHash []byte) (User, error) {
 	var user User
 	err := db.QueryRow(context.Background(), `
-		SELECT s.user_id, u.name, u.ai_calls
+		SELECT s.user_id, u.name, u.pass_hash, u.ai_calls
 		FROM sessions AS s
 		JOIN users AS u ON u.id = s.user_id
 		WHERE s.key_hash = $1 AND s.revoked_at IS NULL
-	`, keyHash).Scan(&user.ID, &user.Name, &user.AICalls)
+	`, keyHash).Scan(&user.ID, &user.Name, &user.PassHash, &user.AICalls)
 	if err != nil {
 		return User{}, err
 	}
@@ -54,35 +55,34 @@ func IncrementAICalls(userID int) error {
 	return err
 }
 
-func CreateKey(userID int, username string, passwordHash string) error {
+func CreateKey(userID int, username string, passHash string) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE users
 		SET name = $2, pass_hash = $3
 		WHERE id = $1 AND name IS NULL
-	`, userID, username, passwordHash)
+	`, userID, username, passHash)
 	return err
 }
 
-func LoadUserByName(username string) (User, string, error) {
+func LoadUserByName(username string) (User, error) {
 	var user User
-	var passwordHash string
 	err := db.QueryRow(context.Background(), `
 		SELECT id, name, pass_hash, ai_calls
 		FROM users
 		WHERE name = $1
-	`, username).Scan(&user.ID, &user.Name, &passwordHash, &user.AICalls)
+	`, username).Scan(&user.ID, &user.Name, &user.PassHash, &user.AICalls)
 	if err != nil {
-		return User{}, "", err
+		return User{}, err
 	}
-	return user, passwordHash, nil
+	return user, nil
 }
 
-func ChangePassword(userID int, passwordHash string) error {
+func ChangePassword(userID int, passHash string) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE users
 		SET pass_hash = $2
 		WHERE id = $1
-	`, userID, passwordHash)
+	`, userID, passHash)
 	return err
 }
 
