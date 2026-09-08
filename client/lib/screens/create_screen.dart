@@ -70,9 +70,6 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _createImage() async {
-    if (widget.state.restAiCalls < 1) {
-      return;
-    }
     setState(() {
       _imageLoading = true;
       _imageErrorMessage = null;
@@ -95,9 +92,6 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   Future<void> _createFlavor() async {
-    if (widget.state.restAiCalls < 1) {
-      return;
-    }
     setState(() {
       _flavorLoading = true;
       _flavorErrorMessage = null;
@@ -158,7 +152,7 @@ class _CreateScreenState extends State<CreateScreen> {
               height: double.infinity,
               child: Image(
                 image: AssetImage(
-                  widget.state.committed
+                  widget.state.night
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),

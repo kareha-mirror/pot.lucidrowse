@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               height: double.infinity,
               child: Image(
                 image: AssetImage(
-                  widget.state.committed
+                  widget.state.night
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),
@@ -84,11 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: .center,
                   children: [
-                    if (!widget.state.committed && widget.state.updatable)
+                    if (!widget.state.night && widget.state.updatable)
                       const SizedBox(height: 24),
-                    if (!widget.state.committed && widget.state.updatable)
+                    if (!widget.state.night && widget.state.updatable)
                       TranslucentPanel(child: const Text('何か変化はありましたか？')),
-                    if (!widget.state.committed && widget.state.updatable)
+                    if (!widget.state.night && widget.state.updatable)
                       const SizedBox(height: 24),
 
                     ElevatedButton(
@@ -96,8 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: const Text('まどろみの水晶球'),
                     ),
 
-                    if (widget.state.committed) const SizedBox(height: 48),
-                    if (widget.state.committed)
+                    if (widget.state.night) const SizedBox(height: 48),
+                    if (widget.state.night)
                       TranslucentPanel(child: const Text('また明日。')),
 
                     const SizedBox(height: 48),

@@ -132,7 +132,7 @@ class _ReadScreenState extends State<ReadScreen> {
               height: double.infinity,
               child: Image(
                 image: AssetImage(
-                  widget.state.committed
+                  widget.state.night
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),

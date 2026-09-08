@@ -153,6 +153,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               TranslucentPanel(
                 child: OutlinedButton(
                   onPressed: () async {
+                    await api.ensureSession();
                     await api.overridePlayer(player['player-id']);
 
                     widget.state.clear();
@@ -194,7 +195,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 height: double.infinity,
                 child: Image(
                   image: AssetImage(
-                    widget.state.committed
+                    widget.state.night
                         ? 'assets/images/night.webp'
                         : 'assets/images/home.webp',
                   ),

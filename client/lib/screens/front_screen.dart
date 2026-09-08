@@ -29,6 +29,7 @@ class _FrontScreenState extends State<FrontScreen> {
 
     precacheImage(const AssetImage('assets/images/home.webp'), context);
     precacheImage(const AssetImage('assets/images/night.webp'), context);
+    precacheImage(const AssetImage('assets/images/key.webp'), context);
     precacheImage(const AssetImage('assets/images/help.webp'), context);
     precacheImage(const AssetImage('assets/images/debug.webp'), context);
   }

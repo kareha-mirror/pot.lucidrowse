@@ -62,6 +62,8 @@ class AppState {
   bool get inhabitant => player?.flavor != null;
   bool get committed => player?.action != null;
 
+  bool get night => committed || restAiCalls < 1;
+
   void incrementAiCalls() {
     user.aiCalls++;
   }

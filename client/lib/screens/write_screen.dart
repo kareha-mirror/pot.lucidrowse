@@ -74,9 +74,6 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _loadImage() async {
-    if (widget.state.restAiCalls < 1) {
-      return;
-    }
     setState(() {
       _imageLoading = true;
       _imageErrorMessage = null;
@@ -99,9 +96,6 @@ class _WriteScreenState extends State<WriteScreen> {
   }
 
   Future<void> _loadAction() async {
-    if (widget.state.restAiCalls < 1) {
-      return;
-    }
     setState(() {
       _actionLoading = true;
       _actionErrorMessage = null;
@@ -157,7 +151,7 @@ class _WriteScreenState extends State<WriteScreen> {
               height: double.infinity,
               child: Image(
                 image: AssetImage(
-                  widget.state.committed
+                  widget.state.night
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),
