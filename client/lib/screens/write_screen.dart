@@ -177,18 +177,20 @@ class _WriteScreenState extends State<WriteScreen> {
                           ),
                         ),
 
-                      const SizedBox(height: 24),
+                      if (!widget.state.committed) const SizedBox(height: 24),
 
-                      TranslucentPanel(child: const Text('日記に書いてみよう。')),
+                      if (!widget.state.committed)
+                        TranslucentPanel(child: const Text('日記に書いてみよう。')),
 
-                      const SizedBox(height: 24),
+                      if (!widget.state.committed) const SizedBox(height: 24),
 
-                      TranslucentPanel(child: const Text('今日は何をして過ごしましたか？')),
+                      if (!widget.state.committed)
+                        TranslucentPanel(child: const Text('今日は何をして過ごしましたか？')),
                     ],
 
                     const SizedBox(height: 24),
 
-                    if (widget.state.inhabitant)
+                    if (widget.state.inhabitant && !widget.state.committed)
                       Padding(
                         padding: EdgeInsets.all(
                           MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
@@ -308,7 +310,7 @@ class _WriteScreenState extends State<WriteScreen> {
                                   '/home',
                                 );
                               },
-                        child: const Text('これでよし'),
+                        child: const Text('これでよし、確定'),
                       ),
                     ],
 
@@ -321,7 +323,9 @@ class _WriteScreenState extends State<WriteScreen> {
                               context,
                               '/home',
                             ),
-                      child: const Text('ペンを置く'),
+                      child: widget.state.committed
+                          ? const Text('ペンを置く')
+                          : const Text('書かずにペンを置く'),
                     ),
 
                     const SizedBox(height: 96),

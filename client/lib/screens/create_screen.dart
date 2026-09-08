@@ -310,7 +310,10 @@ class _CreateScreenState extends State<CreateScreen> {
                       const SizedBox(height: 48),
 
                       ElevatedButton(
-                        onPressed: (_flavorLoading || _imageLoading)
+                        onPressed:
+                            (_flavorLoading ||
+                                _imageLoading ||
+                                _inputController.text == '')
                             ? null
                             : () async {
                                 await _commit();
@@ -322,7 +325,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                   '/home',
                                 );
                               },
-                        child: const Text('これでよし'),
+                        child: const Text('これでよし、確定'),
                       ),
                     ],
 
@@ -335,7 +338,9 @@ class _CreateScreenState extends State<CreateScreen> {
                               context,
                               '/home',
                             ),
-                      child: Text('目をそらす'),
+                      child: _inputController.text == ''
+                          ? Text('目をそらす')
+                          : Text('決めずに目をそらす'),
                     ),
 
                     const SizedBox(height: 96),
