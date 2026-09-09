@@ -19,16 +19,7 @@ class ApiException implements Exception {
 }
 
 class Api {
-  Future<Map<String, dynamic>> get(String path) async {
-    late http.Response response;
-
-    try {
-      response = await http.get(Uri.parse('$apiBase/$path'));
-    } catch (e) {
-      apiState.value = ApiState.disconnected;
-      rethrow;
-    }
-
+  Map<String, dynamic> _checkError(http.Response response) {
     if (response.statusCode == 502) {
       apiState.value = ApiState.disconnected;
     } else if (response.statusCode == 401) {
@@ -52,6 +43,19 @@ class Api {
     return body;
   }
 
+  Future<Map<String, dynamic>> get(String path) async {
+    late http.Response response;
+
+    try {
+      response = await http.get(Uri.parse('$apiBase/$path'));
+    } catch (e) {
+      apiState.value = ApiState.disconnected;
+      rethrow;
+    }
+
+    return _checkError(response);
+  }
+
   Future<Map<String, dynamic>> post(
     String path,
     Map<String, dynamic> req,
@@ -69,27 +73,7 @@ class Api {
       rethrow;
     }
 
-    if (response.statusCode == 502) {
-      apiState.value = ApiState.disconnected;
-    } else if (response.statusCode == 401) {
-      apiState.value = ApiState.unauthorized;
-    } else if (response.statusCode != 200) {
-      apiState.value = ApiState.serverError;
-    }
-
-    final Map<String, dynamic> body;
-    try {
-      body = jsonDecode(response.body);
-    } catch (e) {
-      throw ApiException(response.statusCode, '何かおかしいです。');
-    }
-
-    if (response.statusCode != 200) {
-      throw ApiException(response.statusCode, body['error'] ?? '何かおかしいです。');
-    }
-
-    apiState.value = ApiState.connected;
-    return body;
+    return _checkError(response);
   }
 
   //
