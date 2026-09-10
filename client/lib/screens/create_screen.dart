@@ -290,7 +290,28 @@ class _CreateScreenState extends State<CreateScreen> {
                             constraints: const BoxConstraints(maxWidth: 300),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.network(imageUrl(_flavor.imageId!)),
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Image.network(
+                                  imageUrl(_flavor.imageId!),
+                                  frameBuilder:
+                                      (
+                                        context,
+                                        child,
+                                        frame,
+                                        wasSynchronouslyLoaded,
+                                      ) {
+                                        if (wasSynchronouslyLoaded ||
+                                            frame != null) {
+                                          return child;
+                                        }
+
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      },
+                                ),
+                              ),
                             ),
                           ),
                         ),

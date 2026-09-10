@@ -106,7 +106,20 @@ class _ReadScreenState extends State<ReadScreen> {
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(imageUrl(action['image-id'])),
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Image.network(
+                  imageUrl(action['image-id']),
+                  frameBuilder:
+                      (context, child, frame, wasSynchronouslyLoaded) {
+                        if (wasSynchronouslyLoaded || frame != null) {
+                          return child;
+                        }
+
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                ),
+              ),
             ),
           ),
         );

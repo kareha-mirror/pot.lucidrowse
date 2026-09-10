@@ -127,7 +127,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
             constraints: const BoxConstraints(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(imageUrl(player['image-id'])),
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Image.network(
+                  imageUrl(player['image-id']),
+                  frameBuilder:
+                      (context, child, frame, wasSynchronouslyLoaded) {
+                        if (wasSynchronouslyLoaded || frame != null) {
+                          return child;
+                        }
+
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                ),
+              ),
             ),
           ),
         );
