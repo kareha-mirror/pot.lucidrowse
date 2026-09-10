@@ -107,6 +107,18 @@ List<Widget> _helpHome = [
       ],
     ),
   ),
+
+  const SizedBox(height: 48),
+
+  TranslucentPanel(
+    child: Column(
+      children: [
+        const Text('1日の日記の中で移動できるのは、1日で往復できる範囲だけだから、地域を越えて移動することはできないよ。'),
+        const Text('数日間日記を書くと、もう一度水晶球に念じることができる。'),
+        const Text('そこで別の地域に引っ越すこともできるよ。'),
+      ],
+    ),
+  ),
 ];
 
 List<Widget> _helpKey = [
