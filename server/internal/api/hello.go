@@ -25,5 +25,6 @@ func (api *API) hello(w http.ResponseWriter, r *http.Request) {
 	messageIndex++
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }

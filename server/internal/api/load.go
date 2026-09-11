@@ -35,6 +35,7 @@ func (api *API) loadState(w http.ResponseWriter, r *http.Request) {
 		Day:            day,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -57,6 +58,7 @@ func (api *API) loadUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -107,5 +109,6 @@ func (api *API) loadPlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }

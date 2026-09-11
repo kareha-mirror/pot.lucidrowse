@@ -130,5 +130,6 @@ func (api *API) imageFlavor(w http.ResponseWriter, r *http.Request) {
 		ImageID: imagePubID,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }

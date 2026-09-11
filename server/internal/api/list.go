@@ -31,6 +31,7 @@ func (api *API) listPlayers(w http.ResponseWriter, r *http.Request) {
 		Players: players,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -56,6 +57,7 @@ func (api *API) listActions(w http.ResponseWriter, r *http.Request) {
 		Actions: actions,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -105,5 +107,6 @@ loop:
 		Topics:       topics,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(res)
 }

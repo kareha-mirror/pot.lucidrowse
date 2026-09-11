@@ -11,6 +11,7 @@ type ErrorResponse struct {
 
 func writeError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(ErrorResponse{
 		Error: message,
