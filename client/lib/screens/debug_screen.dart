@@ -94,7 +94,7 @@ class _DebugScreenState extends State<DebugScreen> {
               height: double.infinity,
               child: const Image(
                 image: AssetImage('assets/images/debug.webp'),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 
@@ -128,7 +128,7 @@ class _DebugScreenState extends State<DebugScreen> {
                       TranslucentPanel(
                         child: Text(
                           _nextDayErrorMessage!,
-                          style: TextStyle(
+                          style: .new(
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),
@@ -161,7 +161,7 @@ class _DebugScreenState extends State<DebugScreen> {
                       TranslucentPanel(
                         child: Text(
                           _helloErrorMessage!,
-                          style: TextStyle(
+                          style: .new(
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),
@@ -169,7 +169,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
                     const SizedBox(height: 48),
 
-                    helpButton(context, HelpPage.debug),
+                    helpButton(context, .debug),
 
                     const SizedBox(height: 96),
 

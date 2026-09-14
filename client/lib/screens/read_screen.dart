@@ -28,7 +28,7 @@ class _ReadScreenState extends State<ReadScreen> {
   void initState() {
     super.initState();
 
-    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+    _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
   }
 
   @override
@@ -103,7 +103,7 @@ class _ReadScreenState extends State<ReadScreen> {
       if (action['image-id'] != null) {
         list.add(
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 300),
+            constraints: const .new(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
@@ -149,7 +149,7 @@ class _ReadScreenState extends State<ReadScreen> {
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 
@@ -164,7 +164,7 @@ class _ReadScreenState extends State<ReadScreen> {
                       TranslucentPanel(
                         child: Text(
                           _actionsErrorMessage!,
-                          style: TextStyle(
+                          style: .new(
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),

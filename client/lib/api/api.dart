@@ -21,11 +21,11 @@ class ApiException implements Exception {
 class Api {
   Map<String, dynamic> _checkError(http.Response response) {
     if (response.statusCode == 502) {
-      apiState.value = ApiState.disconnected;
+      apiState.value = .disconnected;
     } else if (response.statusCode == 401) {
-      apiState.value = ApiState.unauthorized;
+      apiState.value = .unauthorized;
     } else if (response.statusCode != 200) {
-      apiState.value = ApiState.serverError;
+      apiState.value = .serverError;
     }
 
     final Map<String, dynamic> body;
@@ -39,7 +39,7 @@ class Api {
       throw ApiException(response.statusCode, body['error'] ?? '何かおかしいです。');
     }
 
-    apiState.value = ApiState.connected;
+    apiState.value = .connected;
     return body;
   }
 
@@ -49,7 +49,7 @@ class Api {
     try {
       response = await http.get(Uri.parse('$apiBase/$path'));
     } catch (e) {
-      apiState.value = ApiState.disconnected;
+      apiState.value = .disconnected;
       rethrow;
     }
 
@@ -69,7 +69,7 @@ class Api {
         body: jsonEncode(req),
       );
     } catch (e) {
-      apiState.value = ApiState.disconnected;
+      apiState.value = .disconnected;
       rethrow;
     }
 
@@ -100,7 +100,7 @@ class Api {
 
   Future<User> loadUser() async {
     final result = await get('users');
-    return User.fromJson(result);
+    return .fromJson(result);
   }
 
   Future<Player?> loadPlayer() async {
@@ -143,7 +143,7 @@ class Api {
 
   Future<Flavor> newFlavor(String input) async {
     final result = await post('players/flavor', {'input': input});
-    return Flavor.fromJson(result);
+    return .fromJson(result);
   }
 
   Future<String> imageFlavor() async {
@@ -157,7 +157,7 @@ class Api {
 
   Future<Flavor> updateFlavor(String input) async {
     final result = await post('players/flavor/update', {'input': input});
-    return Flavor.fromJson(result);
+    return .fromJson(result);
   }
 
   //
@@ -166,7 +166,7 @@ class Api {
 
   Future<PlayerAction> newAction(String input) async {
     final result = await post('players/actions', {'input': input});
-    return PlayerAction.fromJson(result);
+    return .fromJson(result);
   }
 
   Future<String> imageAction() async {

@@ -27,7 +27,7 @@ class RegionCard extends StatelessWidget {
     return Column(
       children: [
         Card(
-          clipBehavior: Clip.antiAlias,
+          clipBehavior: .antiAlias,
           child: InkWell(
             onTap: onTap,
             child: Row(
@@ -36,14 +36,14 @@ class RegionCard extends StatelessWidget {
                   region.thumbnailPath,
                   width: MediaQuery.sizeOf(context).width < 600 ? 150 : 300,
                   height: MediaQuery.sizeOf(context).width < 600 ? 75 : 150,
-                  fit: BoxFit.cover,
+                  fit: .cover,
                 ),
 
                 const SizedBox(width: 16),
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
                       Text(
                         region.name,

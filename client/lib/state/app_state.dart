@@ -10,7 +10,7 @@ class AppState {
   int pointsToUpdate = 65535;
   int? day;
 
-  User user = User();
+  User user = .new();
   Player? player;
 
   bool debug = false;

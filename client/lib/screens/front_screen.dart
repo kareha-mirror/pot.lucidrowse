@@ -71,7 +71,7 @@ class _FrontScreenState extends State<FrontScreen> {
               height: double.infinity,
               child: const Image(
                 image: AssetImage('assets/images/front.webp'),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 
@@ -81,7 +81,7 @@ class _FrontScreenState extends State<FrontScreen> {
                   MediaQuery.sizeOf(context).width < 600 ? 12 : 48,
                 ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
+                  constraints: const .new(maxWidth: 480),
                   child: Column(
                     children: [
                       Image(image: AssetImage('assets/images/logo.webp')),
@@ -109,7 +109,7 @@ class _FrontScreenState extends State<FrontScreen> {
 
                   const SizedBox(height: 32),
 
-                  helpButton(context, HelpPage.front),
+                  helpButton(context, .front),
                 ],
               ),
             ),

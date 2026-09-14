@@ -20,7 +20,7 @@ class WriteScreen extends StatefulWidget {
 class _WriteScreenState extends State<WriteScreen> {
   Timer? _syncTimer;
 
-  PlayerAction _action = PlayerAction();
+  PlayerAction _action = .new();
 
   late TextEditingController _inputController;
   String? _actionErrorMessage;
@@ -33,10 +33,10 @@ class _WriteScreenState extends State<WriteScreen> {
   void initState() {
     super.initState();
 
-    _inputController = TextEditingController();
-    _outputController = TextEditingController();
+    _inputController = .new();
+    _outputController = .new();
 
-    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+    _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
   }
 
   @override
@@ -64,7 +64,7 @@ class _WriteScreenState extends State<WriteScreen> {
     }
 
     if (widget.state.action != null) {
-      _action = PlayerAction();
+      _action = .new();
       _action.description = widget.state.action!.description;
       _action.imageId = widget.state.action!.imageId;
       _outputController.text = _action.description;
@@ -155,7 +155,7 @@ class _WriteScreenState extends State<WriteScreen> {
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 
@@ -198,7 +198,7 @@ class _WriteScreenState extends State<WriteScreen> {
                         child: TranslucentPanel(
                           child: TextField(
                             controller: _inputController,
-                            decoration: const InputDecoration(
+                            decoration: const .new(
                               hintText: '(今日、何をしたか書いてみよう。)',
                             ),
                             onChanged: (String value) => setState(() {}),
@@ -232,7 +232,7 @@ class _WriteScreenState extends State<WriteScreen> {
                       TranslucentPanel(
                         child: Text(
                           _actionErrorMessage!,
-                          style: TextStyle(
+                          style: .new(
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),
@@ -272,7 +272,7 @@ class _WriteScreenState extends State<WriteScreen> {
                       else if (_action.imageId != null)
                         Center(
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 300),
+                            constraints: const .new(maxWidth: 300),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: AspectRatio(

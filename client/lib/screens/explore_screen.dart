@@ -35,9 +35,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void initState() {
     super.initState();
 
-    _stateController = TextEditingController();
+    _stateController = .new();
 
-    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+    _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
   }
 
   @override
@@ -124,7 +124,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       if (player['image-id'] != null) {
         list.add(
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 300),
+            constraints: const .new(maxWidth: 300),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
@@ -212,7 +212,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         ? 'assets/images/night.webp'
                         : 'assets/images/home.webp',
                   ),
-                  fit: BoxFit.cover,
+                  fit: .cover,
                 ),
               )
             else
@@ -221,7 +221,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 height: double.infinity,
                 child: Image(
                   image: AssetImage(regions[regionIndex].imagePath),
-                  fit: BoxFit.cover,
+                  fit: .cover,
                 ),
               ),
 
@@ -251,7 +251,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 : 24,
                           ),
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 600),
+                            constraints: const .new(maxWidth: 600),
                             child: RegionCard(
                               region: regions[index],
                               playerCount: _playerCounts[regions[index].code],
@@ -297,7 +297,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         TranslucentPanel(
                           child: Text(
                             _playersErrorMessage!,
-                            style: TextStyle(
+                            style: .new(
                               color: Theme.of(context).colorScheme.error,
                             ),
                           ),
@@ -328,7 +328,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         TranslucentPanel(
                           child: Text(
                             _stateErrorMessage!,
-                            style: TextStyle(
+                            style: .new(
                               color: Theme.of(context).colorScheme.error,
                             ),
                           ),

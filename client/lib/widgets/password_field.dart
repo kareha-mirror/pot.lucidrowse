@@ -26,8 +26,8 @@ class _PasswordFieldState extends State<PasswordField> {
       obscureText: _obscure,
       autocorrect: false,
       enableSuggestions: false,
-      keyboardType: TextInputType.visiblePassword,
-      decoration: InputDecoration(
+      keyboardType: .visiblePassword,
+      decoration: .new(
         hintText: widget.hintText,
         suffixIcon: IconButton(
           icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),

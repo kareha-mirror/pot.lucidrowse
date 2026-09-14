@@ -159,13 +159,13 @@ List<Widget> _helpDebug = [
 class _HelpScreenState extends State<HelpScreen> {
   List<Widget> _helpWidgets(HelpPage page) {
     switch (page) {
-      case HelpPage.front:
+      case .front:
         return _helpFront;
-      case HelpPage.home:
+      case .home:
         return _helpHome;
-      case HelpPage.key:
+      case .key:
         return _helpKey;
-      case HelpPage.debug:
+      case .debug:
         return _helpDebug;
     }
   }
@@ -187,7 +187,7 @@ class _HelpScreenState extends State<HelpScreen> {
               height: double.infinity,
               child: const Image(
                 image: AssetImage('assets/images/help.webp'),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 

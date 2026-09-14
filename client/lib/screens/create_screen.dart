@@ -22,7 +22,7 @@ class _CreateScreenState extends State<CreateScreen> {
   late TextEditingController _inputController;
   late TextEditingController _outputController;
 
-  Flavor _flavor = Flavor();
+  Flavor _flavor = .new();
   bool _flavorLoading = false;
   bool _imageLoading = false;
   String? _flavorErrorMessage;
@@ -32,10 +32,10 @@ class _CreateScreenState extends State<CreateScreen> {
   void initState() {
     super.initState();
 
-    _inputController = TextEditingController();
-    _outputController = TextEditingController();
+    _inputController = .new();
+    _outputController = .new();
 
-    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+    _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
   }
 
   @override
@@ -63,7 +63,7 @@ class _CreateScreenState extends State<CreateScreen> {
     }
 
     if (widget.state.flavor != null) {
-      _flavor = Flavor.copy(widget.state.flavor!);
+      _flavor = .copy(widget.state.flavor!);
       _outputController.text = _flavor.formatText();
       setState(() {});
     }
@@ -156,7 +156,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 
@@ -213,7 +213,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         child: TranslucentPanel(
                           child: TextField(
                             controller: _inputController,
-                            decoration: InputDecoration(
+                            decoration: .new(
                               hintText: !widget.state.inhabitant
                                   ? '(どんな存在になりたいか、ここに念じよう。)'
                                   : '(どんな変化があったか、ここに念じよう。)',
@@ -247,7 +247,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       TranslucentPanel(
                         child: Text(
                           _flavorErrorMessage!,
-                          style: TextStyle(
+                          style: .new(
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),
@@ -287,7 +287,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       else if (_flavor.imageId != null)
                         Center(
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 300),
+                            constraints: const .new(maxWidth: 300),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: AspectRatio(
@@ -322,7 +322,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         TranslucentPanel(
                           child: Text(
                             _imageErrorMessage!,
-                            style: TextStyle(
+                            style: .new(
                               color: Theme.of(context).colorScheme.error,
                             ),
                           ),

@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    _syncTimer = Timer.periodic(const Duration(hours: 1), (_) => _sync());
+    _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
   }
 
   @override
@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? 'assets/images/night.webp'
                       : 'assets/images/home.webp',
                 ),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 

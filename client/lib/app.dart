@@ -14,11 +14,11 @@ import 'package:client/widgets/translucent_panel.dart';
 
 IconData? apiStateIconData() {
   switch (apiState.value) {
-    case ApiState.disconnected:
+    case .disconnected:
       return Icons.cloud_off;
-    case ApiState.unauthorized:
+    case .unauthorized:
       return Icons.lock_outline;
-    case ApiState.serverError:
+    case .serverError:
       return Icons.error_outline;
     default:
       return null;
@@ -36,18 +36,12 @@ class App extends StatelessWidget {
       title: appTitle,
 
       theme: ThemeData(
-        colorScheme: .fromSeed(
-          seedColor: Colors.purple,
-          brightness: Brightness.light,
-        ),
+        colorScheme: .fromSeed(seedColor: Colors.purple, brightness: .light),
       ),
       darkTheme: ThemeData(
-        colorScheme: .fromSeed(
-          seedColor: Colors.purple,
-          brightness: Brightness.dark,
-        ),
+        colorScheme: .fromSeed(seedColor: Colors.purple, brightness: .dark),
       ),
-      themeMode: ThemeMode.system,
+      themeMode: .system,
 
       routes: {
         '/': (context) => FrontScreen(state: state),
@@ -70,7 +64,7 @@ class App extends StatelessWidget {
             ValueListenableBuilder(
               valueListenable: apiState,
               builder: (context, state, _) {
-                if (state == ApiState.connected) {
+                if (state == .connected) {
                   return const SizedBox.shrink();
                 }
 

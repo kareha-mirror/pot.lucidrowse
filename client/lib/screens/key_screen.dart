@@ -18,7 +18,7 @@ class KeyScreen extends StatefulWidget {
 enum Menu { top, login, createKey, changePassword }
 
 class _KeyScreenState extends State<KeyScreen> {
-  Menu _menu = Menu.top;
+  Menu _menu = .top;
 
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
@@ -29,10 +29,10 @@ class _KeyScreenState extends State<KeyScreen> {
   void initState() {
     super.initState();
 
-    _usernameController = TextEditingController();
-    _passwordController = TextEditingController();
-    _newPasswordController = TextEditingController();
-    _confirmController = TextEditingController();
+    _usernameController = .new();
+    _passwordController = .new();
+    _newPasswordController = .new();
+    _confirmController = .new();
   }
 
   @override
@@ -68,13 +68,13 @@ class _KeyScreenState extends State<KeyScreen> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('元の夢に帰って来ました。')));
+      ).showSnackBar(const .new(content: Text('元の夢に帰って来ました。')));
 
       Navigator.pushNamed(context, '/');
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ).showSnackBar(.new(content: Text(e.toString())));
     }
   }
 
@@ -82,7 +82,7 @@ class _KeyScreenState extends State<KeyScreen> {
     if (_newPasswordController.text != _confirmController.text) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('確認の合い言葉が一致しません。')));
+      ).showSnackBar(const .new(content: Text('確認の合い言葉が一致しません。')));
       return;
     }
     try {
@@ -98,13 +98,13 @@ class _KeyScreenState extends State<KeyScreen> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('秘密の鍵を作りました。')));
+      ).showSnackBar(const .new(content: Text('秘密の鍵を作りました。')));
 
       Navigator.pushNamed(context, '/');
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ).showSnackBar(.new(content: Text(e.toString())));
     }
   }
 
@@ -112,7 +112,7 @@ class _KeyScreenState extends State<KeyScreen> {
     if (_newPasswordController.text != _confirmController.text) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('確認の合い言葉が一致しません。')));
+      ).showSnackBar(const .new(content: Text('確認の合い言葉が一致しません。')));
       return;
     }
     try {
@@ -125,13 +125,13 @@ class _KeyScreenState extends State<KeyScreen> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('合い言葉を変えました。')));
+      ).showSnackBar(const .new(content: Text('合い言葉を変えました。')));
 
       Navigator.pushNamed(context, '/');
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ).showSnackBar(.new(content: Text(e.toString())));
     }
   }
 
@@ -145,22 +145,22 @@ class _KeyScreenState extends State<KeyScreen> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('夢から覚めました。')));
+      ).showSnackBar(const .new(content: Text('夢から覚めました。')));
 
       Navigator.pushNamed(context, '/');
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ).showSnackBar(.new(content: Text(e.toString())));
     }
   }
 
   Widget _buildMenu() {
     return switch (_menu) {
-      Menu.top => _buildTop(),
-      Menu.login => _buildLogin(),
-      Menu.createKey => _buildCreateKey(),
-      Menu.changePassword => _buildChangePassword(),
+      .top => _buildTop(),
+      .login => _buildLogin(),
+      .createKey => _buildCreateKey(),
+      .changePassword => _buildChangePassword(),
     };
   }
 
@@ -172,20 +172,20 @@ class _KeyScreenState extends State<KeyScreen> {
             const SizedBox(height: 48),
 
             ElevatedButton(
-              onPressed: () => setState(() => _menu = Menu.login),
+              onPressed: () => setState(() => _menu = .login),
               child: const Text('持っている秘密の鍵を使う'),
             ),
 
             const SizedBox(height: 48),
 
             ElevatedButton(
-              onPressed: () => setState(() => _menu = Menu.createKey),
+              onPressed: () => setState(() => _menu = .createKey),
               child: const Text('新しい秘密の鍵を作る'),
             ),
 
             const SizedBox(height: 48),
 
-            helpButton(context, HelpPage.key),
+            helpButton(context, .key),
 
             const SizedBox(height: 96),
 
@@ -211,7 +211,7 @@ class _KeyScreenState extends State<KeyScreen> {
             const SizedBox(height: 48),
 
             ElevatedButton(
-              onPressed: () => setState(() => _menu = Menu.changePassword),
+              onPressed: () => setState(() => _menu = .changePassword),
               child: const Text('合い言葉を変える'),
             ),
 
@@ -221,7 +221,7 @@ class _KeyScreenState extends State<KeyScreen> {
 
             const SizedBox(height: 48),
 
-            helpButton(context, HelpPage.key),
+            helpButton(context, .key),
 
             const SizedBox(height: 96),
 
@@ -282,7 +282,7 @@ class _KeyScreenState extends State<KeyScreen> {
 
           const SizedBox(height: 48),
 
-          helpButton(context, HelpPage.key),
+          helpButton(context, .key),
 
           const SizedBox(height: 96),
 
@@ -355,7 +355,7 @@ class _KeyScreenState extends State<KeyScreen> {
 
           const SizedBox(height: 48),
 
-          helpButton(context, HelpPage.key),
+          helpButton(context, .key),
 
           const SizedBox(height: 96),
 
@@ -433,7 +433,7 @@ class _KeyScreenState extends State<KeyScreen> {
 
           const SizedBox(height: 48),
 
-          helpButton(context, HelpPage.key),
+          helpButton(context, .key),
 
           const SizedBox(height: 96),
 
@@ -465,7 +465,7 @@ class _KeyScreenState extends State<KeyScreen> {
               height: double.infinity,
               child: const Image(
                 image: AssetImage('assets/images/key.webp'),
-                fit: BoxFit.cover,
+                fit: .cover,
               ),
             ),
 
