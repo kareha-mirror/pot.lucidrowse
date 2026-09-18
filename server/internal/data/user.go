@@ -55,6 +55,15 @@ func IncrementAICalls(userID int) error {
 	return err
 }
 
+func ClearAICalls(userID int) error {
+	_, err := db.Exec(context.Background(), `
+		UPDATE users
+		SET ai_calls = 0
+		WHERE id = $1
+	`, userID)
+	return err
+}
+
 func CreateKey(userID int, username string, passHash string) error {
 	_, err := db.Exec(context.Background(), `
 		UPDATE users

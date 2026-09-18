@@ -94,16 +94,6 @@ func (api *API) newAction(w http.ResponseWriter, r *http.Request) {
 			)
 			return
 		}
-
-		if err = data.IncrementPlayerPoints(player.ID); err != nil {
-			log.Println(err)
-			writeError(
-				w,
-				http.StatusInternalServerError,
-				"書いた数を数えられません。",
-			)
-			return
-		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
