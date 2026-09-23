@@ -7,7 +7,7 @@ tasks:
       - go build ./cmd/server
   clean:
     cmds:
-      - go run ./cmd/rm server
+      - rm -f server
   test:
     cmds:
       - go test ./...
