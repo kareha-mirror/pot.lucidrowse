@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	_ "encoding/json"
+	"errors"
 )
 
 type PlayerItem struct {
@@ -76,7 +77,15 @@ type ActionItem struct {
 	ImagePubID  string `json:"image-id"`
 }
 
-func ActionList(playerPubID string) ([]ActionItem, error) {
+const actionsPerPage = 12
+
+func ActionList(playerPubID string, page int) ([]ActionItem, bool, error) {
+	if page < 1 {
+		return nil, false, errors.New("invalid page")
+	}
+
+	offset := (page - 1) * actionsPerPage
+
 	rows, err := db.Query(context.Background(), `
 		SELECT a.day, a.description, a.image_pub_id
 		FROM actions AS a
@@ -84,9 +93,10 @@ func ActionList(playerPubID string) ([]ActionItem, error) {
 		JOIN players AS p ON p.id = f.player_id
 		WHERE p.pub_id = $1 AND a.fixed = TRUE
 		ORDER BY a.id DESC
-	`, playerPubID)
+		LIMIT $2 OFFSET $3
+	`, playerPubID, actionsPerPage+1, offset)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer rows.Close()
 
@@ -102,7 +112,7 @@ func ActionList(playerPubID string) ([]ActionItem, error) {
 			&item.ImagePubID,
 		)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 
 		date := NewDate(day)
@@ -112,10 +122,15 @@ func ActionList(playerPubID string) ([]ActionItem, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return list, nil
+	hasNext := len(list) > actionsPerPage
+	if hasNext {
+		list = list[:actionsPerPage]
+	}
+
+	return list, hasNext, nil
 }
 
 func PlayerCounts() (map[string]int, error) {

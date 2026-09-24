@@ -20,19 +20,28 @@ class ReadScreen extends StatefulWidget {
 class _ReadScreenState extends State<ReadScreen> {
   Timer? _syncTimer;
 
+  int _page = 1;
+  bool _hasNext = false;
+
   bool _initialized = false;
   String? _actionsErrorMessage;
   List<dynamic> _actions = [];
+
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
 
     _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
+
+    _scrollController = .new();
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
+
     _syncTimer?.cancel();
 
     super.dispose();
@@ -55,21 +64,24 @@ class _ReadScreenState extends State<ReadScreen> {
 
   Future<void> _loadActions() async {
     await _sync();
-    setState(() => _initialized = false);
+    setState(() => _actions = []);
     try {
       final Map<String, dynamic> result;
       if (widget.playerId == null) {
         if (widget.state.player == null) {
           return;
         }
-        result = await api.listActions(widget.state.player!.id);
+        result = await api.listActions(widget.state.player!.id, _page);
       } else {
-        result = await api.listActions(widget.playerId!);
+        result = await api.listActions(widget.playerId!, _page);
       }
 
       if (!mounted) return;
 
-      setState(() => _actions = result['actions'] ?? []);
+      setState(() {
+        _actions = result['actions'] ?? [];
+        _hasNext = result['has-next'] ?? false;
+      });
     } catch (e) {
       setState(() => _actionsErrorMessage = e.toString());
     } finally {
@@ -155,6 +167,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
             SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              controller: _scrollController,
               child: Center(
                 child: Column(
                   children: [
@@ -170,13 +183,45 @@ class _ReadScreenState extends State<ReadScreen> {
                         ),
                       ),
 
+                    if (_page > 1) SizedBox(height: 48),
+
+                    if (_page > 1)
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() => _page--);
+                          await _loadActions();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_scrollController.hasClients) {
+                              _scrollController.jumpTo(
+                                _scrollController.position.maxScrollExtent,
+                              );
+                            }
+                          });
+                        },
+                        child: const Text('もっと後を読む'),
+                      ),
+
+                    if (_page > 1) SizedBox(height: 48),
+
                     ..._actionList(),
+
+                    if (_hasNext) SizedBox(height: 48),
+
+                    if (_hasNext)
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() => _page++);
+                          _loadActions();
+                          _scrollController.jumpTo(0);
+                        },
+                        child: const Text('もっと前を読む'),
+                      ),
 
                     SizedBox(height: 96),
 
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text('閉じる'),
+                      child: const Text('閉じる'),
                     ),
 
                     SizedBox(height: 96),

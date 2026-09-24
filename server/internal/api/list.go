@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"tea.kareha.org/pot/lucidrowse/server/internal/data"
@@ -37,12 +38,28 @@ func (api *API) listPlayers(w http.ResponseWriter, r *http.Request) {
 
 type ListActionsResponse struct {
 	Actions []data.ActionItem `json:"actions"`
+	HasNext bool              `json:"has-next"`
 }
 
 func (api *API) listActions(w http.ResponseWriter, r *http.Request) {
 	playerPubID := r.PathValue("id")
 
-	actions, err := data.ActionList(playerPubID)
+	page := 1
+
+	if s := r.URL.Query().Get("page"); s != "" {
+		var err error
+		page, err = strconv.Atoi(s)
+		if err != nil || page < 1 {
+			writeError(
+				w,
+				http.StatusBadRequest,
+				"ページが変です。",
+			)
+			return
+		}
+	}
+
+	actions, hasNext, err := data.ActionList(playerPubID, page)
 	if err != nil {
 		log.Println(err)
 		writeError(
@@ -55,6 +72,7 @@ func (api *API) listActions(w http.ResponseWriter, r *http.Request) {
 
 	res := ListActionsResponse{
 		Actions: actions,
+		HasNext: hasNext,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
