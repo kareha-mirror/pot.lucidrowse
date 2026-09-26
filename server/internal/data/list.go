@@ -49,6 +49,7 @@ func PlayerList(regionCode string, page int) ([]PlayerItem, bool, error) {
 		    FROM actions AS a
 		    JOIN flavors AS af ON af.id = a.flavor_id
 		    WHERE af.player_id = p.id
+		      AND a.fixed = TRUE
 		  ), p.created_at)
 		) DESC,
 		p.id DESC
