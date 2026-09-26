@@ -209,10 +209,15 @@ class _ReadScreenState extends State<ReadScreen> {
 
                     if (_hasNext)
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           setState(() => _page++);
-                          _loadActions();
+                          await _loadActions();
                           _scrollController.jumpTo(0);
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_scrollController.hasClients) {
+                              _scrollController.jumpTo(0);
+                            }
+                          });
                         },
                         child: const Text('もっと前を読む'),
                       ),

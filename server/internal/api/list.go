@@ -12,12 +12,28 @@ import (
 
 type ListPlayersResponse struct {
 	Players []data.PlayerItem `json:"players"`
+	HasNext bool              `json:"has-next"`
 }
 
 func (api *API) listPlayers(w http.ResponseWriter, r *http.Request) {
 	regionCode := r.PathValue("code")
 
-	players, err := data.PlayerList(regionCode)
+	page := 1
+
+	if s := r.URL.Query().Get("page"); s != "" {
+		var err error
+		page, err = strconv.Atoi(s)
+		if err != nil || page < 1 {
+			writeError(
+				w,
+				http.StatusBadRequest,
+				"ページが変です。",
+			)
+			return
+		}
+	}
+
+	players, hasNext, err := data.PlayerList(regionCode, page)
 	if err != nil {
 		log.Println(err)
 		writeError(
@@ -30,6 +46,7 @@ func (api *API) listPlayers(w http.ResponseWriter, r *http.Request) {
 
 	res := ListPlayersResponse{
 		Players: players,
+		HasNext: hasNext,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")

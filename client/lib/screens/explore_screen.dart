@@ -21,6 +21,9 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   Timer? _syncTimer;
 
+  int _page = 1;
+  bool _hasNext = false;
+
   Map<String, dynamic> _playerCounts = {};
   Map<String, dynamic> _topics = {};
 
@@ -31,6 +34,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
   late TextEditingController _stateController;
   String? _stateErrorMessage;
 
+  late ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
@@ -38,10 +43,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
     _stateController = .new();
 
     _syncTimer = .periodic(const .new(hours: 1), (_) => _sync());
+
+    _scrollController = .new();
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
+
     _syncTimer?.cancel();
 
     _stateController.dispose();
@@ -104,11 +113,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
       });
 
       final region = regions[regionIndex];
-      final result = await api.listPlayers(region.code);
+      final result = await api.listPlayers(region.code, _page);
 
       if (!mounted) return;
 
-      setState(() => _players = result['players'] ?? []);
+      setState(() {
+        _players = result['players'] ?? [];
+        _hasNext = result['has-next'] ?? false;
+      });
     } catch (e) {
       setState(() => _playersErrorMessage = e.toString());
     } finally {
@@ -231,6 +243,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   horizontal: 8,
                   vertical: 16,
                 ),
+                controller: _scrollController,
                 child: Center(
                   child: Column(
                     children: [
@@ -303,10 +316,47 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           ),
                         ),
 
+                      if (_page > 1) SizedBox(height: 48),
+
+                      if (_page > 1)
+                        ElevatedButton(
+                          onPressed: () async {
+                            setState(() => _page--);
+                            await _loadPlayers();
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (_scrollController.hasClients) {
+                                _scrollController.jumpTo(
+                                  _scrollController.position.maxScrollExtent,
+                                );
+                              }
+                            });
+                          },
+                          child: const Text('前の住人たち'),
+                        ),
+
+                      if (_page > 1) SizedBox(height: 48),
+
                       if (_initialized && _players.isEmpty)
                         TranslucentPanel(child: const Text('まだ誰も住んでない。'))
                       else
                         ...playersList(),
+
+                      if (_hasNext) SizedBox(height: 48),
+
+                      if (_hasNext)
+                        ElevatedButton(
+                          onPressed: () async {
+                            setState(() => _page++);
+                            await _loadPlayers();
+                            _scrollController.jumpTo(0);
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (_scrollController.hasClients) {
+                                _scrollController.jumpTo(0);
+                              }
+                            });
+                          },
+                          child: const Text('住人たちをもっと見る'),
+                        ),
 
                       const SizedBox(height: 48),
 
@@ -337,7 +387,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       const SizedBox(height: 96),
 
                       ElevatedButton(
-                        onPressed: () => setState(() => regionIndex = -1),
+                        onPressed: () => setState(() {
+                          regionIndex = -1;
+                          _page = 1;
+                        }),
                         child: const Text('中を見直す'),
                       ),
 

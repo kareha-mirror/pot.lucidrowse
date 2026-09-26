@@ -18,14 +18,22 @@ type PlayerItem struct {
 	Free        bool   `json:"free"`
 }
 
-func PlayerList(regionCode string) ([]PlayerItem, error) {
+const playersPerPage = 12
+
+func PlayerList(regionCode string, page int) ([]PlayerItem, bool, error) {
+	if page < 1 {
+		return nil, false, errors.New("invalid page")
+	}
+
+	offset := (page - 1) * playersPerPage
+
 	rows, err := db.Query(context.Background(), `
 		SELECT p.pub_id, f.name, f.race, f.job, f.description,
 		  f.area_code, f.area_name, f.image_pub_id,
 		  p.user_id IS NULL AS free
 		FROM players AS p
 		JOIN LATERAL (
-		  SELECT name, race, job, description,
+		  SELECT id, name, race, job, description,
 		    area_code, area_name, image_pub_id
 		  FROM flavors
 		  WHERE player_id = p.id AND committed = TRUE
@@ -34,10 +42,19 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 		) AS f ON TRUE
 		WHERE p.activated = TRUE
 		  AND f.area_code LIKE $1 || '%'
-		ORDER BY p.id
-	`, regionCode)
+		ORDER BY GREATEST(
+		  p.created_at,
+		  COALESCE((
+		    SELECT MAX(a.created_at)
+		    FROM actions AS a
+		    WHERE a.flavor_id = f.id
+		  ), p.created_at)
+		) DESC,
+		p.id DESC
+		LIMIT $2 OFFSET $3
+	`, regionCode, playersPerPage+1, offset)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer rows.Close()
 
@@ -58,17 +75,22 @@ func PlayerList(regionCode string) ([]PlayerItem, error) {
 			&item.Free,
 		)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 
 		list = append(list, item)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return list, nil
+	hasNext := len(list) > playersPerPage
+	if hasNext {
+		list = list[:playersPerPage]
+	}
+
+	return list, hasNext, nil
 }
 
 type ActionItem struct {
