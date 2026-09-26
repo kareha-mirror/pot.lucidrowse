@@ -243,7 +243,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   horizontal: 8,
                   vertical: 16,
                 ),
-                controller: _scrollController,
                 child: Center(
                   child: Column(
                     children: [
@@ -295,6 +294,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   horizontal: 24,
                   vertical: 16,
                 ),
+                controller: _scrollController,
                 child: Center(
                   child: Column(
                     children: [
