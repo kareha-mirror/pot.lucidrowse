@@ -47,7 +47,8 @@ func PlayerList(regionCode string, page int) ([]PlayerItem, bool, error) {
 		  COALESCE((
 		    SELECT MAX(a.created_at)
 		    FROM actions AS a
-		    WHERE a.flavor_id = f.id
+		    JOIN flavors AS af ON af.id = a.flavor_id
+		    WHERE af.player_id = p.id
 		  ), p.created_at)
 		) DESC,
 		p.id DESC
