@@ -334,6 +334,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         onPressed:
                             (_flavorLoading ||
                                 _imageLoading ||
+                                _flavor.imageId == null ||
                                 _inputController.text == '')
                             ? null
                             : () async {

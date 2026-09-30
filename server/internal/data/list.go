@@ -7,15 +7,15 @@ import (
 )
 
 type PlayerItem struct {
-	PlayerPubID string `json:"player-id"`
-	Name        string `json:"name"`
-	Race        string `json:"race"`
-	Job         string `json:"job"`
-	Description string `json:"description"`
-	AreaCode    string `json:"area-code"`
-	AreaName    string `json:"area-name"`
-	ImagePubID  string `json:"image-id"`
-	Free        bool   `json:"free"`
+	PlayerPubID string  `json:"player-id"`
+	Name        string  `json:"name"`
+	Race        string  `json:"race"`
+	Job         string  `json:"job"`
+	Description string  `json:"description"`
+	AreaCode    string  `json:"area-code"`
+	AreaName    string  `json:"area-name"`
+	ImagePubID  *string `json:"image-id"`
+	Free        bool    `json:"free"`
 }
 
 const playersPerPage = 12

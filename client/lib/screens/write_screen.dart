@@ -319,6 +319,7 @@ class _WriteScreenState extends State<WriteScreen> {
                         onPressed:
                             (_actionLoading ||
                                 _imageLoading ||
+                                _action.imageId == null ||
                                 widget.state.committed)
                             ? null
                             : () async {
