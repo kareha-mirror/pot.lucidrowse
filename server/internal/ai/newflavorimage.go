@@ -40,7 +40,7 @@ func newFlavorImageWithOpenAI(
 	resp, err := client.Images.Generate(
 		context.Background(),
 		openai.ImageGenerateParams{
-			Model:        openai.ImageModelGPTImage1Mini,
+			Model:        openai.ImageModelGPTImage2_6Flare,
 			Size:         openai.ImageGenerateParamsSize1024x1024,
 			Quality:      openai.ImageGenerateParamsQualityLow,
 			OutputFormat: openai.ImageGenerateParamsOutputFormatWebP,

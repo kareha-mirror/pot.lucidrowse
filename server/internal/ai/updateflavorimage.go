@@ -41,7 +41,7 @@ func updateFlavorImageWithOpenAI(
 	resp, err := client.Images.Edit(
 		context.Background(),
 		openai.ImageEditParams{
-			Model:        openai.ImageModelGPTImage1Mini,
+			Model:        openai.ImageModelGPTImage2_6Flare,
 			Size:         openai.ImageEditParamsSize1024x1024,
 			Quality:      openai.ImageEditParamsQualityLow,
 			OutputFormat: openai.ImageEditParamsOutputFormatWebP,
